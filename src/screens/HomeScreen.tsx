@@ -12,10 +12,6 @@ const HomeScreen = () => {
         title="Go to Guided Screen"
         onPress={() => navigation.navigate('Guided')}
       />
-      <Button
-        title="Go to Tracing Screen"
-        onPress={() => navigation.navigate('Tracing')}
-      />
     </View>
   );
 };

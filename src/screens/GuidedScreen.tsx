@@ -127,6 +127,14 @@ const GuidedScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
+        <TouchableOpacity
+          style={styles.nextButton}
+          onPress={() => navigation.navigate('UnGuided')}>
+          <Image
+            source={require('../assets/icons/next.png')}
+            style={styles.nextButtonIcon}
+          />
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -189,6 +197,7 @@ const styles = StyleSheet.create({
   // },
   container: {
     flex: 1,
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 10,
@@ -224,6 +233,18 @@ const styles = StyleSheet.create({
   gridItemSubText: {
     fontSize: 16,
     color: 'white',
+  },
+  nextButton: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
+  },
+  nextButtonIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 

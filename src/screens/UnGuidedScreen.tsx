@@ -112,6 +112,14 @@ const UnGuidedScreen = () => {
       </View>
 
       <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Guided')}>
+          <Image
+            source={require('../assets/icons/back.png')}
+            style={styles.backButtonIcon}
+          />
+        </TouchableOpacity>
         <View style={styles.grid}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
@@ -127,14 +135,6 @@ const UnGuidedScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.navigate('Guided')}>
-          <Image
-            source={require('../assets/icons/back.png')}
-            style={styles.backButtonIcon}
-          />
-        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -200,6 +200,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 10,
+    flexDirection: 'row',
   },
   grid: {
     width: '35%',
@@ -228,10 +229,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     resizeMode: 'contain',
-  gridItemText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
   },
   gridItemSubText: {
     fontSize: 16,

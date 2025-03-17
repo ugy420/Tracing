@@ -3,4 +3,5 @@ export type RootStackParamList = {
   Guided: undefined;
   UnGuided: undefined;
   GuidedCategory: undefined;
+  Avatar: undefined;
 };

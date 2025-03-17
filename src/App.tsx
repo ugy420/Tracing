@@ -10,6 +10,7 @@ import HomeScreen from './screens/HomeScreen';
 import GuidedScreen from './screens/GuidedScreen';
 import UnGuidedScreen from './screens/UnGuidedScreen';
 import GuidedCategory from './screens/GuidedCategoryScreen';
+import AvatarScreen from './screens/AvatarScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,6 +36,11 @@ const App = () => {
         <Stack.Screen
           name="GuidedCategory"
           component={GuidedCategory}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Avatar"
+          component={AvatarScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

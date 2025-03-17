@@ -11,7 +11,7 @@ import {
 import {RootStackParamList} from '../types';
 
 type GridItem = {
-  text: string;
+  image: any;
   subText: string;
   background: any;
   screen: keyof RootStackParamList;
@@ -22,55 +22,55 @@ const UnGuidedScreen = () => {
 
   const gridItems: GridItem[] = [
     {
-      text: 'ཀ',
+      image: require('../assets/icons/animalIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཁ',
+      image: require('../assets/icons/familyIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ག',
+      image: require('../assets/icons/weatherIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ང',
+      image: require('../assets/icons/shapeIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཅ',
+      image: require('../assets/icons/clothingIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཆ',
+      image: require('../assets/icons/expressionIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཇ',
+      image: require('../assets/icons/sportsIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཉ',
+      image: require('../assets/icons/fruitsIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      text: 'ཏ',
+      image: require('../assets/icons/familyIcon.png'),
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
@@ -121,12 +121,20 @@ const UnGuidedScreen = () => {
               <ImageBackground
                 source={item.background}
                 style={styles.gridItemBackground}>
-                <Text style={styles.gridItemText}>{item.text}</Text>
+                <Image source={item.image} style={styles.gridItemImage} />
                 <Text style={styles.gridItemSubText}>{item.subText}</Text>
               </ImageBackground>
             </TouchableOpacity>
           ))}
         </View>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Guided')}>
+          <Image
+            source={require('../assets/icons/back.png')}
+            style={styles.backButtonIcon}
+          />
+        </TouchableOpacity>
       </View>
     </ImageBackground>
   );
@@ -216,6 +224,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  gridItemImage: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
   gridItemText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -224,6 +236,18 @@ const styles = StyleSheet.create({
   gridItemSubText: {
     fontSize: 16,
     color: 'white',
+  },
+  backButton: {
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 20,
+  },
+  backButtonIcon: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
   },
 });
 

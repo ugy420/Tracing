@@ -11,6 +11,7 @@ import GuidedScreen from './screens/GuidedScreen';
 import UnGuidedScreen from './screens/UnGuidedScreen';
 import GuidedCategory from './screens/GuidedCategoryScreen';
 import AvatarScreen from './screens/AvatarScreen';
+import Tracing from './screens/Tracing';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -41,6 +42,11 @@ const App = () => {
         <Stack.Screen
           name="Avatar"
           component={AvatarScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Tracing"
+          component={Tracing}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

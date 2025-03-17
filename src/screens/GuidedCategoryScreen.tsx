@@ -31,7 +31,7 @@ const GuidedCategory = () => {
   // }));
 
   const cardData: CardItem[] = [
-    {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Home'},
+    {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
     {id: '2', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Home'},
     {id: '3', text: 'ག', backgroundColor: CardBgColors[2], screen: 'Home'},
     {id: '4', text: 'ང', backgroundColor: CardBgColors[3], screen: 'Home'},

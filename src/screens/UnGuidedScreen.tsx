@@ -129,7 +129,7 @@ const UnGuidedScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate('UnGuided')}>
+          onPress={() => navigation.navigate('Guided')}>
           <Image
             source={require('../assets/icons/back.png')}
             style={styles.backButtonIcon}

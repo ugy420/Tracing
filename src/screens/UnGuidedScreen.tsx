@@ -228,6 +228,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     resizeMode: 'contain',
+  gridItemText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
   },
   gridItemSubText: {
     fontSize: 16,

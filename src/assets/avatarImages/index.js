@@ -1,0 +1,12 @@
+const avatarImages = {
+  avatar1: require('./a1.png'),
+  avatar2: require('./a2.png'),
+  avatar3: require('./a3.png'),
+  avatar4: require('./a4.png'),
+  avatar5: require('./a5.png'),
+  avatar6: require('./a6.png'),
+  avatar7: require('./a7.png'),
+  avatar8: require('./a8.png'),
+};
+
+export default avatarImages;

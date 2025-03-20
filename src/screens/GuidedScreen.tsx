@@ -97,10 +97,12 @@ const GuidedScreen = () => {
           </View> */}
 
           <View style={styles.iconContainer}>
-            <Image
-              source={require('../assets/icons/award.png')}
-              style={styles.icon}
-            />
+            <TouchableOpacity onPress={() => navigation.navigate('Avatar')}>
+              <Image
+                source={require('../assets/icons/award.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
           </View>
           <View style={styles.iconContainer}>
             <Image

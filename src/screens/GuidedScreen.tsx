@@ -106,10 +106,13 @@ const GuidedScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.iconContainer}>
-            <Image
-              source={require('../assets/icons/setting.png')}
-              style={styles.icon}
-            />
+            <TouchableOpacity
+              onPress={() => navigation.navigate('CompletionScreen')}>
+              <Image
+                source={require('../assets/icons/setting.png')}
+                style={styles.icon}
+              />
+            </TouchableOpacity>
           </View>
         </View>
       </View>

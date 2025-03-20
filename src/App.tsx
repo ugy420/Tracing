@@ -13,6 +13,7 @@ import GuidedCategory from './screens/GuidedCategoryScreen';
 import AvatarScreen from './screens/AvatarScreen';
 import Tracing from './screens/Tracing';
 import AchievementScreen from './screens/AchievementScreen';
+import CompletionScreen from './screens/CompletionScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -53,6 +54,11 @@ const App = () => {
         <Stack.Screen
           name="Achievement"
           component={AchievementScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CompletionScreen"
+          component={CompletionScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

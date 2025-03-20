@@ -6,4 +6,5 @@ export type RootStackParamList = {
   Avatar: undefined;
   Tracing: undefined;
   Achievement: undefined;
+  CompletionScreen: undefined;
 };

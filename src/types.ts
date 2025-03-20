@@ -5,4 +5,5 @@ export type RootStackParamList = {
   GuidedCategory: undefined;
   Avatar: undefined;
   Tracing: undefined;
+  Achievement: undefined;
 };

@@ -1,9 +1,12 @@
 import React from 'react';
+import { useEffect } from 'react';
+import Orientation from 'react-native-orientation-locker';
 
 // Navigation
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
+
 
 // Screens
 import HomeScreen from './screens/HomeScreen';
@@ -14,10 +17,23 @@ import AvatarScreen from './screens/AvatarScreen';
 import Tracing from './screens/Tracing';
 import AchievementScreen from './screens/AchievementScreen';
 import CompletionScreen from './screens/CompletionScreen';
+import LoginScreen from './screens/login/Login';
+import SignUpScreen from './screens/login/SignUp';
+import FeedbackSection from './screens/FeedbackSection';
+
+
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
+  useEffect(() => {
+    // Initialize with landscape locked
+    Orientation.lockToLandscape();
+    return () => {
+      Orientation.unlockAllOrientations();
+    };
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
@@ -59,6 +75,21 @@ const App = () => {
         <Stack.Screen
           name="CompletionScreen"
           component={CompletionScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SignUp"
+          component={SignUpScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="FeedbackSection"
+          component={FeedbackSection}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

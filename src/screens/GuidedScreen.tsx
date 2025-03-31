@@ -1,5 +1,5 @@
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Image,
   View,
@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Text,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import {RootStackParamList} from '../types';
 
@@ -19,6 +20,10 @@ type GridItem = {
 
 const GuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const {width, height} = Dimensions.get('window');
+  const isLandscape = width > height;
+  const isSmallScreen = width < 375; // iPhone SE size
 
   const gridItems: GridItem[] = [
     {
@@ -82,23 +87,39 @@ const GuidedScreen = () => {
       source={require('../assets/background_images/landing_bg.png')}
       style={styles.background}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Kuzuzangpo, Lhamo!</Text>
-        <View style={styles.headerIcons}>
-          {/* <View style={styles.starCount}>
-            <View style={styles.outerRectangle}>
-              <View style={styles.innerRectangle}>
-                <Image
-                  source={require('../assets/icons/star.png')}
-                  style={styles.halfstar}
-                />
-                <Text style={styles.scoreText}>500</Text>
-              </View>
-            </View>
-          </View> */}
+        {/* Avatar Container - Now on the left */}
+        <TouchableOpacity 
+          style={[
+            styles.avatarContainer,
+            isLandscape && styles.avatarContainerLandscape,
+            isSmallScreen && styles.avatarContainerSmall
+          ]}
+          onPress={() => navigation.navigate('Avatar')}>
+          <Image
+            source={require('../assets/avatarImages/a7.png')}
+            style={styles.avatarBorder}
+          />
+          <Image
+            source={
+              gender === 'male' 
+                ? require('../assets/icons/cropped_boy.png') 
+                : require('../assets/icons/girl.png')
+            }
+            style={styles.avatarImage}
+          />
+        </TouchableOpacity>
 
+        <Text style={[
+          styles.headerText,
+          isLandscape && styles.headerTextLandscape,
+          isSmallScreen && styles.headerTextSmall
+        ]}>
+          Kuzuzangpo, Lhamo!
+        </Text>
+
+        <View style={styles.headerIcons}>
           <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Achievement')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Achievement')}>
               <Image
                 source={require('../assets/icons/award.png')}
                 style={styles.icon}
@@ -106,8 +127,7 @@ const GuidedScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('CompletionScreen')}>
+            <TouchableOpacity onPress={() => navigation.navigate('CompletionScreen')}>
               <Image
                 source={require('../assets/icons/setting.png')}
                 style={styles.icon}
@@ -117,12 +137,16 @@ const GuidedScreen = () => {
         </View>
       </View>
 
-      <View style={styles.container}>
-        <View style={styles.grid}>
+
+      <View style={[styles.container, isLandscape && styles.landscapeContainer]}>
+        <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.gridItem}
+              style={[
+                styles.gridItem,
+                isLandscape && styles.landscapeGridItem
+              ]}
               onPress={() => navigation.navigate(item.screen)}>
               <ImageBackground
                 source={item.background}
@@ -157,15 +181,59 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
     backgroundColor: '#D9D9D9',
     opacity: 0.6,
   },
   headerText: {
+    flex: 1,
     color: 'white',
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Knewave-Regular',
     fontWeight: 'bold',
+    textAlign: 'center',
+    marginLeft: 60, // Make space for avatar
+  },
+  headerTextLandscape: {
+    fontSize: 24,
+  },
+  headerTextSmall: {
+    fontSize: 22,
+  },
+  // Avatar Styles
+  avatarContainer: {
+    position: 'absolute',
+    left: 15,
+    top: '50%',
+    marginTop: -30, // Half of height to center vertically
+    width: 60,
+    height: 60,
+    zIndex: 10,
+  },
+  avatarContainerLandscape: {
+    width: 50,
+    height: 50,
+    marginTop: -25,
+  },
+  avatarContainerSmall: {
+    width: 50,
+    height: 50,
+    marginTop: -25,
+  },
+  avatarBorder: {
+    width: '100%',
+    height: '100%',
+    position: 'absolute',
+    resizeMode: 'contain',
+  },
+  avatarImage: {
+    width: '70%',
+    height: '70%',
+    position: 'absolute',
+    top: '15%',
+    left: '15%',
+    resizeMode: 'contain',
+    borderRadius: 30,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -185,22 +253,6 @@ const styles = StyleSheet.create({
     height: 30,
     marginHorizontal: 3,
   },
-  // starCount: {
-  //   position: 'relative',
-  // },
-  // outerRectangle: {
-  //   width: '100%',
-  //   height: 30,
-  //   borderRadius: 20,
-  //   backgroundColor: '#7E96E4',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // scoreText: {
-  //   color: 'white',
-  //   fontSize: 24,
-  //   fontWeight: 'bold',
-  // },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -208,11 +260,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
   },
+  landscapeContainer: {
+    paddingTop: 5,
+  },
   grid: {
     width: '35%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+  },
+  landscapeGrid: {
+    width: '50%',
   },
   gridItem: {
     width: '28%',
@@ -225,6 +283,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+  },
+  landscapeGridItem: {
+    width: '18%',
+    margin: '1%',
   },
   gridItemBackground: {
     flex: 1,

@@ -7,4 +7,7 @@ export type RootStackParamList = {
   Tracing: undefined;
   Achievement: undefined;
   CompletionScreen: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  FeedbackSection:undefined;
 };

@@ -39,7 +39,7 @@ const HomeScreen = () => {
 
       <View style={styles.container}>
         <View style={styles.textBg}>
-          <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
             <Text style={styles.modeText}>Online</Text>
           </TouchableOpacity>
         </View>

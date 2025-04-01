@@ -14,55 +14,58 @@ import AvatarScreen from './screens/AvatarScreen';
 import Tracing from './screens/Tracing';
 import AchievementScreen from './screens/AchievementScreen';
 import CompletionScreen from './screens/CompletionScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Guided"
-          component={GuidedScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="UnGuided"
-          component={UnGuidedScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="GuidedCategory"
-          component={GuidedCategory}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Avatar"
-          component={AvatarScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Tracing"
-          component={Tracing}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Achievement"
-          component={AchievementScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="CompletionScreen"
-          component={CompletionScreen}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+  <NavigationContainer>
+    <Stack.Navigator initialRouteName="Tracing">
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Guided"
+        component={GuidedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="UnGuided"
+        component={UnGuidedScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="GuidedCategory"
+        component={GuidedCategory}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Avatar"
+        component={AvatarScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Tracing"
+        component={Tracing}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Achievement"
+        component={AchievementScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CompletionScreen"
+        component={CompletionScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  </NavigationContainer>
+</GestureHandlerRootView>
   );
 };
 

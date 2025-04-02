@@ -7,25 +7,53 @@ import {
   StyleSheet,
   ImageBackground,
   SafeAreaView,
-  GestureResponderEvent,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../../types';
 import {useOrientation} from './useOrientation';
+import axiosInstance from '../../Api/config/axiosInstance';
+import api from '../../Api/endPoints';
 
 const {width} = Dimensions.get('window');
+
 const LoginScreen = () => {
   useOrientation('login');
 
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const handleLogin = (event: GestureResponderEvent): void => {
-    event.preventDefault();
-    console.log('Logging in with:', {username, password});
-    // Handle login logic here
+  const handleLogin = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    // console.log('Attempting login with:', {username, password});
+
+    try {
+      const response = await axiosInstance.post(api.user.loginUser, {
+        username: username.trim(),
+        password: password.trim(),
+      });
+      console.log('User response from API:', response.data);
+      navigation.navigate('Guided');
+    } catch (err: any) {
+      if (err.response) {
+        setError(err.response.data.message || 'Invalid username or password');
+        console.log('Error Response:', err.response.data);
+      } else if (err.request) {
+        console.log('No Response Received:', err.request);
+      } else {
+        console.log('Error Message:', err.message);
+      }
+      setError('Invalid username or password');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,6 +66,7 @@ const LoginScreen = () => {
             <Text style={styles.title}>Login</Text>
 
             <View style={styles.inputContainer}>
+              {error && <Text style={styles.errorText}>{error}</Text>}
               <Text style={styles.label}>Username</Text>
               <TextInput
                 style={styles.input}
@@ -61,8 +90,15 @@ const LoginScreen = () => {
               />
             </View>
 
-            <TouchableOpacity style={styles.button} onPress={handleLogin}>
-              <Text style={styles.buttonText}>LOGIN</Text>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              disabled={loading}>
+              {loading ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>LOGIN</Text>
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -156,6 +192,11 @@ const styles = StyleSheet.create({
     color: '#AA75CB',
     fontSize: 14,
     fontWeight: '500',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
   },
 });
 

@@ -7,29 +7,34 @@ import {
   StyleSheet,
   ImageBackground,
   SafeAreaView,
-  GestureResponderEvent,
   Dimensions,
   Platform,
   ScrollView,
   KeyboardAvoidingView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../../types';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Orientation from 'react-native-orientation-locker';
+import axiosInstance from '../../Api/config/axiosInstance';
+import api from '../../Api/endPoints';
 
 const SignUpScreen = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [dateOfBirth, setDateOfBirth] = useState<Date>(new Date());
+  const [dob, setDoB] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [gender, setGender] = useState<'Male' | 'Female'>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Handle orientation changes
@@ -54,20 +59,66 @@ const SignUpScreen = () => {
     : dimensions.width * 0.85;
   const titleFontSize = isLandscape ? 24 : 22;
 
-  const handleSignUp = (event: GestureResponderEvent): void => {
-    event.preventDefault();
+  // Validation input
+  const validateInputs = (): string | null => {
+    if (!username.trim()) {
+      return 'Username is required';
+    }
     if (password !== confirmPassword) {
-      Alert.alert('Error', "Passwords don't match!");
+      return "Passwords don't match!";
+    }
+    return null;
+  };
+
+  // Clear error on input change
+  const handleInputChange = (
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    value: string,
+  ) => {
+    setter(value);
+    setError(null);
+  };
+
+  const handleSignUp = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    const validationError = validateInputs();
+    if (validationError) {
+      setError(validationError);
+      setLoading(false);
       return;
     }
-    console.log('Signing up with:', {username, password, dateOfBirth, gender});
-    navigation.navigate('Login');
+
+    try {
+      const response = await axiosInstance.post(api.user.registerUser, {
+        username: username.trim(),
+        password: password.trim(),
+        dob: dob.toISOString(),
+        gender,
+      });
+      console.log('User response from API:', response.data);
+      navigation.navigate('Guided');
+    } catch (err: any) {
+      if (err.response) {
+        setError(err.response.data);
+        // const errorResponse = err.response.data;
+        console.log('Error Response:', err.response.data);
+      } else if (err.request) {
+        console.log('No Response Received:', err.request);
+      } else {
+        console.log('Error Message:', err.message);
+      }
+      setError('Hello you have an error');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
-    const currentDate = selectedDate || dateOfBirth;
+    const currentDate = selectedDate || dob;
     setShowDatePicker(Platform.OS === 'ios');
-    setDateOfBirth(currentDate);
+    setDoB(currentDate);
   };
 
   const formatDate = (date: Date) => {
@@ -102,13 +153,16 @@ const SignUpScreen = () => {
                 <Text style={styles.title}>Create Your Account</Text>
 
                 <View style={styles.inputContainer}>
+                  {error && <Text style={styles.errorText}>{error}</Text>}
                   <Text style={styles.label}>Username</Text>
                   <TextInput
                     style={styles.input}
                     placeholder="Enter your username"
                     placeholderTextColor="#999"
                     value={username}
-                    onChangeText={(text: string) => setUsername(text)}
+                    onChangeText={(text: string) =>
+                      handleInputChange(setUsername, text)
+                    }
                     autoCapitalize="words"
                   />
                 </View>
@@ -163,12 +217,12 @@ const SignUpScreen = () => {
                     style={styles.input}
                     onPress={() => setShowDatePicker(true)}>
                     <Text style={{color: '#000', fontSize: responsiveFontSize}}>
-                      {formatDate(dateOfBirth)}
+                      {formatDate(dob)}
                     </Text>
                   </TouchableOpacity>
                   {showDatePicker && (
                     <DateTimePicker
-                      value={dateOfBirth}
+                      value={dob}
                       mode="date"
                       display={Platform.OS === 'ios' ? 'spinner' : 'default'}
                       onChange={onChangeDate}
@@ -182,9 +236,9 @@ const SignUpScreen = () => {
                   <View style={styles.radioGroup}>
                     <TouchableOpacity
                       style={styles.radioButton}
-                      onPress={() => setGender('male')}>
+                      onPress={() => setGender('Male')}>
                       <View style={styles.radioCircle}>
-                        {gender === 'male' && (
+                        {gender === 'Male' && (
                           <View style={styles.selectedRb} />
                         )}
                       </View>
@@ -192,9 +246,9 @@ const SignUpScreen = () => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.radioButton}
-                      onPress={() => setGender('female')}>
+                      onPress={() => setGender('Female')}>
                       <View style={styles.radioCircle}>
-                        {gender === 'female' && (
+                        {gender === 'Female' && (
                           <View style={styles.selectedRb} />
                         )}
                       </View>
@@ -203,8 +257,15 @@ const SignUpScreen = () => {
                   </View>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-                  <Text style={styles.buttonText}>SIGN UP</Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={handleSignUp}
+                  disabled={loading}>
+                  {loading ? (
+                    <ActivityIndicator color="white" />
+                  ) : (
+                    <Text style={styles.buttonText}>SIGN UP</Text>
+                  )}
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -358,6 +419,11 @@ const createStyles = (
       color: '#AA75CB',
       fontSize: fontSize,
       fontWeight: '500',
+    },
+    errorText: {
+      fontSize: 14,
+      color: 'red',
+      marginBottom: 10,
     },
   });
 

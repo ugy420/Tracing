@@ -12,14 +12,21 @@ import {
   KeyboardAvoidingView,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
+import axiosInstance from '../Api/config/axiosInstance';
+import api from '../Api/endPoints';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FeedbackSection = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const [feedback, setFeedback] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [, setError] = useState<string | null>(null);
+
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   // Handle orientation changes
@@ -47,15 +54,48 @@ const FeedbackSection = () => {
     ? dimensions.height * 0.3
     : dimensions.height * 0.2;
 
-  const handleSubmitFeedback = () => {
-    if (!feedback.trim()) {
-      Alert.alert('Error', 'Please enter your feedback');
-      return;
-    }
+  const handleSubmitFeedback = async (): Promise<void> => {
+    setLoading(true);
+    setError(null);
 
-    console.log('Submitting feedback:', {feedback});
-    Alert.alert('Thank You', 'Your feedback has been submitted!');
-    setFeedback('');
+    try {
+      if (!feedback.trim()) {
+        Alert.alert('Error', 'Please enter your feedback');
+        return;
+      }
+
+      // Check if access token is available
+
+      const token = await AsyncStorage.getItem('access_token');
+      console.log('Token: ', token);
+      if (!token) {
+        Alert.alert('Error', 'You must be signed in to submit feedback.');
+        console.log('Access token missing');
+        setLoading(false);
+        return;
+      }
+
+      const response = await axiosInstance.post(
+        api.feedback.createFeedback,
+        {
+          message: feedback.trim(),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      console.log('Feedback response from API:', response.data);
+      console.log('Submitting feedback:', {feedback});
+      Alert.alert('Thank You', 'Your feedback has been submitted!');
+      setFeedback('');
+    } catch (err: any) {
+      console.log('Error submitting feedback:', err);
+      Alert.alert('Error', 'Failed to submit feedback');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = createStyles(
@@ -75,21 +115,21 @@ const FeedbackSection = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <SafeAreaView style={styles.container}>
-            <View style={styles.headerLeft}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                          <Image
-                            source={require('../assets/icons/home.png')}
-                            style={styles.headerIcon}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => navigation.navigate('GuidedCategory')}>
-                          <Image
-                            source={require('../assets/icons/back_color.png')}
-                            style={styles.headerIcon}
-                          />
-                        </TouchableOpacity>
-                      </View>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Image
+                source={require('../assets/icons/home.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('GuidedCategory')}>
+              <Image
+                source={require('../assets/icons/back_color.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+          </View>
           <View style={styles.centerContainer}>
             <Text style={styles.title}>We Value Your Feedback</Text>
 
@@ -109,8 +149,13 @@ const FeedbackSection = () => {
 
               <TouchableOpacity
                 style={styles.button}
-                onPress={handleSubmitFeedback}>
-                <Text style={styles.buttonText}>SUBMIT FEEDBACK</Text>
+                onPress={handleSubmitFeedback}
+                disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={styles.buttonText}>SUBMIT FEEDBACK</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -139,14 +184,14 @@ const createStyles = (
       justifyContent: 'center',
     },
     headerIcon: {
-        height: 40,
-        width: 40,
-        resizeMode: 'contain',
-      },
-      headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
+      height: 40,
+      width: 40,
+      resizeMode: 'contain',
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     centerContainer: {
       justifyContent: 'center',
       alignItems: 'center',

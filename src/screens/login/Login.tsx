@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {RootStackParamList} from '../../types';
 import {useOrientation} from './useOrientation';
 import axiosInstance from '../../Api/config/axiosInstance';
@@ -39,6 +40,12 @@ const LoginScreen = () => {
         username: username.trim(),
         password: password.trim(),
       });
+      const token = response.data.access_token;
+      console.log('access token', token);
+
+      // Store the token in AsyncStorage
+      await AsyncStorage.setItem('access_token', token);
+
       console.log('User response from API:', response.data);
       navigation.navigate('Guided');
     } catch (err: any) {

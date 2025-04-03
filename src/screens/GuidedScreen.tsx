@@ -20,7 +20,7 @@ type GridItem = {
 
 const GuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [gender] = useState<'Male' | 'Female'>('Male');
   const {width, height} = Dimensions.get('window');
   const isLandscape = width > height;
   const isSmallScreen = width < 375; // iPhone SE size
@@ -88,11 +88,11 @@ const GuidedScreen = () => {
       style={styles.background}>
       <View style={styles.header}>
         {/* Avatar Container - Now on the left */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[
             styles.avatarContainer,
             isLandscape && styles.avatarContainerLandscape,
-            isSmallScreen && styles.avatarContainerSmall
+            isSmallScreen && styles.avatarContainerSmall,
           ]}
           onPress={() => navigation.navigate('Avatar')}>
           <Image
@@ -101,25 +101,27 @@ const GuidedScreen = () => {
           />
           <Image
             source={
-              gender === 'male' 
-                ? require('../assets/icons/cropped_boy.png') 
+              gender === 'Male'
+                ? require('../assets/icons/cropped_boy.png')
                 : require('../assets/icons/girl.png')
             }
             style={styles.avatarImage}
           />
         </TouchableOpacity>
 
-        <Text style={[
-          styles.headerText,
-          isLandscape && styles.headerTextLandscape,
-          isSmallScreen && styles.headerTextSmall
-        ]}>
+        <Text
+          style={[
+            styles.headerText,
+            isLandscape && styles.headerTextLandscape,
+            isSmallScreen && styles.headerTextSmall,
+          ]}>
           Kuzuzangpo, Lhamo!
         </Text>
 
         <View style={styles.headerIcons}>
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Achievement')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Achievement')}>
               <Image
                 source={require('../assets/icons/award.png')}
                 style={styles.icon}
@@ -127,7 +129,8 @@ const GuidedScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('CompletionScreen')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('FeedbackSection')}>
               <Image
                 source={require('../assets/icons/setting.png')}
                 style={styles.icon}
@@ -137,16 +140,13 @@ const GuidedScreen = () => {
         </View>
       </View>
 
-
-      <View style={[styles.container, isLandscape && styles.landscapeContainer]}>
+      <View
+        style={[styles.container, isLandscape && styles.landscapeContainer]}>
         <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
-              style={[
-                styles.gridItem,
-                isLandscape && styles.landscapeGridItem
-              ]}
+              style={[styles.gridItem, isLandscape && styles.landscapeGridItem]}
               onPress={() => navigation.navigate(item.screen)}>
               <ImageBackground
                 source={item.background}

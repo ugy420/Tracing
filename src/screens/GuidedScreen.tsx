@@ -11,10 +11,11 @@ import {
 import {RootStackParamList} from '../types';
 
 type GridItem = {
+  id: string;
   text: string;
   subText: string;
   background: any;
-  screen: keyof RootStackParamList;
+  screen: 'GuidedCategory';
 };
 
 const GuidedScreen = () => {
@@ -22,54 +23,63 @@ const GuidedScreen = () => {
 
   const gridItems: GridItem[] = [
     {
+      id: 'ka',
       text: 'ཀ',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'kha',
       text: 'ཁ',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'ga',
       text: 'ག',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'nga',
       text: 'ང',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'pcha',
       text: 'ཅ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'cha',
       text: 'ཆ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'jha',
       text: 'ཇ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'mya',
       text: 'ཉ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
+      id: 'ta',
       text: 'ཏ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),

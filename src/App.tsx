@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Navigation
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
@@ -22,7 +21,7 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
   <NavigationContainer>
-    <Stack.Navigator initialRouteName="Tracing">
+    <Stack.Navigator initialRouteName="GuidedCategory">
       <Stack.Screen
         name="Home"
         component={HomeScreen}

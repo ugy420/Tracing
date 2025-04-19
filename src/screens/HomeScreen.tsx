@@ -28,7 +28,7 @@ const HomeScreen = () => {
               style={styles.headerIcon}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Tracing')}>
+          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
             <Image
               source={require('../assets/icons/setting_color.png')}
               style={styles.headerIcon}

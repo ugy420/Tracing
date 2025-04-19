@@ -14,7 +14,7 @@ type GridItem = {
   image: any;
   subText: string;
   background: any;
-  screen: keyof RootStackParamList;
+  screen: 'GuidedCategory';
 };
 
 const UnGuidedScreen = () => {

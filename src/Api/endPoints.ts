@@ -8,8 +8,9 @@ const api = {
     updateFeedback: (id: string) => `/feedback/${id}`,
   },
   achievement: {
-    getUserAchievements: '/user_Achievement',
-    updateUserAchievement: '/user_Achievement',
+    getUserAchievements: 'achievement/user_achievement',
+    updateUserAchievement: 'achievement/user_achievement',
+    getAchievements: 'achievement',
   },
   avatar: {
     getUserAvatarBorders: '/avatar/purchased_avatar',

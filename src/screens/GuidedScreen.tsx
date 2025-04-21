@@ -1,5 +1,5 @@
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   Image,
   View,
@@ -10,6 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {RootStackParamList} from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type GridItem = {
   text: string;
@@ -20,7 +21,8 @@ type GridItem = {
 
 const GuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [gender] = useState<'Male' | 'Female'>('Male');
+  const [gender, setGender] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const {width, height} = Dimensions.get('window');
   const isLandscape = width > height;
   const isSmallScreen = width < 375; // iPhone SE size
@@ -82,6 +84,21 @@ const GuidedScreen = () => {
     },
   ];
 
+  const getUserData = async () => {
+    try {
+      const get_gender = await AsyncStorage.getItem('gender');
+      setGender(get_gender);
+      const get_username = await AsyncStorage.getItem('username');
+      setUsername(get_username);
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   return (
     <ImageBackground
       source={require('../assets/background_images/landing_bg.png')}
@@ -115,7 +132,7 @@ const GuidedScreen = () => {
             isLandscape && styles.headerTextLandscape,
             isSmallScreen && styles.headerTextSmall,
           ]}>
-          Kuzuzangpo, Lhamo!
+          Kuzuzangpo, {username}!
         </Text>
 
         <View style={styles.headerIcons}>

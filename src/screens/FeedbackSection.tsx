@@ -75,21 +75,20 @@ const FeedbackSection = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <SafeAreaView style={styles.container}>
-            <View style={styles.headerLeft}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                          <Image
-                            source={require('../assets/icons/home.png')}
-                            style={styles.headerIcon}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => navigation.navigate('GuidedCategory')}>
-                          <Image
-                            source={require('../assets/icons/back_color.png')}
-                            style={styles.headerIcon}
-                          />
-                        </TouchableOpacity>
-                      </View>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+              <Image
+                source={require('../assets/icons/home.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Image
+                source={require('../assets/icons/back_color.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+          </View>
           <View style={styles.centerContainer}>
             <Text style={styles.title}>We Value Your Feedback</Text>
 
@@ -139,14 +138,14 @@ const createStyles = (
       justifyContent: 'center',
     },
     headerIcon: {
-        height: 40,
-        width: 40,
-        resizeMode: 'contain',
-      },
-      headerLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
+      height: 40,
+      width: 40,
+      resizeMode: 'contain',
+    },
+    headerLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
     centerContainer: {
       justifyContent: 'center',
       alignItems: 'center',

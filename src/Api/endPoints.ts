@@ -2,6 +2,8 @@ const api = {
   user: {
     registerUser: '/auth/registration',
     loginUser: '/auth/user/login',
+    getUserData: (id: number) => `/user/users/${id}`,
+    updateUserStar: (id: number) => `/user/users/${id}`,
   },
   feedback: {
     createFeedback: 'feedback/user',
@@ -15,6 +17,7 @@ const api = {
   avatar: {
     getUserAvatarBorders: '/avatar/purchased_avatar',
     updateUserAvatarBorder: '/avatar/purchased_avatar',
+    getAvatarBorders: '/avatar',
   },
 };
 

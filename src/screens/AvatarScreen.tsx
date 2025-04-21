@@ -1,23 +1,153 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
-  // Text,
+  Text,
   StyleSheet,
   ImageBackground,
   TouchableOpacity,
   FlatList,
   Image,
+  Modal,
+  Button,
   Dimensions,
 } from 'react-native';
 import avatarImages from '../assets/avatarImages';
 import {RootStackParamList} from '../types';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
+import axiosInstance from '../Api/config/axiosInstance';
+import api from '../Api/endPoints';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('window');
 
 const AvatarScreen = () => {
-  const avatars = Object.values(avatarImages);
+  const [avatarBorders, setAvatarBorders] = useState([]);
+  const [selectedBorder, setSelectedBorder] = useState<any>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    const fetchAvatarBorders = async () => {
+      try {
+        const userId = await AsyncStorage.getItem('user_id');
+        if (!userId) {
+          console.error('User ID not found in AsyncStorage');
+          return;
+        }
+
+        const purchasedBorderResponses = await axiosInstance.get(
+          api.avatar.getUserAvatarBorders,
+        );
+
+        const allBorderRespose = await axiosInstance.get(
+          api.avatar.getAvatarBorders,
+        );
+
+        const allBorders = allBorderRespose.data;
+        const purchasedBorders = purchasedBorderResponses.data;
+
+        console.log('PurchasedBorders: ', purchasedBorders);
+
+        const combinedBorders = allBorders.map(
+          (border: any, index: number) => ({
+            ...border,
+            image:
+              avatarImages[`avatar${index + 1}` as keyof typeof avatarImages],
+            is_purchased: purchasedBorders.some(
+              (purchasedBorder: any) => purchasedBorder.id === border.id,
+            ),
+          }),
+        );
+
+        setAvatarBorders(combinedBorders);
+      } catch (error) {
+        console.error('Error fetching avatar borders:', error);
+      }
+    };
+    fetchAvatarBorders();
+  }, []);
+
+  const handleBorderPress = (border: any) => {
+    setSelectedBorder(border);
+    setModalVisible(true);
+  };
+
+  const renderBorder = ({item}: {item: any}) => (
+    <TouchableOpacity
+      style={styles.avatarContainer}
+      onPress={() => handleBorderPress(item)}>
+      <Image
+        source={item.image}
+        style={[
+          styles.avatarImage,
+          item.is_purchased ? styles.purchasedBorder : styles.unpurchasedBorder,
+        ]}
+      />
+      {/* <Text style={styles.borderName}>{item.name}</Text> */}
+      {/* <Text style={styles.borderCost}>{`Cost: ${item.cost}`}</Text> */}
+    </TouchableOpacity>
+  );
+
+  const handleBuyBorder = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('user_id');
+      if (!userId) {
+        console.error('User ID not found in AsyncStorage');
+        return;
+      }
+
+      const userDetails = await axiosInstance.get(
+        api.user.getUserData(Number(userId)),
+      );
+      const userStars = userDetails.data.starCount;
+
+      if (userStars < selectedBorder.cost) {
+        alert('You do not have enough stars to purchase this border.');
+      } else {
+        const updatedStars = userStars - selectedBorder.cost;
+
+        await axiosInstance.post(api.user.updateUserStar(Number(userId)), {
+          starCount: updatedStars,
+        });
+
+        await axiosInstance.post(api.avatar.updateUserAvatarBorder, {
+          avatar_border_id: selectedBorder.id,
+        });
+
+        const purchasedBorderResponses = await axiosInstance.get(
+          api.avatar.getUserAvatarBorders,
+        );
+
+        const allBorderRespose = await axiosInstance.get(
+          api.avatar.getAvatarBorders,
+        );
+
+        const allBorders = allBorderRespose.data;
+        const purchasedBorders = purchasedBorderResponses.data;
+
+        const combinedBorders = allBorders.map(
+          (border: any, index: number) => ({
+            ...border,
+            image:
+              avatarImages[`avatar${index + 1}` as keyof typeof avatarImages],
+            is_purchased: purchasedBorders.some(
+              (purchasedBorder: any) => purchasedBorder.id === border.id,
+            ),
+          }),
+        );
+
+        setAvatarBorders(combinedBorders);
+        console.log('Border purchased successfully!');
+        alert('Border purchased successfully!');
+        setModalVisible(false); // Close the modal
+      }
+    } catch (error) {
+      console.error('Error purchasing border:', error);
+      alert('An error occurred while purchasing the border. Please try again.');
+    }
+  };
+
+  // const handleEquipBorder =
 
   return (
     <ImageBackground
@@ -45,18 +175,51 @@ const AvatarScreen = () => {
         />
         <View style={styles.container}>
           <FlatList
-            data={avatars}
-            keyExtractor={(item, index) => index.toString()}
+            data={avatarBorders}
+            keyExtractor={item => item.id.toString()}
             numColumns={4}
             contentContainerStyle={styles.flatListStyle}
-            renderItem={({item}) => (
-              <TouchableOpacity style={styles.avatarContainer}>
-                <Image source={item} style={styles.avatarImage} />
-              </TouchableOpacity>
-            )}
+            renderItem={renderBorder}
           />
         </View>
       </View>
+
+      {selectedBorder && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedBorder.name}</Text>
+              <Image source={selectedBorder.image} style={styles.modalImage} />
+              <Text style={styles.modalDescription}>
+                {`Cost: ${selectedBorder.cost}`}
+              </Text>
+              <Text style={styles.modalDescription}>
+                {selectedBorder.is_purchased
+                  ? 'This border is purchased.'
+                  : 'This border is not purchased.'}
+              </Text>
+              <View style={styles.modalButtons}>
+                {!selectedBorder.is_purchased && (
+                  <Button title="Buy" onPress={handleBuyBorder} />
+                )}
+                {/* {selectedBorder.is_purchased && (
+                  <Button title="Equip" onPress={handleEquipBorder} />
+                )} */}
+                <View style={styles.closebtn}>
+                  <Button
+                    title="Close"
+                    onPress={() => setModalVisible(false)}
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ImageBackground>
   );
 };
@@ -105,6 +268,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10,
     width: '100%',
     height: '100%',
     marginTop: '8%',
@@ -120,8 +284,63 @@ const styles = StyleSheet.create({
   },
   avatarImage: {
     width: '90%',
-    height: '80%',
+    height: '70%',
     resizeMode: 'contain',
+  },
+  purchasedBorder: {
+    borderColor: 'gold',
+    borderWidth: 2,
+  },
+  unpurchasedBorder: {
+    opacity: 0.5,
+  },
+  borderName: {
+    marginTop: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  borderCost: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  modalImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 10,
+  },
+  modalDescription: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '30%',
+    padding: 10,
+  },
+  closebtn: {
+    borderRadius: '10%',
+    backgroundColor: 'red',
   },
 });
 

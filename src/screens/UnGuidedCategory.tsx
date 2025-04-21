@@ -93,7 +93,6 @@ const Tracing = () => {
     });
   };
 
-  // Gesture handling
   const gesture = Gesture.Pan()
     .onBegin((event) => {
       drawPath.value.moveTo(event.x, event.y);

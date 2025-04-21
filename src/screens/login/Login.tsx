@@ -41,10 +41,13 @@ const LoginScreen = () => {
         password: password.trim(),
       });
       const token = response.data.access_token;
+      const user_id = response.data.user.id.toString();
+
       console.log('access token', token);
 
-      // Store the token in AsyncStorage
+      // Store the token and user id in AsyncStorage
       await AsyncStorage.setItem('access_token', token);
+      await AsyncStorage.setItem('user_id', user_id);
 
       console.log('User response from API:', response.data);
       navigation.navigate('Guided');

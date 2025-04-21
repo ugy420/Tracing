@@ -2,6 +2,8 @@ export interface Achievement {
   id: string;
   name: string;
   description: string;
+  criteria: string;
+  is_earned: boolean;
 }
 
 export interface UserAchievement {

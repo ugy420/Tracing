@@ -10,4 +10,5 @@ export type RootStackParamList = {
   Login: undefined;
   SignUp: undefined;
   FeedbackSection:undefined;
+  SettingScreen: undefined;
 };

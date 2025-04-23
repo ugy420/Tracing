@@ -13,7 +13,7 @@
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/datetimepicker": "^8.3.0",
     "@react-native-community/masked-view": "^0.1.11",
-    "@react-native-cookies/cookies": "^6.2.1",
+    "@react-native-community/slider": "^4.5.6",
     "@react-navigation/native": "^7.0.19",
     "@react-navigation/native-stack": "^7.2.1",
     "@react-navigation/stack": "^7.2.3",
@@ -28,6 +28,7 @@
     "react-native-reanimated": "^3.17.1",
     "react-native-safe-area-context": "^5.3.0",
     "react-native-screens": "^4.10.0",
+    "react-native-sound": "^0.11.2",
     "react-native-svg": "^15.11.2",
     "react-native-vector-icons": "^10.2.0",
     "rn-perfect-sketch-canvas": "^0.3.0"

@@ -28,7 +28,8 @@ const HomeScreen = () => {
               style={styles.headerIcon}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SettingScreen')}>
             <Image
               source={require('../assets/icons/setting_color.png')}
               style={styles.headerIcon}

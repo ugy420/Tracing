@@ -116,14 +116,13 @@ const FeedbackSection = () => {
         style={styles.container}>
         <SafeAreaView style={styles.container}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
               <Image
                 source={require('../assets/icons/home.png')}
                 style={styles.headerIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('GuidedCategory')}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
               <Image
                 source={require('../assets/icons/back_color.png')}
                 style={styles.headerIcon}

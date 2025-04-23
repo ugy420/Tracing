@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import avatarImages from '../assets/avatarImages';
 
 type GridItem = {
   text: string;
@@ -26,6 +27,9 @@ const GuidedScreen = () => {
   const {width, height} = Dimensions.get('window');
   const isLandscape = width > height;
   const isSmallScreen = width < 375; // iPhone SE size
+  const [currentAvatarBorder, setCurrentAvatarBorder] = useState<
+    keyof typeof avatarImages | null
+  >(null);
 
   const gridItems: GridItem[] = [
     {
@@ -90,6 +94,18 @@ const GuidedScreen = () => {
       setGender(get_gender);
       const get_username = await AsyncStorage.getItem('username');
       setUsername(get_username);
+      const get_avatar_border = await AsyncStorage.getItem(
+        'current_avatar_border',
+      );
+      if (get_avatar_border) {
+        const avatarKey = `avatar${get_avatar_border}`; // Map number to avatar key
+        setCurrentAvatarBorder(
+          avatarKey in avatarImages
+            ? (avatarKey as keyof typeof avatarImages)
+            : null,
+        );
+      }
+      console.log('Updated currentAvatarBorder:', get_avatar_border);
     } catch (error) {
       console.error('Error retrieving user data:', error);
     }
@@ -113,8 +129,18 @@ const GuidedScreen = () => {
           ]}
           onPress={() => navigation.navigate('Avatar')}>
           <Image
-            source={require('../assets/avatarImages/a7.png')}
+            source={
+              currentAvatarBorder
+                ? avatarImages[currentAvatarBorder]
+                : require('../assets/avatarImages/a7.png')
+            }
             style={styles.avatarBorder}
+            onError={error =>
+              console.error(
+                'Error loading avatar border:',
+                error.nativeEvent.error,
+              )
+            }
           />
           <Image
             source={

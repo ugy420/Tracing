@@ -44,14 +44,15 @@ const LoginScreen = () => {
       const user_id = response.data.user.id.toString();
       const gender = response.data.user.gender;
       const getusername = response.data.user.username;
-
-      console.log('access token', token);
+      const getCurrentAvatar =
+        response.data.user.current_avatar_border_id.toString();
 
       // Store the token and user id in AsyncStorage
       await AsyncStorage.setItem('access_token', token);
       await AsyncStorage.setItem('user_id', user_id);
       await AsyncStorage.setItem('gender', gender);
       await AsyncStorage.setItem('username', getusername);
+      await AsyncStorage.setItem('current_avatar_border', getCurrentAvatar);
 
       console.log('User response from API:', response.data);
       navigation.navigate('Guided');

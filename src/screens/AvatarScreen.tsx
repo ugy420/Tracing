@@ -21,10 +21,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const {width, height} = Dimensions.get('window');
 
 const AvatarScreen = () => {
-  const [avatarBorders, setAvatarBorders] = useState([]);
+  interface AvatarBorder {
+    id: number;
+    name: string;
+    cost: number;
+    image: any;
+    is_purchased: boolean;
+  }
+
+  const [avatarBorders, setAvatarBorders] = useState<AvatarBorder[]>([]);
   const [selectedBorder, setSelectedBorder] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [currentAvatarBorder, setCurrentAvatarBorder] = useState<any>(null);
 
   useEffect(() => {
     const fetchAvatarBorders = async () => {
@@ -47,6 +56,14 @@ const AvatarScreen = () => {
         const purchasedBorders = purchasedBorderResponses.data;
 
         console.log('PurchasedBorders: ', purchasedBorders);
+
+        // User equip border
+        const equippedAvatarBorder = await AsyncStorage.getItem(
+          'current_avatar_border',
+        );
+        setCurrentAvatarBorder(
+          equippedAvatarBorder ? Number(equippedAvatarBorder) : null,
+        );
 
         const combinedBorders = allBorders.map(
           (border: any, index: number) => ({
@@ -74,7 +91,10 @@ const AvatarScreen = () => {
 
   const renderBorder = ({item}: {item: any}) => (
     <TouchableOpacity
-      style={styles.avatarContainer}
+      style={[
+        styles.avatarContainer,
+        item.id === currentAvatarBorder && styles.equippedBorder,
+      ]}
       onPress={() => handleBorderPress(item)}>
       <Image
         source={item.image}
@@ -83,8 +103,6 @@ const AvatarScreen = () => {
           item.is_purchased ? styles.purchasedBorder : styles.unpurchasedBorder,
         ]}
       />
-      {/* <Text style={styles.borderName}>{item.name}</Text> */}
-      {/* <Text style={styles.borderCost}>{`Cost: ${item.cost}`}</Text> */}
     </TouchableOpacity>
   );
 
@@ -106,7 +124,7 @@ const AvatarScreen = () => {
       } else {
         const updatedStars = userStars - selectedBorder.cost;
 
-        await axiosInstance.post(api.user.updateUserStar(Number(userId)), {
+        await axiosInstance.post(api.user.updateUserData(Number(userId)), {
           starCount: updatedStars,
         });
 
@@ -147,7 +165,40 @@ const AvatarScreen = () => {
     }
   };
 
-  // const handleEquipBorder =
+  const handleEquipBorder = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('user_id');
+      if (!userId) {
+        console.error('User ID not found in AsyncStorage');
+        return;
+      }
+
+      await axiosInstance.patch(api.user.updateUserData(Number(userId)), {
+        current_avatar_border_id: selectedBorder.id,
+      });
+
+      // Update AsyncStorage
+      await AsyncStorage.setItem(
+        'current_avatar_border',
+        selectedBorder.id.toString(),
+      );
+
+      // Update the frontend state to reflect the equipped border
+      const updatedBorders = avatarBorders.map((border: any) => ({
+        ...border,
+        is_equipped: border.id === selectedBorder.id, // Mark the selected border as equipped
+      }));
+      setAvatarBorders(updatedBorders);
+
+      // Show a success message
+      alert('Border equipped successfully!');
+      setModalVisible(false); // Close the modal
+      navigation.navigate('Guided');
+    } catch (error) {
+      console.error('Error equipping border:', error);
+      alert('An error occurred while equipping the border. Please try again.');
+    }
+  };
 
   return (
     <ImageBackground
@@ -206,9 +257,10 @@ const AvatarScreen = () => {
                 {!selectedBorder.is_purchased && (
                   <Button title="Buy" onPress={handleBuyBorder} />
                 )}
-                {/* {selectedBorder.is_purchased && (
-                  <Button title="Equip" onPress={handleEquipBorder} />
-                )} */}
+                {selectedBorder.is_purchased &&
+                  selectedBorder.id !== currentAvatarBorder && (
+                    <Button title="Equip" onPress={handleEquipBorder} />
+                  )}
                 <View style={styles.closebtn}>
                   <Button
                     title="Close"
@@ -341,6 +393,10 @@ const styles = StyleSheet.create({
   closebtn: {
     borderRadius: '10%',
     backgroundColor: 'red',
+  },
+  equippedBorder: {
+    borderColor: 'blue',
+    borderWidth: 3,
   },
 });
 

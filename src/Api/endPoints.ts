@@ -3,7 +3,7 @@ const api = {
     registerUser: '/auth/registration',
     loginUser: '/auth/user/login',
     getUserData: (id: number) => `/user/users/${id}`,
-    updateUserStar: (id: number) => `/user/users/${id}`,
+    updateUserData: (id: number) => `/user/users/${id}`,
   },
   feedback: {
     createFeedback: 'feedback/user',

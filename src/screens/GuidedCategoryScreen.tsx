@@ -16,7 +16,7 @@ type CardItem = {
   id: string;
   text: string;
   backgroundColor: any;
-  screen: keyof RootStackParamList;
+  screen: 'Tracing';
 };
 
 const GuidedCategory = () => {
@@ -24,22 +24,29 @@ const GuidedCategory = () => {
 
   const CardBgColors = ['#14D0FF', '#FFD214', '#FF14D0', '#14FFD0', '#fa6f05'];
 
-  // const cardData = Array.from('ཀཁགངཅཆཀཁགངཅཆ', (char, index) => ({
-  //   id: index.toString(),
-  //   text: char,
-  //   backgroundColor: CardBgColors[index % CardBgColors.length],
-  // }));
-
   const cardData: CardItem[] = [
-    {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
-    {id: '2', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Home'},
-    {id: '3', text: 'ག', backgroundColor: CardBgColors[2], screen: 'Home'},
-    {id: '4', text: 'ང', backgroundColor: CardBgColors[3], screen: 'Home'},
-    {id: '5', text: 'ཅ', backgroundColor: CardBgColors[4], screen: 'Home'},
-    {id: '6', text: 'ཆ', backgroundColor: CardBgColors[0], screen: 'Home'},
-    {id: '7', text: 'ཇ', backgroundColor: CardBgColors[1], screen: 'Home'},
-    {id: '8', text: 'ཉ', backgroundColor: CardBgColors[2], screen: 'Home'},
-    {id: '9', text: 'ཏ', backgroundColor: CardBgColors[3], screen: 'Home'},
+    {id: 'ka',
+      text: 'ཀ', 
+      backgroundColor: CardBgColors[0], 
+      screen: 'Tracing'
+    },
+    { id: 'kha',
+      text: 'ཁ', 
+      backgroundColor: CardBgColors[1], 
+      screen: 'Tracing'
+    },
+    {
+      id: 'ga',
+      text: 'ག',
+      backgroundColor: CardBgColors[2], 
+      screen: 'Tracing'
+    },
+    {
+      id: 'nga',
+      text: 'ང',
+      backgroundColor: CardBgColors[3], 
+      screen: 'Tracing'
+    },
   ];
 
   return (
@@ -78,7 +85,7 @@ const GuidedCategory = () => {
         <FlatList
           data={cardData}
           renderItem={({item}) => (
-            <TouchableOpacity onPress={() => navigation.navigate(item.screen)}>
+            <TouchableOpacity onPress={() => navigation.navigate(item.screen, {id: item.id})}>
               <CardCategory
                 text={item.text}
                 backgroundColor={item.backgroundColor}

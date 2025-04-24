@@ -2,7 +2,6 @@ import React from 'react';
 import {useEffect} from 'react';
 import Orientation from 'react-native-orientation-locker';
 
-// Navigation
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';

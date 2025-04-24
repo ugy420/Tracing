@@ -14,11 +14,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import avatarImages from '../assets/avatarImages';
 
 type GridItem = {
-  id: string;
-  text: string;
-  subText: string;
+  image: any;
   background: any;
-  screen: 'GuidedCategory';
+  screen: keyof RootStackParamList;
 };
 
 const GuidedScreen = () => {
@@ -34,69 +32,48 @@ const GuidedScreen = () => {
 
   const gridItems: GridItem[] = [
     {
-      id: 'ka',
-      text: 'ཀ',
-      subText: 'Subtext',
+      image: require('../assets/alphabets/saljay.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'kha',
-      text: 'ཁ',
-      subText: 'Subtext',
+      image: require('../assets/numbers/numbers.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'ga',
-      text: 'ག',
-      subText: 'Subtext',
+      image: require('../assets/alphabets/yaang.png'),
       background: require('../assets/icons/blueBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'nga',
-      text: 'ང',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'pcha',
-      text: 'ཅ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'cha',
-      text: 'ཆ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'jha',
-      text: 'ཇ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'mya',
-      text: 'ཉ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'ta',
-      text: 'ཏ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
   ];
+
+  const getUserData = async () => {
+    try {
+      const get_gender = await AsyncStorage.getItem('gender');
+      setGender(get_gender);
+      const get_username = await AsyncStorage.getItem('username');
+      setUsername(get_username);
+      const get_avatar_border = await AsyncStorage.getItem(
+        'current_avatar_border',
+      );
+      if (get_avatar_border) {
+        const avatarKey = `avatar${get_avatar_border}`; // Map number to avatar key
+        setCurrentAvatarBorder(
+          avatarKey in avatarImages
+            ? (avatarKey as keyof typeof avatarImages)
+            : null,
+        );
+      }
+      console.log('Updated currentAvatarBorder:', get_avatar_border);
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
 
   return (
     <ImageBackground

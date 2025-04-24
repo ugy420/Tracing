@@ -25,27 +25,19 @@ const GuidedCategory = () => {
   const CardBgColors = ['#14D0FF', '#FFD214', '#FF14D0', '#14FFD0', '#fa6f05'];
 
   const cardData: CardItem[] = [
-    {id: 'ka',
-      text: 'ཀ', 
-      backgroundColor: CardBgColors[0], 
-      screen: 'Tracing'
-    },
-    { id: 'kha',
-      text: 'ཁ', 
-      backgroundColor: CardBgColors[1], 
-      screen: 'Tracing'
-    },
+    {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
+    {id: 'kha', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Tracing'},
     {
-      id: 'ga',
+      id: '2',
       text: 'ག',
-      backgroundColor: CardBgColors[2], 
-      screen: 'Tracing'
+      backgroundColor: CardBgColors[2],
+      screen: 'Tracing',
     },
     {
-      id: 'nga',
+      id: '3',
       text: 'ང',
-      backgroundColor: CardBgColors[3], 
-      screen: 'Tracing'
+      backgroundColor: CardBgColors[3],
+      screen: 'Tracing',
     },
   ];
 
@@ -85,7 +77,8 @@ const GuidedCategory = () => {
         <FlatList
           data={cardData}
           renderItem={({item}) => (
-            <TouchableOpacity onPress={() => navigation.navigate(item.screen, {id: item.id})}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate(item.screen, {id: item.id})}>
               <CardCategory
                 text={item.text}
                 backgroundColor={item.backgroundColor}

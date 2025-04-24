@@ -13,7 +13,7 @@ import {RootStackParamList} from '../types';
 type GridItem = {
   image: any;
   background: any;
-  screen: keyof RootStackParamList;
+  screen: 'GuidedCategory';
 };
 
 const UnGuidedScreen = () => {

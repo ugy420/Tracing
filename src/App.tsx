@@ -1,12 +1,11 @@
 import React from 'react';
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 import Orientation from 'react-native-orientation-locker';
 
 // Navigation
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {RootStackParamList} from './types';
-
 
 // Screens
 import HomeScreen from './screens/HomeScreen';
@@ -20,8 +19,7 @@ import CompletionScreen from './screens/CompletionScreen';
 import LoginScreen from './screens/login/Login';
 import SignUpScreen from './screens/login/SignUp';
 import FeedbackSection from './screens/FeedbackSection';
-
-
+import SettingScreen from './screens/SettingScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -90,6 +88,11 @@ const App = () => {
         <Stack.Screen
           name="FeedbackSection"
           component={FeedbackSection}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="SettingScreen"
+          component={SettingScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

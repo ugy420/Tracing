@@ -12,7 +12,6 @@ import {RootStackParamList} from '../types';
 
 type GridItem = {
   image: any;
-  subText: string;
   background: any;
   screen: keyof RootStackParamList;
 };
@@ -23,58 +22,52 @@ const UnGuidedScreen = () => {
   const gridItems: GridItem[] = [
     {
       image: require('../assets/icons/animalIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
       image: require('../assets/icons/familyIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
       image: require('../assets/icons/weatherIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
       image: require('../assets/icons/shapeIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
       image: require('../assets/icons/clothingIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
       image: require('../assets/icons/expressionIcon.png'),
-      subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
-    {
-      image: require('../assets/icons/sportsIcon.png'),
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      image: require('../assets/icons/fruitsIcon.png'),
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      image: require('../assets/icons/familyIcon.png'),
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
+    // {
+    //   image: require('../assets/icons/sportsIcon.png'),
+    //   subText: 'Subtext',
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
+    // {
+    //   image: require('../assets/icons/fruitsIcon.png'),
+    //   subText: 'Subtext',
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
+    // {
+    //   image: require('../assets/icons/familyIcon.png'),
+    //   subText: 'Subtext',
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
   ];
 
   return (
@@ -130,7 +123,6 @@ const UnGuidedScreen = () => {
                 source={item.background}
                 style={styles.gridItemBackground}>
                 <Image source={item.image} style={styles.gridItemImage} />
-                <Text style={styles.gridItemSubText}>{item.subText}</Text>
               </ImageBackground>
             </TouchableOpacity>
           ))}

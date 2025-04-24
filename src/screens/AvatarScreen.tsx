@@ -10,6 +10,7 @@ import {
   Modal,
   Button,
   Dimensions,
+  Alert,
 } from 'react-native';
 import avatarImages from '../assets/avatarImages';
 import {RootStackParamList} from '../types';
@@ -120,7 +121,7 @@ const AvatarScreen = () => {
       const userStars = userDetails.data.starCount;
 
       if (userStars < selectedBorder.cost) {
-        alert('You do not have enough stars to purchase this border.');
+        Alert.alert('You do not have enough stars to purchase this border.');
       } else {
         const updatedStars = userStars - selectedBorder.cost;
 
@@ -156,12 +157,14 @@ const AvatarScreen = () => {
 
         setAvatarBorders(combinedBorders);
         console.log('Border purchased successfully!');
-        alert('Border purchased successfully!');
+        Alert.alert('Border purchased successfully!');
         setModalVisible(false); // Close the modal
       }
     } catch (error) {
       console.error('Error purchasing border:', error);
-      alert('An error occurred while purchasing the border. Please try again.');
+      Alert.alert(
+        'An error occurred while purchasing the border. Please try again.',
+      );
     }
   };
 
@@ -191,12 +194,14 @@ const AvatarScreen = () => {
       setAvatarBorders(updatedBorders);
 
       // Show a success message
-      alert('Border equipped successfully!');
+      Alert.alert('Border equipped successfully!');
       setModalVisible(false); // Close the modal
       navigation.navigate('Guided');
     } catch (error) {
       console.error('Error equipping border:', error);
-      alert('An error occurred while equipping the border. Please try again.');
+      Alert.alert(
+        'An error occurred while equipping the border. Please try again.',
+      );
     }
   };
 

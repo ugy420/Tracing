@@ -28,7 +28,8 @@ const HomeScreen = () => {
               style={styles.headerIcon}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SettingScreen')}>
             <Image
               source={require('../assets/icons/setting_color.png')}
               style={styles.headerIcon}
@@ -39,7 +40,11 @@ const HomeScreen = () => {
 
       <View style={styles.container}>
         <View style={styles.textBg}>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <TouchableOpacity
+            onPress={() => {
+              console.log('Online pressed');
+              navigation.navigate('Login');
+            }}>
             <Text style={styles.modeText}>Online</Text>
           </TouchableOpacity>
         </View>

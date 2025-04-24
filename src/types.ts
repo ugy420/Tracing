@@ -9,5 +9,6 @@ export type RootStackParamList = {
   CompletionScreen: undefined;
   Login: undefined;
   SignUp: undefined;
-  FeedbackSection:undefined;
+  FeedbackSection: undefined;
+  SettingScreen: undefined;
 };

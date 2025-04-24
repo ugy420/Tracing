@@ -20,7 +20,6 @@ import CompletionScreen from './screens/CompletionScreen';
 import LoginScreen from './screens/login/Login';
 import SignUpScreen from './screens/login/SignUp';
 import FeedbackSection from './screens/FeedbackSection';
-import SettingScreen from './screens/SettingScreen';
 
 
 
@@ -91,11 +90,6 @@ const App = () => {
         <Stack.Screen
           name="FeedbackSection"
           component={FeedbackSection}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="SettingScreen"
-          component={SettingScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

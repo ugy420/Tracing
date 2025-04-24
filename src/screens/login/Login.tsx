@@ -144,14 +144,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16, // Reduced from 20
+    padding: 20,
   },
   formBox: {
-    width: width * 0.8, // Reduced from 0.85
-    maxWidth: 380, // Reduced from 400
+    width: width * 0.85,
+    maxWidth: 400,
     backgroundColor: 'rgba(255, 255, 255, 0.64)',
     borderRadius: 12,
-    padding: 20, // Reduced from 25
+    padding: 25,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
@@ -159,53 +159,53 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   title: {
-    fontSize: 22, // Reduced from 24
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20, // Reduced from 25
+    marginBottom: 25,
     color: '#333',
     textAlign: 'center',
   },
   inputContainer: {
-    marginBottom: 16, // Reduced from 20
+    marginBottom: 20,
   },
   label: {
-    fontSize: 13, // Reduced from 14
-    marginBottom: 6, // Reduced from 8
+    fontSize: 14,
+    marginBottom: 8,
     color: '#333',
     fontWeight: '500',
   },
   input: {
-    height: 42, // Reduced from 45
+    height: 45,
     borderWidth: 1,
-    borderColor: '#AA75CB',
+    borderColor: '#AA75CB', // Custom border color
     borderRadius: 8,
-    paddingHorizontal: 12, // Reduced from 15
-    fontSize: 14, // Reduced from 15
+    paddingHorizontal: 15,
+    fontSize: 15,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
   },
   button: {
     backgroundColor: '#AA75CB',
-    height: 42, // Reduced from 45
+    height: 45,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16, // Reduced from 20
+    marginTop: 20,
   },
   buttonText: {
     color: 'white',
-    fontSize: 15, // Reduced from 16
+    fontSize: 16,
     fontWeight: 'bold',
   },
   secondaryButton: {
-    height: 42, // Reduced from 45
+    height: 45,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 12, // Reduced from 15
+    marginTop: 15,
   },
   secondaryButtonText: {
     color: '#AA75CB',
-    fontSize: 13, // Reduced from 14
+    fontSize: 14,
     fontWeight: '500',
   },
   errorText: {

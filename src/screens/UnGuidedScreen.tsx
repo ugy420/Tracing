@@ -1,5 +1,5 @@
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React from 'react';
 import {
   Image,
   View,
@@ -7,7 +7,6 @@ import {
   ImageBackground,
   Text,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native';
 import {RootStackParamList} from '../types';
 
@@ -20,10 +19,6 @@ type GridItem = {
 
 const UnGuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [gender, setGender] = useState<'male' | 'female'>('male');
-  const {width, height} = Dimensions.get('window');
-  const isLandscape = width > height;
-  const isSmallScreen = width < 375; // iPhone SE size
 
   const gridItems: GridItem[] = [
     {
@@ -44,6 +39,42 @@ const UnGuidedScreen = () => {
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
+    {
+      image: require('../assets/icons/shapeIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
+    {
+      image: require('../assets/icons/clothingIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
+    {
+      image: require('../assets/icons/expressionIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
+    {
+      image: require('../assets/icons/sportsIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
+    {
+      image: require('../assets/icons/fruitsIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
+    {
+      image: require('../assets/icons/familyIcon.png'),
+      subText: 'Subtext',
+      background: require('../assets/icons/brownBox.png'),
+      screen: 'GuidedCategory',
+    },
   ];
 
   return (
@@ -51,69 +82,31 @@ const UnGuidedScreen = () => {
       source={require('../assets/background_images/landing_bg.png')}
       style={styles.background}>
       <View style={styles.header}>
-        {/* Background color layer */}
-        <View style={styles.headerBackground} />
-
-        {/* Avatar Container */}
-        <TouchableOpacity
-          style={[
-            styles.avatarContainer,
-            isLandscape && styles.avatarContainerLandscape,
-            isSmallScreen && styles.avatarContainerSmall,
-          ]}
-          onPress={() => navigation.navigate('Avatar')}>
-          <Image
-            source={require('../assets/avatarImages/a7.png')}
-            style={styles.avatarBorder}
-          />
-          <Image
-            source={
-              gender === 'male'
-                ? require('../assets/icons/cropped_boy.png')
-                : require('../assets/icons/girl.png')
-            }
-            style={styles.avatarImage}
-          />
-        </TouchableOpacity>
-
-        {/* Header Text */}
-        <Text
-          style={[
-            styles.headerText,
-            isLandscape && styles.headerTextLandscape,
-            isSmallScreen && styles.headerTextSmall,
-          ]}>
-          Kuzuzangpo, Lhamo!
-        </Text>
-
-        {/* Icons */}
+        <Text style={styles.headerText}>Kuzuzangpo, Lhamo!</Text>
         <View style={styles.headerIcons}>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Home')}>
-              <Image
-                source={require('../assets/icons/notification1.png')} // Add your notification icon PNG
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-            </View>
-            <View style={styles.iconContainer}>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Achievement')}>
+          {/* <View style={styles.starCount}>
+            <View style={styles.outerRectangle}>
+              <View style={styles.innerRectangle}>
                 <Image
-                  source={require('../assets/icons/award.png')}
-                  style={styles.icon}
+                  source={require('../assets/icons/star.png')}
+                  style={styles.halfstar}
                 />
-              </TouchableOpacity>
+                <Text style={styles.scoreText}>500</Text>
+              </View>
             </View>
+          </View> */}
+
           <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('SettingScreen')}>
-              <Image
-                source={require('../assets/icons/setting.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
+            <Image
+              source={require('../assets/icons/award.png')}
+              style={styles.icon}
+            />
+          </View>
+          <View style={styles.iconContainer}>
+            <Image
+              source={require('../assets/icons/setting.png')}
+              style={styles.icon}
+            />
           </View>
         </View>
       </View>
@@ -127,7 +120,7 @@ const UnGuidedScreen = () => {
             style={styles.backButtonIcon}
           />
         </TouchableOpacity>
-        <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
+        <View style={styles.grid}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -158,76 +151,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    position: 'relative',
-  },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    paddingHorizontal: 20,
     backgroundColor: '#D9D9D9',
     opacity: 0.6,
-    zIndex: -1,
   },
   headerText: {
-    flex: 1,
-    color: 'rgba(239, 141, 56, 0.78)',
-    fontSize: 28,
+    color: 'white',
+    fontSize: 32,
     fontFamily: 'Knewave-Regular',
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginLeft: 60,
-    zIndex: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 2,
-  },
-  headerTextLandscape: {
-    fontSize: 24,
-  },
-  headerTextSmall: {
-    fontSize: 22,
-  },
-  avatarContainer: {
-    position: 'absolute',
-    left: 15,
-    top: '50%',
-    marginTop: -30,
-    width: 60,
-    height: 60,
-    zIndex: 2,
-  },
-  avatarContainerLandscape: {
-    width: 50,
-    height: 50,
-    marginTop: -25,
-  },
-  avatarContainerSmall: {
-    width: 50,
-    height: 50,
-    marginTop: -25,
-  },
-  avatarBorder: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    resizeMode: 'contain',
-  },
-  avatarImage: {
-    width: '70%',
-    height: '70%',
-    position: 'absolute',
-    top: '15%',
-    left: '15%',
-    resizeMode: 'contain',
-    borderRadius: 30,
   },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    zIndex: 2,
   },
   iconContainer: {
     width: 40,
@@ -243,15 +179,28 @@ const styles = StyleSheet.create({
     height: 30,
     marginHorizontal: 3,
   },
+  // starCount: {
+  //   position: 'relative',
+  // },
+  // outerRectangle: {
+  //   width: '100%',
+  //   height: 30,
+  //   borderRadius: 20,
+  //   backgroundColor: '#7E96E4',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
+  // scoreText: {
+  //   color: 'white',
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  // },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 10,
     flexDirection: 'row',
-  },
-  landscapeGrid: {
-    width: '50%',
   },
   grid: {
     width: '35%',

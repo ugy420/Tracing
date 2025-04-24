@@ -11,7 +11,6 @@ import {
   Platform,
   ScrollView,
   KeyboardAvoidingView,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
@@ -28,7 +27,7 @@ const SignUpScreen = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [dob, setDoB] = useState<Date>(new Date());
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-  const [gender, setGender] = useState<'Male' | 'Female'>(null);
+  const [gender, setGender] = useState<'Male' | 'Female' | null>(null);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showConfirmPassword, setShowConfirmPassword] =
     useState<boolean>(false);

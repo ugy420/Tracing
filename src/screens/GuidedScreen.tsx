@@ -14,11 +14,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import avatarImages from '../assets/avatarImages';
 
 type GridItem = {
-  id: string;
   text: string;
   subText: string;
   background: any;
-  screen: 'GuidedCategory';
+  screen: keyof RootStackParamList;
 };
 
 const GuidedScreen = () => {
@@ -34,63 +33,54 @@ const GuidedScreen = () => {
 
   const gridItems: GridItem[] = [
     {
-      id: 'ka',
       text: 'ཀ',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'kha',
       text: 'ཁ',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'ga',
       text: 'ག',
       subText: 'Subtext',
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'nga',
       text: 'ང',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'pcha',
       text: 'ཅ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'cha',
       text: 'ཆ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'jha',
       text: 'ཇ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'mya',
       text: 'ཉ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'ta',
       text: 'ཏ',
       subText: 'Subtext',
       background: require('../assets/icons/brownBox.png'),
@@ -98,12 +88,38 @@ const GuidedScreen = () => {
     },
   ];
 
+  const getUserData = async () => {
+    try {
+      const get_gender = await AsyncStorage.getItem('gender');
+      setGender(get_gender);
+      const get_username = await AsyncStorage.getItem('username');
+      setUsername(get_username);
+      const get_avatar_border = await AsyncStorage.getItem(
+        'current_avatar_border',
+      );
+      if (get_avatar_border) {
+        const avatarKey = `avatar${get_avatar_border}`; // Map number to avatar key
+        setCurrentAvatarBorder(
+          avatarKey in avatarImages
+            ? (avatarKey as keyof typeof avatarImages)
+            : null,
+        );
+      }
+      console.log('Updated currentAvatarBorder:', get_avatar_border);
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
   return (
     <ImageBackground
       source={require('../assets/background_images/landing_bg.png')}
       style={styles.background}>
       <View style={styles.header}>
-        <View style={styles.headerBackground} />
         {/* Avatar Container - Now on the left */}
         <TouchableOpacity
           style={[
@@ -147,15 +163,6 @@ const GuidedScreen = () => {
 
         <View style={styles.headerIcons}>
           <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
-              <Image
-                source={require('../assets/icons/notification1.png')} // Add your notification icon PNG
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.iconContainer}>
             <TouchableOpacity
               onPress={() => navigation.navigate('Achievement')}>
               <Image
@@ -164,7 +171,6 @@ const GuidedScreen = () => {
               />
             </TouchableOpacity>
           </View>
-
           <View style={styles.iconContainer}>
             <TouchableOpacity
               onPress={() => navigation.navigate('FeedbackSection')}>
@@ -183,12 +189,13 @@ const GuidedScreen = () => {
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
-              style={[styles.gridItem]}
+              style={[styles.gridItem, isLandscape && styles.landscapeGridItem]}
               onPress={() => navigation.navigate(item.screen)}>
               <ImageBackground
                 source={item.background}
                 style={styles.gridItemBackground}>
-                <Image style={styles.gridItemImage} source={item.image} />
+                <Text style={styles.gridItemText}>{item.text}</Text>
+                <Text style={styles.gridItemSubText}>{item.subText}</Text>
               </ImageBackground>
             </TouchableOpacity>
           ))}
@@ -221,28 +228,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9D9',
     opacity: 0.6,
   },
-  headerBackground: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#D9D9D9',
-    opacity: 0.6,
-    zIndex: -1,
-  },
   headerText: {
     flex: 1,
-    color: 'rgba(239, 141, 56, 0.78)',
+    color: 'white',
     fontSize: 28,
-    fontFamily: 'Arial',
+    fontFamily: 'Knewave-Regular',
     fontWeight: 'bold',
     textAlign: 'center',
     marginLeft: 60, // Make space for avatar
-    zIndex: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 2,
   },
   headerTextLandscape: {
     fontSize: 24,
@@ -258,7 +251,7 @@ const styles = StyleSheet.create({
     marginTop: -30, // Half of height to center vertically
     width: 60,
     height: 60,
-    zIndex: 2,
+    zIndex: 10,
   },
   avatarContainerLandscape: {
     width: 50,
@@ -288,7 +281,6 @@ const styles = StyleSheet.create({
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    zIndex: 2,
   },
   iconContainer: {
     width: 40,
@@ -335,15 +327,23 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 5,
   },
+  landscapeGridItem: {
+    width: '18%',
+    margin: '1%',
+  },
   gridItemBackground: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  gridItemImage: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
+  gridItemText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  gridItemSubText: {
+    fontSize: 16,
+    color: 'white',
   },
   nextButton: {
     width: 50,

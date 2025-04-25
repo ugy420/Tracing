@@ -22,30 +22,27 @@ const FeedbackSection = () => {
   const [feedback, setFeedback] = useState<string>('');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Handle orientation changes
+  // Lock to landscape orientation only
   useEffect(() => {
-    Orientation.unlockAllOrientations();
+    // Force landscape orientation
+    Orientation.lockToLandscape();
+    
+    // Update dimensions when screen size changes (e.g., different devices)
     const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
+    
     return () => {
-      Orientation.lockToLandscape();
       subscription.remove();
     };
   }, []);
 
-  const isLandscape = dimensions.width > dimensions.height;
-
-  // Responsive values
-  const responsiveFontSize = isLandscape ? 16 : 14;
-  const responsiveInputHeight = isLandscape ? 50 : 40;
-  const formWidth = isLandscape
-    ? dimensions.width * 0.6
-    : dimensions.width * 0.9;
-  const titleFontSize = isLandscape ? 22 : 20;
-  const feedbackInputHeight = isLandscape
-    ? dimensions.height * 0.3
-    : dimensions.height * 0.2;
+  // Responsive values based on screen size
+  const fontSize = Math.max(16, dimensions.width * 0.015);
+  const inputHeight = Math.max(50, dimensions.height * 0.08);
+  const formWidth = dimensions.width * 0.6;
+  const titleFontSize = Math.min(26, dimensions.width * 0.03);
+  const feedbackInputHeight = dimensions.height * 0.3;
 
   const handleSubmitFeedback = () => {
     if (!feedback.trim()) {
@@ -59,12 +56,12 @@ const FeedbackSection = () => {
   };
 
   const styles = createStyles(
-    isLandscape,
-    responsiveFontSize,
-    responsiveInputHeight,
+    fontSize,
+    inputHeight,
     formWidth,
     titleFontSize,
     feedbackInputHeight,
+    dimensions,
   );
 
   return (
@@ -75,23 +72,31 @@ const FeedbackSection = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}>
         <SafeAreaView style={styles.container}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-              <Image
-                source={require('../assets/icons/home.png')}
-                style={styles.headerIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Image
-                source={require('../assets/icons/back_color.png')}
-                style={styles.headerIcon}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.centerContainer}>
+          <View style={styles.header}>
+            <View style={styles.headerNavigation}>
+              <TouchableOpacity 
+                onPress={() => navigation.navigate('Home')}
+                style={styles.headerButton}
+              >
+                <Image
+                  source={require('../assets/icons/home.png')}
+                  style={styles.headerIcon}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                onPress={() => navigation.goBack()}
+                style={styles.headerButton}
+              >
+                <Image
+                  source={require('../assets/icons/back_color.png')}
+                  style={styles.headerIcon}
+                />
+              </TouchableOpacity>
+            </View>
             <Text style={styles.title}>We Value Your Feedback</Text>
+          </View>
 
+          <View style={styles.centerContainer}>
             <View style={styles.formContainer}>
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Your Feedback*</Text>
@@ -120,14 +125,19 @@ const FeedbackSection = () => {
 };
 
 const createStyles = (
-  isLandscape: boolean,
   fontSize: number,
   inputHeight: number,
   formWidth: number,
   titleFontSize: number,
   feedbackInputHeight: number,
-) =>
-  StyleSheet.create({
+  screenDimensions: { width: number, height: number },
+) => {
+  // Calculate responsive values based on screen dimensions
+  const headerHeight = screenDimensions.height * 0.2;
+  const headerIconSize = Math.max(40, screenDimensions.height * 0.08);
+  const headerPadding = screenDimensions.width * 0.01;
+  
+  return StyleSheet.create({
     backgroundImage: {
       flex: 1,
       resizeMode: 'cover',
@@ -135,25 +145,38 @@ const createStyles = (
     container: {
       flex: 1,
       backgroundColor: 'rgba(183, 179, 179, 0.17)',
-      justifyContent: 'center',
     },
     headerIcon: {
-      height: 40,
-      width: 40,
+      height: headerIconSize,
+      width: headerIconSize,
       resizeMode: 'contain',
     },
-    headerLeft: {
+    headerButton: {
+      padding: 8, // Add padding to increase touchable area
+      marginRight: headerPadding,
+    },
+    headerNavigation: {
       flexDirection: 'row',
       alignItems: 'center',
+      zIndex: 2, // Ensure navigation buttons are above the title
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: headerPadding / 2,
+      paddingHorizontal: headerPadding,
+      height: headerHeight,
+      position: 'relative',
     },
     centerContainer: {
+      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 20,
     },
     formContainer: {
       width: formWidth,
-      maxWidth: 500,
+      maxWidth: Math.min(500, screenDimensions.width * 0.7),
       backgroundColor: 'rgba(112, 109, 109, 0.57)',
       borderRadius: 12,
       padding: 20,
@@ -161,12 +184,15 @@ const createStyles = (
     title: {
       fontSize: titleFontSize,
       fontWeight: 'bold',
-      marginBottom: 20,
-      color: '#fff',
+      color: 'rgba(239, 141, 56, 0.78)',
+      position: 'absolute',
+      left: 0,
+      right: 0,
       textAlign: 'center',
       textShadowColor: 'rgba(0, 0, 0, 0.5)',
       textShadowOffset: {width: 1, height: 1},
       textShadowRadius: 2,
+      zIndex: 1,
     },
     inputContainer: {
       marginBottom: 20,
@@ -201,5 +227,6 @@ const createStyles = (
       fontWeight: 'bold',
     },
   });
+};
 
 export default FeedbackSection;

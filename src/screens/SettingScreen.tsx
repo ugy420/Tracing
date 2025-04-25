@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
   Text,
@@ -17,13 +17,20 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
+import {useMusic} from '../components/MusicContext';
 
 const SettingsScreen = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.7);
-  const [musicVolume, setMusicVolume] = useState(0.5);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  // Use music context for global music control
+  const {volume, updateVolume} = useMusic();
+
+  // Refs to prevent flicker
+  const soundVolumeRef = useRef(soundVolume);
+  const musicVolumeRef = useRef(volume);
 
   // Lock to landscape on mount
   useEffect(() => {
@@ -35,15 +42,6 @@ const SettingsScreen = () => {
       subscription?.remove();
     };
   }, []);
-
-  // Update music volume in your global state or context here
-  // This would be where you update the volume for your app's background music
-  useEffect(() => {
-    // Here you would typically update your global music player volume
-    // For example, if you're using a context or redux for music:
-    // updateBackgroundMusicVolume(musicVolume);
-    console.log('Music volume updated to:', musicVolume);
-  }, [musicVolume]);
 
   // Responsive values based on screen dimensions
   const isSmallScreen = dimensions.height < 400;
@@ -57,7 +55,7 @@ const SettingsScreen = () => {
     console.log('Settings saved:', {
       notificationsEnabled,
       soundVolume,
-      musicVolume,
+      musicVolume: volume,
     });
     Alert.alert('Success', 'Your settings have been saved!');
   };
@@ -72,8 +70,20 @@ const SettingsScreen = () => {
     formWidth,
     titleFontSize,
     sectionSpacing,
-    dimensions.height,
+    dimensions,
   );
+
+  // Handle sound volume change with type annotation
+  const handleSoundVolumeChange = (value: number) => {
+    soundVolumeRef.current = value;
+    setSoundVolume(value);
+  };
+
+  // Handle music volume change with type annotation
+  const handleMusicVolumeChange = (value: number) => {
+    musicVolumeRef.current = value;
+    updateVolume(value);
+  };
 
   return (
     <ImageBackground
@@ -81,18 +91,24 @@ const SettingsScreen = () => {
       style={styles.backgroundImage}>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-            <Image
-              source={require('../assets/icons/home.png')}
-              style={styles.headerIcon}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Image
-              source={require('../assets/icons/back_color.png')}
-              style={styles.headerIcon}
-            />
-          </TouchableOpacity>
+          <View style={styles.headerNavigation}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Home')}
+              style={styles.headerButton}>
+              <Image
+                source={require('../assets/icons/home.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={styles.headerButton}>
+              <Image
+                source={require('../assets/icons/back_color.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+          </View>
           <Text style={styles.title}>App Settings</Text>
         </View>
 
@@ -101,19 +117,21 @@ const SettingsScreen = () => {
             <View style={styles.formContainer}>
               {/* Notification Settings */}
               <View style={styles.settingItem}>
-                <View style={styles.iconLabelContainer}>
-                  <Image
-                    source={require('../assets/icons/notification.png')}
-                    style={styles.settingIcon}
+                <View style={styles.switchContainer}>
+                  <View style={styles.iconLabelContainer}>
+                    <Image
+                      source={require('../assets/icons/notification.png')}
+                      style={styles.settingIcon}
+                    />
+                    <Text style={styles.settingLabel}>Enable Notifications</Text>
+                  </View>
+                  <Switch
+                    value={notificationsEnabled}
+                    onValueChange={setNotificationsEnabled}
+                    trackColor={{false: '#767577', true: '#AA75CB'}}
+                    thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
                   />
-                  <Text style={styles.settingLabel}>Enable Notifications</Text>
                 </View>
-                <Switch
-                  value={notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
-                  trackColor={{false: '#767577', true: '#AA75CB'}}
-                  thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
-                />
               </View>
 
               {/* Sound Volume */}
@@ -136,7 +154,9 @@ const SettingsScreen = () => {
                     maximumValue={1}
                     step={0.1}
                     value={soundVolume}
-                    onValueChange={setSoundVolume}
+                    onValueChange={handleSoundVolumeChange}
+                    // Only update when sliding is complete to reduce flickering
+                    onSlidingComplete={setSoundVolume}
                     minimumTrackTintColor="#AA75CB"
                     maximumTrackTintColor="#767577"
                     thumbTintColor="#f4f3f4"
@@ -152,13 +172,15 @@ const SettingsScreen = () => {
                 <View style={styles.iconLabelContainer}>
                   <Image
                     source={
-                      musicVolume > 0
+                      volume > 0
                         ? require('../assets/icons/music.png')
                         : require('../assets/icons/music-off.png')
                     }
                     style={styles.settingIcon}
                   />
-                  <Text style={styles.settingLabel}>Background Music Volume</Text>
+                  <Text style={styles.settingLabel}>
+                    Background Music Volume
+                  </Text>
                 </View>
                 <View style={styles.sliderContainer}>
                   <Slider
@@ -166,14 +188,16 @@ const SettingsScreen = () => {
                     minimumValue={0}
                     maximumValue={1}
                     step={0.1}
-                    value={musicVolume}
-                    onValueChange={setMusicVolume}
+                    value={volume}
+                    onValueChange={handleMusicVolumeChange}
+                    // Only update when sliding is complete to reduce flickering
+                    onSlidingComplete={updateVolume}
                     minimumTrackTintColor="#AA75CB"
                     maximumTrackTintColor="#767577"
                     thumbTintColor="#f4f3f4"
                   />
                   <Text style={styles.volumeText}>
-                    {Math.round(musicVolume * 100)}%
+                    {Math.round(volume * 100)}%
                   </Text>
                 </View>
               </View>
@@ -205,9 +229,15 @@ const createStyles = (
   formWidth: number,
   titleFontSize: number,
   sectionSpacing: number,
-  screenHeight: number,
-) =>
-  StyleSheet.create({
+  screenDimensions: {width: number; height: number},
+) => {
+  // Calculate responsive values based on screen dimensions
+  const headerHeight = screenDimensions.height * 0.2;
+  const headerIconSize = Math.max(40, screenDimensions.height * 0.08);
+  const responsiveTitleSize = Math.min(26, screenDimensions.width * 0.03);
+  const headerPadding = screenDimensions.width * 0.01;
+
+  return StyleSheet.create({
     backgroundImage: {
       flex: 1,
       resizeMode: 'cover',
@@ -219,97 +249,119 @@ const createStyles = (
     scrollContainer: {
       flexGrow: 1,
       justifyContent: 'center',
-      minHeight: screenHeight,
+      minHeight: screenDimensions.height,
     },
     headerIcon: {
-      height: 40,
-      width: 40,
+      height: headerIconSize,
+      width: headerIconSize,
       resizeMode: 'contain',
+    },
+    headerButton: {
+      padding: 8, // Add padding to increase touchable area
+      marginRight: headerPadding,
+    },
+    headerNavigation: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      zIndex: 2, // Ensure navigation buttons are above the title
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      padding: 15,
+      paddingVertical: headerPadding / 2,
+      paddingHorizontal: headerPadding,
+      height: headerHeight,
+      position: 'relative',
     },
     centerContainer: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingBottom: 20,
+      paddingHorizontal: screenDimensions.width * 0.03,
+      paddingBottom: screenDimensions.height * 0.03,
     },
     formContainer: {
       width: formWidth,
-      maxWidth: 500,
+      maxWidth: Math.min(500, screenDimensions.width * 0.7),
       backgroundColor: 'rgba(112, 109, 109, 0.57)',
       borderRadius: 12,
-      padding: 20,
-      marginVertical: 10,
+      padding: screenDimensions.width * 0.02,
+      marginVertical: screenDimensions.height * 0.02,
     },
     title: {
-      fontSize: titleFontSize,
+      fontSize: responsiveTitleSize,
       fontWeight: 'bold',
-      color: '#fff',
-      paddingStart: 300,
+      color: 'rgba(239, 141, 56, 0.78)',
+      position: 'absolute',
+      left: 0,
+      right: 0,
       textAlign: 'center',
       textShadowColor: 'rgba(0, 0, 0, 0.5)',
       textShadowOffset: {width: 1, height: 1},
       textShadowRadius: 2,
+      zIndex: 1,
     },
     settingItem: {
       marginBottom: sectionSpacing,
-      paddingVertical: 10,
+      paddingVertical: screenDimensions.height * 0.015,
       borderBottomWidth: 1,
       borderBottomColor: 'rgba(255, 255, 255, 0.2)',
     },
     iconLabelContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 10,
+      marginBottom: screenDimensions.height * 0.015,
+    },
+    switchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
     },
     settingIcon: {
-      width: 24,
-      height: 24,
-      marginRight: 10,
+      width: Math.min(24, screenDimensions.width * 0.02),
+      height: Math.min(24, screenDimensions.width * 0.02),
+      marginRight: screenDimensions.width * 0.01,
       resizeMode: 'contain',
     },
     settingLabel: {
-      fontSize: fontSize,
+      fontSize: Math.max(fontSize, screenDimensions.width * 0.015),
       color: '#fff',
       fontWeight: '600',
     },
     sliderContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: 10,
+      marginBottom: screenDimensions.height * 0.015,
     },
     slider: {
       flex: 1,
-      height: 30,
-      marginRight: 10,
+      height: screenDimensions.height * 0.05,
+      marginRight: screenDimensions.width * 0.01,
     },
     volumeText: {
       color: '#fff',
-      width: 50,
+      width: screenDimensions.width * 0.05,
       textAlign: 'right',
+      fontSize: Math.max(fontSize * 0.9, screenDimensions.width * 0.014),
     },
     button: {
       backgroundColor: '#AA75CB',
-      height: buttonHeight,
+      height: Math.max(buttonHeight, screenDimensions.height * 0.08),
       borderRadius: 8,
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: sectionSpacing,
     },
     feedbackButton: {
-      backgroundColor: '#4A90E2',
-      marginTop: 10,
+      backgroundColor: 'rgba(239, 141, 56, 0.78)',
+      marginTop: screenDimensions.height * 0.02,
     },
     buttonText: {
       color: 'white',
-      fontSize: fontSize,
+      fontSize: Math.max(fontSize, screenDimensions.width * 0.016),
       fontWeight: 'bold',
     },
   });
+};
 
 export default SettingsScreen;

@@ -81,8 +81,15 @@ const styles = StyleSheet.create({
   headerText: {
     fontFamily: 'Unlock-Bold',
     fontSize: 40,
-    color: '#0B3936',
+    color: 'rgb(255, 255, 255)',
     fontWeight: 'bold',
+    // Shadow
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: 5, height: 5 },
+    textShadowRadius: 5,
+
+    padding: 10,
+    letterSpacing: 1.5,
   },
   headerIcons: {
     flexDirection: 'row',
@@ -107,7 +114,7 @@ const styles = StyleSheet.create({
   modeText: {
     fontFamily: 'Unlock-Bold',
     fontSize: 40,
-    color: '#082404',
+    color: 'rgb(200, 213, 236)',
     fontWeight: 'bold',
   },
   textBg: {

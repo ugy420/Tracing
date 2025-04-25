@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Button, Alert} from 'react-native';
+import {View, Button} from 'react-native';
 import {
   Canvas,
   Fill,

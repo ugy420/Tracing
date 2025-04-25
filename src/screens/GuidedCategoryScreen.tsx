@@ -48,14 +48,14 @@ const GuidedCategory = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Home')}>  {/* Changed from GuidedCategory to Home */}
               <Image
                 source={require('../assets/icons/home.png')}
                 style={styles.headerIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('GuidedCategory')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
               <Image
                 source={require('../assets/icons/back_color.png')}
                 style={styles.headerIcon}
@@ -64,14 +64,18 @@ const GuidedCategory = () => {
           </View>
           <Text style={styles.dzongkhaText}>དབྱེ་རིམ།</Text>
           <View style={styles.headerRight}>
-            <Image
-              source={require('../assets/icons/volume.png')}
-              style={styles.headerIcon}
-            />
-            <Image
-              source={require('../assets/icons/setting_color.png')}
-              style={styles.headerIcon}
-            />
+            <TouchableOpacity>  {/* Added TouchableOpacity for consistency */}
+              <Image
+                source={require('../assets/icons/volume.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('SettingScreen')}>  {/* Added navigation to Settings */}
+              <Image
+                source={require('../assets/icons/setting_color.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
           </View>
         </View>
         <FlatList

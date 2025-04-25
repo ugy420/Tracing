@@ -4,11 +4,11 @@ import {
   Image,
   View,
   StyleSheet,
-  ImageBackground,
-  Text,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 import {RootStackParamList} from '../types';
+import SharedLayout from '../components/SharedLayout';
 
 type GridItem = {
   image: any;
@@ -71,39 +71,7 @@ const UnGuidedScreen = () => {
   ];
 
   return (
-    <ImageBackground
-      source={require('../assets/background_images/landing_bg.png')}
-      style={styles.background}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Kuzuzangpo, Lhamo!</Text>
-        <View style={styles.headerIcons}>
-          {/* <View style={styles.starCount}>
-            <View style={styles.outerRectangle}>
-              <View style={styles.innerRectangle}>
-                <Image
-                  source={require('../assets/icons/star.png')}
-                  style={styles.halfstar}
-                />
-                <Text style={styles.scoreText}>500</Text>
-              </View>
-            </View>
-          </View> */}
-
-          <View style={styles.iconContainer}>
-            <Image
-              source={require('../assets/icons/award.png')}
-              style={styles.icon}
-            />
-          </View>
-          <View style={styles.iconContainer}>
-            <Image
-              source={require('../assets/icons/setting.png')}
-              style={styles.icon}
-            />
-          </View>
-        </View>
-      </View>
-
+    <SharedLayout headerTitle="Kuzuzangpo, Lhamo!">
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.backButton}
@@ -128,65 +96,11 @@ const UnGuidedScreen = () => {
           ))}
         </View>
       </View>
-    </ImageBackground>
+    </SharedLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-  },
-  header: {
-    height: '15%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#D9D9D9',
-    opacity: 0.6,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 32,
-    fontFamily: 'Knewave-Regular',
-    fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    backgroundColor: '#2682F4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 3,
-  },
-  // starCount: {
-  //   position: 'relative',
-  // },
-  // outerRectangle: {
-  //   width: '100%',
-  //   height: 30,
-  //   borderRadius: 20,
-  //   backgroundColor: '#7E96E4',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // scoreText: {
-  //   color: 'white',
-  //   fontSize: 24,
-  //   fontWeight: 'bold',
-  // },
   container: {
     flex: 1,
     justifyContent: 'center',

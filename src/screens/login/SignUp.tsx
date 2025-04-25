@@ -170,7 +170,7 @@ const SignUpScreen = () => {
                   <Text style={styles.label}>Password</Text>
                   <View style={styles.passwordContainer}>
                     <TextInput
-                      style={[styles.input, {flex: 1}]}
+                      style={styles.input}
                       placeholder="Enter your password"
                       placeholderTextColor="#999"
                       value={password}
@@ -191,7 +191,7 @@ const SignUpScreen = () => {
                   <Text style={styles.label}>Confirm Password</Text>
                   <View style={styles.passwordContainer}>
                     <TextInput
-                      style={[styles.input, {flex: 1}]}
+                      style={styles.input}
                       placeholder="Confirm your password"
                       placeholderTextColor="#999"
                       value={confirmPassword}
@@ -339,6 +339,7 @@ const createStyles = (
       fontWeight: '500',
     },
     input: {
+      flex: 1,
       height: inputHeight,
       borderWidth: 1,
       borderColor: '#AA75CB',

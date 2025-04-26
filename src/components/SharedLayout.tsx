@@ -18,10 +18,7 @@ type SharedLayoutProps = {
   headerTitle?: string;
 };
 
-const SharedLayout = ({
-  children,
-  headerTitle = 'Kuzuzangpo, Lhamo!',
-}: SharedLayoutProps) => {
+const SharedLayout = ({children}: SharedLayoutProps) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [gender, setGender] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);

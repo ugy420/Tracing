@@ -11,4 +11,5 @@ export type RootStackParamList = {
   SignUp: undefined;
   FeedbackSection:undefined;
   SettingScreen: undefined;
+  QuizScreen: undefined;
 };

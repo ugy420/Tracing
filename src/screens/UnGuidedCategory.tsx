@@ -1,170 +1,143 @@
-import React, { useEffect, useState } from "react";
-import { View, Button } from "react-native";
-import { Canvas, Fill, Mask, Path, Skia, SkPath, SkPoint } from "@shopify/react-native-skia";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import { useSharedValue, runOnJS } from "react-native-reanimated";
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from "../types";
-import { dzongkhaLetters } from "../data/dzongkhaLetters";
-import { svgPathProperties } from "svg-path-properties";
+import React from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ImageBackground,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from '../types';
+import CardCategory from '../components/CardCategory';
 
+type CardItem = {
+  id: string;
+  text: string;
+  backgroundColor: any;
+  screen: 'Tracing';
+};
 
-type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
+const UnGuidedCategory = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-const Tracing = () => {
-  const route = useRoute<TracingScreenRouteProp>();
-  const { id } = route.params;
-  const letter = dzongkhaLetters.find((letter) => letter.id === id);
+  const CardBgColors = ['#14D0FF', '#FFD214', '#FF14D0', '#14FFD0', '#fa6f05'];
 
-  if (!letter) {
-    console.error(`Letter with id ${id} not found`);
-    return null;
-  }
-
-  const svgStrings = letter.svgPath;
-  const [currentPart, setCurrentPart] = useState(0);
-  const drawPath = useSharedValue<SkPath>(Skia.Path.Make());
-
-  // Checkpoint-related states
-  const [checkpoints, setCheckpoints] = useState<SkPoint[]>([]);
-  const [visitedCheckpoints, setVisitedCheckpoints] = useState<boolean[]>([]);
-  const threshold = 25;
-
-  // Generate checkpoints from SVG path
-  const generateCheckpoints = (svg: string, numPoints = 10): SkPoint[] => {
-    try {
-      const props = new svgPathProperties(svg);
-      const length = props.getTotalLength();
-      const points: SkPoint[] = [];
-  
-      for (let i = 0; i < numPoints; i++) {
-        const dist = (i / (numPoints - 1)) * length;
-        const { x, y } = props.getPointAtLength(dist);
-        points.push({ x, y });
-      }
-  
-      return points;
-    } catch (err) {
-      console.warn("Failed to generate checkpoints:", err);
-      return [];
-    }
-  };
-
-  // Update checkpoints on part change
-  useEffect(() => {
-    const newCheckpoints = generateCheckpoints(svgStrings[currentPart]);
-    setCheckpoints(newCheckpoints);
-    setVisitedCheckpoints(Array(newCheckpoints.length).fill(false));
-    drawPath.value = Skia.Path.Make(); // clear previous path
-  }, [currentPart]);
-
-  // Move to next part
-  const handleNextPart = () => {
-    if (currentPart < svgStrings.length - 1) {
-      setCurrentPart(currentPart + 1);
-    }
-  };
-
-  // Reset drawing and checkpoints
-  const reset = () => {
-    drawPath.value = Skia.Path.Make();
-    setCurrentPart(0);
-  };
-
-  // Update visited checkpoints based on gesture
-  const updateVisitedCheckpoints = (x: number, y: number) => {
-    setVisitedCheckpoints((prev) => {
-      const updated = [...prev];
-      checkpoints.forEach((cp, index) => {
-        const dx = x - cp.x;
-        const dy = y - cp.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < threshold && !updated[index]) {
-          updated[index] = true;
-        }
-      });
-
-      if (updated.every((v) => v)) {
-        runOnJS(handleNextPart)();
-        return Array(checkpoints.length).fill(false);
-      }
-
-      return updated;
-    });
-  };
-
-  const gesture = Gesture.Pan()
-    .onBegin((event) => {
-      drawPath.value.moveTo(event.x, event.y);
-      drawPath.modify();
-    })
-    .onChange((event) => {
-      drawPath.value.lineTo(event.x, event.y);
-      drawPath.modify();
-      runOnJS(updateVisitedCheckpoints)(event.x, event.y);
-    });
+  const cardData: CardItem[] = [
+    {id: 'ka', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
+    {id: 'kha', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Tracing'},
+    {
+      id: 'ga',
+      text: 'ག',
+      backgroundColor: CardBgColors[2],
+      screen: 'Tracing',
+    },
+    {
+      id: 'nga',
+      text: 'ང',
+      backgroundColor: CardBgColors[3],
+      screen: 'Tracing',
+    },
+  ];
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <GestureDetector gesture={gesture}>
-        <Canvas style={{ flex: 1 }}>
-          <Fill color="#49EDFF" />
-
-          {/* Display all path parts */}
-          {svgStrings.map((svg, index) => (
-            <Path
-              key={index}
-              path={Skia.Path.MakeFromSVGString(svg)!}
-              color={
-                index < currentPart
-                  ? "#FA00FF"
-                  : index === currentPart
-                  ? "black"
-                  : "white"
-              }
-            />
-          ))}
-
-          {/* Mask for current part */}
-          <Mask
-            mask={
-              <Path
-                path={drawPath}
-                color="black"
-                strokeWidth={50}
-                style="stroke"
+    <ImageBackground
+      source={require('../assets/background_images/guided_bg.jpeg')}
+      style={styles.background}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Image
+                source={require('../assets/icons/home.png')}
+                style={styles.headerIcon}
               />
-            }
-          >
-            <Path
-              path={Skia.Path.MakeFromSVGString(svgStrings[currentPart])!}
-              color="#FA00FF"
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('GuidedCategory')}>
+              <Image
+                source={require('../assets/icons/back_color.png')}
+                style={styles.headerIcon}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.dzongkhaText}>དབྱེ་རིམ།</Text>
+          <View style={styles.headerRight}>
+            <Image
+              source={require('../assets/icons/volume.png')}
+              style={styles.headerIcon}
             />
-          </Mask>
-
-          {/* Optional: Visualize checkpoints */}
-          {checkpoints.map((pt, index) => (
-            <Path
-              key={`cp-${index}`}
-              path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
-              color={visitedCheckpoints[index] ? "green" : "red"}
+            <Image
+              source={require('../assets/icons/setting_color.png')}
+              style={styles.headerIcon}
             />
-          ))}
-        </Canvas>
-      </GestureDetector>
-
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          marginBottom: 20,
-        }}
-      >
-        <Button title="Reset" onPress={reset} />
-        <Button title="Next Part" onPress={handleNextPart} />
+          </View>
+        </View>
+        <FlatList
+          data={cardData}
+          renderItem={({item}) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate(item.screen, {id: item.id})}>
+              <CardCategory
+                text={item.text}
+                backgroundColor={item.backgroundColor}
+              />
+            </TouchableOpacity>
+          )}
+          keyExtractor={item => item.id}
+          horizontal={true}
+          contentContainerStyle={styles.cardContainer}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={120}
+          decelerationRate="fast"
+        />
       </View>
-    </GestureHandlerRootView>
+    </ImageBackground>
   );
 };
 
-export default Tracing;
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+  },
+  container: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  dzongkhaText: {
+    fontSize: 25,
+    lineHeight: 70,
+    marginBottom: 5,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  cardContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  headerIcon: {
+    height: 40,
+    width: 40,
+    resizeMode: 'contain',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});
+
+export default UnGuidedCategory;

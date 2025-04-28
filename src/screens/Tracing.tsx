@@ -1,19 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { View, Button, Alert } from "react-native";
-import { Canvas, Fill, Mask, Path, Skia, SkPath, SkPoint } from "@shopify/react-native-skia";
-import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import { useSharedValue, runOnJS } from "react-native-reanimated";
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from "../types";
-import { dzongkhaLetters } from "../data/dzongkhaLetters";
-import { svgPathProperties } from "svg-path-properties";
+import React, {useEffect, useState} from 'react';
+import {View, Button} from 'react-native';
+import {
+  Canvas,
+  Fill,
+  Mask,
+  Path,
+  Skia,
+  SkPath,
+  SkPoint,
+} from '@shopify/react-native-skia';
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from 'react-native-gesture-handler';
+import {useSharedValue, runOnJS} from 'react-native-reanimated';
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
+import {RootStackParamList} from '../types';
+import {dzongkhaLetters} from '../data/dzongkhaLetters';
+import {svgPathProperties} from 'svg-path-properties';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
 const Tracing = () => {
   const route = useRoute<TracingScreenRouteProp>();
-  const { id } = route.params;
-  const letter = dzongkhaLetters.find((letter) => letter.id === id);
+  const {id} = route.params;
+  const letter = dzongkhaLetters.find(letter => letter.id === id);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
   if (!letter) {
     console.error(`Letter with id ${id} not found`);
     return null;
@@ -47,8 +66,9 @@ const Tracing = () => {
     if (currentPart < svgGuides.length - 1) {
       setCurrentPart(currentPart + 1);
     } else if (currentPart === svgGuides.length - 1) {
-      console.log("All parts completed");
-      Alert.alert("Congratulations!", "You have completed the tracing!");
+      console.log('All parts completed');
+      // Alert.alert('Congratulations!', 'You have completed the tracing!');
+      navigation.navigate('CompletionScreen');
     }
   };
   const reset = () => {
@@ -56,7 +76,7 @@ const Tracing = () => {
     setCurrentPart(0);
   };
   const updateVisitedCheckpoints = (x: number, y: number) => {
-    setVisitedCheckpoints((prev) => {
+    setVisitedCheckpoints(prev => {
       const updated = [...prev];
       checkpoints.forEach((cp, index) => {
         const dx = x - cp.x; const dy = y - cp.y; const dist = Math.sqrt(dx * dx + dy * dy);
@@ -88,7 +108,7 @@ const Tracing = () => {
     }
   });
   return (
-    <View style={{ flex: 1, backgroundColor: "orange" }}>
+    <View style={{flex: 1, backgroundColor: 'orange'}}>
       <Button title="Reset" onPress={reset} />
       <GestureHandlerRootView>
         <GestureDetector gesture={gesture}>
@@ -134,4 +154,6 @@ const Tracing = () => {
       </GestureHandlerRootView>
     </View >
   );
-}; export default Tracing;
+};
+
+export default Tracing;

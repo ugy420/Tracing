@@ -7,4 +7,8 @@ export type RootStackParamList = {
   Tracing: {id: string};
   Achievement: undefined;
   CompletionScreen: undefined;
+  Login: undefined;
+  SignUp: undefined;
+  FeedbackSection: undefined;
+  SettingScreen: undefined;
 };

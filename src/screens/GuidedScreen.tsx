@@ -4,141 +4,56 @@ import {
   Image,
   View,
   StyleSheet,
-  ImageBackground,
-  Text,
   TouchableOpacity,
+  Dimensions,
+  ImageBackground,
 } from 'react-native';
 import {RootStackParamList} from '../types';
+import SharedLayout from '../components/SharedLayout';
 
 type GridItem = {
-  id: string;
-  text: string;
-  subText: string;
+  image: any;
   background: any;
-  screen: 'GuidedCategory';
+  screen: keyof RootStackParamList;
 };
 
 const GuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const {width, height} = Dimensions.get('window');
+  const isLandscape = width > height;
 
   const gridItems: GridItem[] = [
     {
-      id: 'ka',
-      text: 'ཀ',
-      subText: 'Subtext',
+      image: require('../assets/alphabets/saljay.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'kha',
-      text: 'ཁ',
-      subText: 'Subtext',
+      image: require('../assets/numbers/numbers.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
     {
-      id: 'ga',
-      text: 'ག',
-      subText: 'Subtext',
+      image: require('../assets/alphabets/yaang.png'),
       background: require('../assets/icons/blueBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'nga',
-      text: 'ང',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'pcha',
-      text: 'ཅ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'cha',
-      text: 'ཆ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'jha',
-      text: 'ཇ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'mya',
-      text: 'ཉ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      id: 'ta',
-      text: 'ཏ',
-      subText: 'Subtext',
-      background: require('../assets/icons/brownBox.png'),
       screen: 'GuidedCategory',
     },
   ];
 
   return (
-    <ImageBackground
-      source={require('../assets/background_images/landing_bg.png')}
-      style={styles.background}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Kuzuzangpo, Lhamo!</Text>
-        <View style={styles.headerIcons}>
-          {/* <View style={styles.starCount}>
-            <View style={styles.outerRectangle}>
-              <View style={styles.innerRectangle}>
-                <Image
-                  source={require('../assets/icons/star.png')}
-                  style={styles.halfstar}
-                />
-                <Text style={styles.scoreText}>500</Text>
-              </View>
-            </View>
-          </View> */}
-
-          <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Achievement')}>
-              <Image
-                source={require('../assets/icons/award.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('CompletionScreen')}>
-              <Image
-                source={require('../assets/icons/setting.png')}
-                style={styles.icon}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.container}>
-        <View style={styles.grid}>
+    <SharedLayout headerTitle="Kuzuzangpo, Lhamo!">
+      <View
+        style={[styles.container, isLandscape && styles.landscapeContainer]}>
+        <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
-              style={styles.gridItem}
+              style={[styles.gridItem]}
               onPress={() => navigation.navigate(item.screen)}>
               <ImageBackground
                 source={item.background}
                 style={styles.gridItemBackground}>
-                <Text style={styles.gridItemText}>{item.text}</Text>
-                <Text style={styles.gridItemSubText}>{item.subText}</Text>
+                <Image style={styles.gridItemImage} source={item.image} />
               </ImageBackground>
             </TouchableOpacity>
           ))}
@@ -152,65 +67,11 @@ const GuidedScreen = () => {
           />
         </TouchableOpacity>
       </View>
-    </ImageBackground>
+    </SharedLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'center',
-  },
-  header: {
-    height: '15%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    backgroundColor: '#D9D9D9',
-    opacity: 0.6,
-  },
-  headerText: {
-    color: 'white',
-    fontSize: 32,
-    fontFamily: 'Knewave-Regular',
-    fontWeight: 'bold',
-  },
-  headerIcons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 25,
-    backgroundColor: '#2682F4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  icon: {
-    width: 30,
-    height: 30,
-    marginHorizontal: 3,
-  },
-  // starCount: {
-  //   position: 'relative',
-  // },
-  // outerRectangle: {
-  //   width: '100%',
-  //   height: 30,
-  //   borderRadius: 20,
-  //   backgroundColor: '#7E96E4',
-  //   justifyContent: 'center',
-  //   alignItems: 'center',
-  // },
-  // scoreText: {
-  //   color: 'white',
-  //   fontSize: 24,
-  //   fontWeight: 'bold',
-  // },
   container: {
     flex: 1,
     flexDirection: 'row',
@@ -218,11 +79,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
   },
+  landscapeContainer: {
+    paddingTop: 5,
+  },
   grid: {
     width: '35%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+  },
+  landscapeGrid: {
+    width: '50%',
   },
   gridItem: {
     width: '28%',
@@ -241,14 +108,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  gridItemText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  gridItemSubText: {
-    fontSize: 16,
-    color: 'white',
+  gridItemImage: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
   nextButton: {
     width: 50,

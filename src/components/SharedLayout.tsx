@@ -90,7 +90,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
             source={
               gender === 'Male'
                 ? require('../assets/icons/cropped_boy.png')
-                : require('../assets/icons/girl.png')
+                : require('../assets/icons/cropped_girl.png')
             }
             style={styles.avatarImage}
           />

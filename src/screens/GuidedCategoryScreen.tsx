@@ -22,7 +22,7 @@ type CardItem = {
 const GuidedCategory = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  const CardBgColors = ['#14D0FF', '#FFD214', '#FF14D0', '#14FFD0', '#fa6f05'];
+  const CardBgColors = ['rgb(83, 213, 230)', 'rgb(234, 216, 103)', 'rgb(237, 135, 203)', 'rgb(69, 173, 224)', 'rgb(158, 105, 227)'];
 
   const cardData: CardItem[] = [
     {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
@@ -44,7 +44,7 @@ const GuidedCategory = () => {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('Home')}>  {/* Changed from GuidedCategory to Home */}
+              onPress={() => navigation.navigate('Home')}>
               <Image
                 source={require('../assets/icons/home.png')}
                 style={styles.headerIcon}
@@ -59,13 +59,13 @@ const GuidedCategory = () => {
           </View>
           <Text style={styles.dzongkhaText}>དབྱེ་རིམ།</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity>  {/* Added TouchableOpacity for consistency */}
+            <TouchableOpacity>
               <Image
                 source={require('../assets/icons/volume.png')}
                 style={styles.headerIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('SettingScreen')}>  {/* Added navigation to Settings */}
+            <TouchableOpacity onPress={() => navigation.navigate('SettingScreen')}>
               <Image
                 source={require('../assets/icons/setting_color.png')}
                 style={styles.headerIcon}
@@ -73,23 +73,32 @@ const GuidedCategory = () => {
             </TouchableOpacity>
           </View>
         </View>
-        <FlatList
-          data={cardData}
-          renderItem={({item}) => (
-            <TouchableOpacity onPress={() => navigation.navigate(item.screen)}>
-              <CardCategory
-                text={item.text}
-                backgroundColor={item.backgroundColor}
-              />
-            </TouchableOpacity>
-          )}
-          keyExtractor={item => item.id}
-          horizontal={true}
-          contentContainerStyle={styles.cardContainer}
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={120}
-          decelerationRate="fast"
-        />
+        
+        <View style={styles.contentContainer}>
+          <FlatList
+            data={cardData}
+            renderItem={({item}) => (
+              <TouchableOpacity onPress={() => navigation.navigate(item.screen)}>
+                <CardCategory
+                  text={item.text}
+                  backgroundColor={item.backgroundColor}
+                />
+              </TouchableOpacity>
+            )}
+            keyExtractor={item => item.id}
+            horizontal={true}
+            contentContainerStyle={styles.cardContainer}
+            showsHorizontalScrollIndicator={false}
+            snapToInterval={120}
+            decelerationRate="fast"
+          />
+          
+          <TouchableOpacity 
+            style={styles.quizButton}
+            onPress={() => navigation.navigate('QuizScreen')}>
+            <Text style={styles.quizButtonText}>Attempt Quiz</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -104,6 +113,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 30,
   },
   header: {
     flexDirection: 'row',
@@ -127,6 +144,7 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     resizeMode: 'contain',
+    paddingInline: 25,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -135,6 +153,20 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  quizButton: {
+    backgroundColor: '#FF8C00',
+    paddingVertical: 15,
+    paddingHorizontal: 60,
+    borderRadius: 30,
+    marginTop: 30,
+    elevation: 5,
+  },
+  quizButtonText: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });
 

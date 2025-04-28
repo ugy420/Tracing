@@ -12,11 +12,7 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import {
-  NavigationProp,
-  useNavigation,
-  useRoute,
-} from '@react-navigation/native';
+import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
@@ -27,7 +23,6 @@ const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const route = useRoute();
   const [showHomeButton, setShowHomeButton] = useState(false);
 
   // Use music context for global music control
@@ -108,7 +103,7 @@ const SettingsScreen = () => {
           <View style={styles.headerNavigation}>
             {showHomeButton && (
               <TouchableOpacity
-                onPress={() => navigation.navigate('Home')}
+                onPress={() => navigation.navigate('Guided')}
                 style={styles.headerButton}>
                 <Image
                   source={require('../assets/icons/home.png')}

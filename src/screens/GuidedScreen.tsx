@@ -1,5 +1,5 @@
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   Image,
   View,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {RootStackParamList} from '../types';
 import SharedLayout from '../components/SharedLayout';
+import Orientation from 'react-native-orientation-locker';
 
 type GridItem = {
   image: any;
@@ -40,8 +41,16 @@ const GuidedScreen = () => {
     },
   ];
 
+  useEffect(() => {
+    Orientation.lockToLandscape();
+
+    return () => {
+      Orientation.lockToPortrait();
+    };
+  }, []);
+
   return (
-    <SharedLayout headerTitle="Kuzuzangpo, Lhamo!">
+    <SharedLayout>
       <View
         style={[styles.container, isLandscape && styles.landscapeContainer]}>
         <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
@@ -102,6 +111,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     elevation: 5,
+    resizeMode: 'contain',
   },
   gridItemBackground: {
     flex: 1,

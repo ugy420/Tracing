@@ -29,17 +29,14 @@ const FeedbackSection = () => {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Lock to landscape orientation only
   useEffect(() => {
-    // Force landscape orientation
     Orientation.lockToLandscape();
-
-    // Update dimensions when screen size changes (e.g., different devices)
     const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
 
     return () => {
+      Orientation.lockToLandscape();
       subscription.remove();
     };
   }, []);

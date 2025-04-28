@@ -12,7 +12,11 @@ import {
   ScrollView,
   Switch,
 } from 'react-native';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {
+  NavigationProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
@@ -23,6 +27,8 @@ const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute();
+  const [showHomeButton, setShowHomeButton] = useState(false);
 
   // Use music context for global music control
   const {volume, updateVolume} = useMusic();
@@ -34,13 +40,22 @@ const SettingsScreen = () => {
   // Lock to landscape on mount
   useEffect(() => {
     Orientation.lockToLandscape();
+
+    const state = navigation.getState();
+    const previousRoute = state.routes[state.routes.length - 2]?.name || null;
+
+    if (previousRoute === 'Home') {
+      setShowHomeButton(false);
+    } else {
+      setShowHomeButton(true);
+    }
     const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
     return () => {
       subscription?.remove();
     };
-  }, []);
+  }, [navigation]);
 
   // Responsive values based on screen dimensions
   const isSmallScreen = dimensions.height < 400;
@@ -91,14 +106,16 @@ const SettingsScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerNavigation}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Home')}
-              style={styles.headerButton}>
-              <Image
-                source={require('../assets/icons/home.png')}
-                style={styles.headerIcon}
-              />
-            </TouchableOpacity>
+            {showHomeButton && (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Home')}
+                style={styles.headerButton}>
+                <Image
+                  source={require('../assets/icons/home.png')}
+                  style={styles.headerIcon}
+                />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.headerButton}>
@@ -122,7 +139,9 @@ const SettingsScreen = () => {
                       source={require('../assets/icons/notification.png')}
                       style={styles.settingIcon}
                     />
-                    <Text style={styles.settingLabel}>Enable Notifications</Text>
+                    <Text style={styles.settingLabel}>
+                      Enable Notifications
+                    </Text>
                   </View>
                   <Switch
                     value={notificationsEnabled}

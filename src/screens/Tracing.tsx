@@ -155,5 +155,4 @@ const Tracing = () => {
     </View >
   );
 };
-
 export default Tracing;

@@ -5,8 +5,8 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const axiosInstance = axios.create({
-  // baseURL: 'http://10.0.2.2:3000/api',
-  baseURL: 'http://10.2.23.246:3000/api',
+  baseURL: 'http://10.0.2.2:3000/api',
+  // baseURL: 'http://10.2.23.57:3000/api',
   timeout: 1000 * 60 * 5,
   headers: {
     'Content-Type': 'application/json',

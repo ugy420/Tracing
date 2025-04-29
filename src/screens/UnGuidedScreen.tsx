@@ -35,21 +35,21 @@ const UnGuidedScreen = () => {
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
-    {
-      image: require('../assets/icons/shapeIcon.png'),
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      image: require('../assets/icons/clothingIcon.png'),
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
-    {
-      image: require('../assets/icons/expressionIcon.png'),
-      background: require('../assets/icons/brownBox.png'),
-      screen: 'GuidedCategory',
-    },
+    // {
+    //   image: require('../assets/icons/shapeIcon.png'),
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
+    // {
+    //   image: require('../assets/icons/clothingIcon.png'),
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
+    // {
+    //   image: require('../assets/icons/expressionIcon.png'),
+    //   background: require('../assets/icons/brownBox.png'),
+    //   screen: 'GuidedCategory',
+    // },
     // {
     //   image: require('../assets/icons/sportsIcon.png'),
     //   subText: 'Subtext',
@@ -71,7 +71,7 @@ const UnGuidedScreen = () => {
   ];
 
   return (
-    <SharedLayout headerTitle="Kuzuzangpo, Lhamo!">
+    <SharedLayout>
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.backButton}
@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   grid: {
-    width: '35%',
+    width: '60%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
@@ -132,13 +132,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   gridItemImage: {
-    width: 50,
-    height: 50,
+    width: 100,
+    height: 70,
     resizeMode: 'contain',
-  },
-  gridItemSubText: {
-    fontSize: 16,
-    color: 'white',
   },
   backButton: {
     width: 50,

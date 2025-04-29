@@ -16,6 +16,7 @@ import {RootStackParamList} from '../types';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import axiosInstance from '../Api/config/axiosInstance';
 import api from '../Api/endPoints';
+import Orientation from 'react-native-orientation-locker';
 
 const {width, height} = Dimensions.get('window');
 
@@ -40,7 +41,7 @@ const AchievementScreen = () => {
           api.achievement.getAchievements,
         );
 
-        const userAchievements = response.data;
+        const userAchievements = response.data || [];
         const allAchievements = allAchievementsResponse.data;
 
         console.log('User achievements:', response.data);
@@ -76,6 +77,8 @@ const AchievementScreen = () => {
         console.error('Error fetching achievements:', error);
       }
     };
+
+    Orientation.lockToLandscape();
     fetchAchievements();
   }, []);
 

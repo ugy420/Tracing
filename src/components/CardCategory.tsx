@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#14D0FF',
     padding: 20,
-    height: '73%',
+    height: 150,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   cardText: {
     fontWeight: 'bold',
-    lineHeight: 90,
+    lineHeight: 120,
     fontSize: 40,
     textAlign: 'center',
     color: 'white',

@@ -15,7 +15,6 @@ import avatarImages from '../assets/avatarImages';
 
 type SharedLayoutProps = {
   children: ReactNode;
-  headerTitle?: string;
 };
 
 const SharedLayout = ({children}: SharedLayoutProps) => {
@@ -28,7 +27,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
   const [currentAvatarBorder, setCurrentAvatarBorder] = useState<
     keyof typeof avatarImages | null
   >(null);
-  // iPhone SE size
+  const [starCount, setStarCount] = useState<string | null>(null);
 
   const getUserData = async () => {
     try {
@@ -39,6 +38,9 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
       const get_avatar_border = await AsyncStorage.getItem(
         'current_avatar_border',
       );
+      const getStarCount = await AsyncStorage.getItem('starCount');
+      setStarCount(getStarCount);
+
       if (get_avatar_border) {
         const avatarKey = `avatar${get_avatar_border}`; // Map number to avatar key
         setCurrentAvatarBorder(
@@ -88,7 +90,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
             source={
               gender === 'Male'
                 ? require('../assets/icons/cropped_boy.png')
-                : require('../assets/icons/girl.png')
+                : require('../assets/icons/cropped_girl.png')
             }
             style={styles.avatarImage}
           />
@@ -103,16 +105,17 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
           Kuzuzangpo, {username}!
         </Text>
 
-        <View style={styles.headerIcons}>
-          <View style={styles.iconContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
-              <Image
-                source={require('../assets/icons/notification1.png')} // Add your notification icon PNG
-                style={styles.icon}
-              />
-            </TouchableOpacity>
+        <View style={styles.starCounterContainer}>
+          <Image
+            source={require('../assets/icons/star.png')}
+            style={styles.starIcon}
+          />
+          <View style={styles.starCountBox}>
+            <Text style={styles.starCountText}>{starCount}</Text>
           </View>
+        </View>
 
+        <View style={styles.headerIcons}>
           <View style={styles.iconContainer}>
             <TouchableOpacity
               onPress={() => navigation.navigate('Achievement')}>
@@ -125,7 +128,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
 
           <View style={styles.iconContainer}>
             <TouchableOpacity
-              onPress={() => navigation.navigate('FeedbackSection')}>
+              onPress={() => navigation.navigate('SettingScreen')}>
               <Image
                 source={require('../assets/icons/setting.png')}
                 style={styles.icon}

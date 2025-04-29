@@ -71,11 +71,11 @@ const LoginScreen = () => {
     setLoading(true);
 
     try {
-      // Make API request
       const response = await axiosInstance.post(api.user.loginUser, {
         username: username.trim(),
         password: password.trim(),
       });
+      // console.log('Login Response:', response.data);
 
       // Extract data from response
       const token = response.data.access_token;
@@ -83,7 +83,8 @@ const LoginScreen = () => {
       const gender = response.data.user.gender;
       const getusername = response.data.user.username;
       const getCurrentAvatar =
-        response.data.user.current_avatar_border_id.toString();
+        response.data.user.current_avatar_border_id?.toString() || '7';
+      const getUserStar = response.data.user.starCount;
 
       // Store data in AsyncStorage
       await AsyncStorage.setItem('access_token', token);
@@ -91,6 +92,7 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('gender', gender);
       await AsyncStorage.setItem('username', getusername);
       await AsyncStorage.setItem('current_avatar_border', getCurrentAvatar);
+      await AsyncStorage.setItem('starCount', getUserStar.toString());
 
       // Navigate to the Guided screen
       navigation.navigate('Guided');

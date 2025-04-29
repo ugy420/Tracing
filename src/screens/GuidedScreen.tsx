@@ -69,7 +69,7 @@ const GuidedScreen = () => {
         </View>
         <TouchableOpacity
           style={styles.nextButton}
-          onPress={() => navigation.navigate('QuizScreen')}>
+          onPress={() => navigation.navigate('UnGuided')}>
           <Image
             source={require('../assets/icons/next.png')}
             style={styles.nextButtonIcon}

@@ -10,6 +10,8 @@ import {
   Animated,
 } from 'react-native';
 import SharedLayout from '../components/SharedLayout';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { RootStackParamList } from '../types';
 
 // Define types for our quiz data
 interface QuizQuestion {
@@ -53,6 +55,7 @@ const quizQuestions: QuizQuestion[] = [
 ];
 
 const QuizScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
@@ -165,6 +168,7 @@ const QuizScreen: React.FC = () => {
     }).start();
   };
 
+
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
@@ -174,9 +178,14 @@ const QuizScreen: React.FC = () => {
           <Text style={styles.scoreText}>
             Your Score: {score} / {quizQuestions.length}
           </Text>
-          <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
-            <Text style={styles.resetButtonText}>Play Again</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
+              <Text style={styles.resetButtonText}>Play Again</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('UnGuided')}>
+              <Text style={styles.nextButtonText}>Next</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       );
     }
@@ -196,11 +205,7 @@ const QuizScreen: React.FC = () => {
           {opacity: fadeAnim},
         ]}>
         {/* Progress indicator */}
-        <View
-          style={[
-            styles.progressContainer,
-            isLandscape && {width: isLandscape ? '100%' : '85%'},
-          ]}>
+        <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
             Q{currentQuestionIndex + 1}/{quizQuestions.length}
           </Text>
@@ -223,7 +228,6 @@ const QuizScreen: React.FC = () => {
           style={[
             styles.questionContainer,
             {transform: [{translateY: bounceInterpolation}]},
-            isLandscape && {width: isLandscape ? '46%' : '85%'},
           ]}>
           <Text
             style={[
@@ -243,39 +247,79 @@ const QuizScreen: React.FC = () => {
           </View>
         </Animated.View>
 
-        {/* Answer Options */}
-        <View
-          style={[
-            styles.optionsContainer,
-            isLandscape && styles.optionsContainerLandscape,
-            isLandscape && {width: isLandscape ? '52%' : '85%'},
-          ]}>
-          {currentQuestion.options.map((option, index) => (
+        {/* Answer Options in 2x2 grid */}
+        <View style={styles.optionsGridContainer}>
+          <View style={styles.optionsRow}>
             <TouchableOpacity
-              key={index}
               style={[
                 styles.optionButton,
-                isLandscape && styles.optionButtonLandscape,
+                styles.optionButtonGrid,
                 isSmallScreen && styles.optionButtonSmall,
               ]}
-              onPress={() => handleAnswerPress(option)}>
+              onPress={() => handleAnswerPress(currentQuestion.options[0])}>
               <Text
                 style={[
                   styles.optionText,
                   isSmallScreen && styles.optionTextSmall,
                 ]}>
-                {option}
+                {currentQuestion.options[0]}
               </Text>
             </TouchableOpacity>
-          ))}
+
+            <TouchableOpacity
+              style={[
+                styles.optionButton,
+                styles.optionButtonGrid,
+                isSmallScreen && styles.optionButtonSmall,
+              ]}
+              onPress={() => handleAnswerPress(currentQuestion.options[1])}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSmallScreen && styles.optionTextSmall,
+                ]}>
+                {currentQuestion.options[1]}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.optionsRow}>
+            <TouchableOpacity
+              style={[
+                styles.optionButton,
+                styles.optionButtonGrid,
+                isSmallScreen && styles.optionButtonSmall,
+              ]}
+              onPress={() => handleAnswerPress(currentQuestion.options[2])}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSmallScreen && styles.optionTextSmall,
+                ]}>
+                {currentQuestion.options[2]}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.optionButton,
+                styles.optionButtonGrid,
+                isSmallScreen && styles.optionButtonSmall,
+              ]}
+              onPress={() => handleAnswerPress(currentQuestion.options[3])}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSmallScreen && styles.optionTextSmall,
+                ]}>
+                {currentQuestion.options[3]}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Score Display */}
-        <View
-          style={[
-            styles.scoreContainer,
-            isLandscape && {alignSelf: isLandscape ? 'flex-end' : 'center'},
-          ]}>
+        <View style={styles.scoreContainer}>
           <Text style={styles.scoreLabel}>Score:</Text>
           <Text style={styles.scoreValue}>{score}</Text>
         </View>
@@ -305,9 +349,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   quizContainerLandscape: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 15,
   },
@@ -343,7 +385,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#2682F4',
-    marginBottom: 10,
+    marginBottom: 15,
     alignSelf: 'center',
   },
   questionText: {
@@ -371,41 +413,43 @@ const styles = StyleSheet.create({
     height: '60%',
     borderRadius: 8,
   },
-  optionsContainer: {
+  optionsGridContainer: {
     width: '85%',
-    flexDirection: 'column',
     alignSelf: 'center',
+    marginBottom: 10,
   },
-  optionsContainerLandscape: {
-    flexDirection: 'column',
+  optionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
   },
   optionButton: {
     backgroundColor: 'rgba(38, 130, 244, 0.8)',
     borderRadius: 10,
     padding: 8,
-    marginVertical: 3,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#FFF',
-    width: '100%',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 1,
   },
-  optionButtonLandscape: {
-    width: '100%',
-    marginVertical: 3,
+  optionButtonGrid: {
+    width: '48%', // Slightly less than 50% to account for spacing
+    minHeight: 45,
+    justifyContent: 'center',
   },
   optionButtonSmall: {
     padding: 6,
-    marginVertical: 2,
+    minHeight: 40,
   },
   optionText: {
     fontSize: 15,
     fontWeight: 'bold',
     color: '#FFF',
+    textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 1,
@@ -416,7 +460,7 @@ const styles = StyleSheet.create({
   scoreContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    marginBottom: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     paddingHorizontal: 12,
     paddingVertical: 4,
@@ -463,6 +507,11 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
   resetButton: {
     backgroundColor: '#FF8C00',
     paddingHorizontal: 20,
@@ -470,8 +519,23 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     borderWidth: 1,
     borderColor: '#FFF',
+    marginRight: 10,
   },
   resetButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  nextButton: {
+    backgroundColor: '#2682F4',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: '#FFF',
+    marginLeft: 10,
+  },
+  nextButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#FFF',

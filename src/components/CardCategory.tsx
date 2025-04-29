@@ -8,18 +8,13 @@ interface CardCategoryProps {
 
 const CardCategory: React.FC<CardCategoryProps> = ({text, backgroundColor}) => {
   return (
-    <View style={styles.container}>
-      <View style={[styles.card, {backgroundColor}]}>
-        <Text style={styles.cardText}>{text}</Text>
-      </View>
+    <View style={[styles.card, {backgroundColor}]}>
+      <Text style={styles.cardText}>{text}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    // flex: 1,
-  },
   card: {
     backgroundColor: '#14D0FF',
     padding: 20,
@@ -37,9 +32,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cardText: {
-    fontWeight: 'bold',
+    fontFamily: 'joyig',
     lineHeight: 120,
-    fontSize: 40,
+    fontSize: 100,
     textAlign: 'center',
     color: 'white',
   },

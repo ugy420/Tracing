@@ -32,15 +32,15 @@ const GuidedCategory = () => {
 
   const cardData: CardItem[] = [
     {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
-    {id: 'kha', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Tracing'},
+    {id: '2', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Tracing'},
     {
-      id: '2',
-      text: 'ག',
+      id: '3',
+      text: 'ང',
       backgroundColor: CardBgColors[2],
       screen: 'Tracing',
     },
     {
-      id: '3',
+      id: '4',
       text: 'ང',
       backgroundColor: CardBgColors[3],
       screen: 'Tracing',
@@ -141,10 +141,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   dzongkhaText: {
-    fontSize: 25,
+    fontFamily: 'joyig',
+    fontSize: 60,
     lineHeight: 70,
     marginBottom: 5,
-    fontWeight: 'bold',
     textAlign: 'center',
   },
   cardContainer: {

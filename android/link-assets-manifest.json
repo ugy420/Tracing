@@ -1,0 +1,13 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "src/assets/fonts/Joyig.ttf",
+      "sha1": "b1801ffcb4a2d3f3629b03e99c8bbef307cef89a"
+    },
+    {
+      "path": "src/assets/fonts/joyig.ttf",
+      "sha1": "c16d45257b5fed0737adbb5979c843f7a031abb4"
+    }
+  ]
+}

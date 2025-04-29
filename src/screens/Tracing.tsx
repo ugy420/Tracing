@@ -50,14 +50,17 @@ const Tracing = () => {
       const length = props.getTotalLength();
       const points: SkPoint[] = [];
       for (let i = 0; i < numPoints; i++) {
-        const dist = (i / (numPoints - 1)) * length; const { x, y } = props.getPointAtLength(dist);
-        points.push({ x, y });
+        const dist = (i / (numPoints - 1)) * length;
+        const {x, y} = props.getPointAtLength(dist);
+        points.push({x, y});
       }
       return points;
     } catch (err) {
-      console.warn("Failed to generate checkpoints:", err); return [];
+      console.warn('Failed to generate checkpoints:', err);
+      return [];
     }
-  }; useEffect(() => {
+  };
+  useEffect(() => {
     const newCheckpoints = generateCheckpoints(letter.guidePath[currentPart]);
     setCheckpoints(newCheckpoints);
     setVisitedCheckpoints(Array(newCheckpoints.length).fill(false));
@@ -79,80 +82,98 @@ const Tracing = () => {
     setVisitedCheckpoints(prev => {
       const updated = [...prev];
       checkpoints.forEach((cp, index) => {
-        const dx = x - cp.x; const dy = y - cp.y; const dist = Math.sqrt(dx * dx + dy * dy);
+        const dx = x - cp.x;
+        const dy = y - cp.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < threshold && !updated[index]) {
           updated[index] = true;
         }
       });
-      if (updated.every((v) => v)) {
+      if (updated.every(v => v)) {
         runOnJS(handleNextPart)();
         return Array(checkpoints.length).fill(false);
       }
       return updated;
     });
   };
-  const gesture = Gesture.Pan().onBegin((event) => {
-    const near = checkpoints.some((pt) => {
-      const dx = pt.x - event.x; const dy = pt.y - event.y; return Math.sqrt(dx * dx + dy * dy) < threshold - 5;
+  const gesture = Gesture.Pan()
+    .onBegin(event => {
+      const near = checkpoints.some(pt => {
+        const dx = pt.x - event.x;
+        const dy = pt.y - event.y;
+        return Math.sqrt(dx * dx + dy * dy) < threshold - 5;
+      });
+      if (near) {
+        drawPath.value.moveTo(event.x, event.y);
+        drawPath.modify();
+      }
+    })
+    .onChange(event => {
+      const near = checkpoints.some(pt => {
+        const dx = pt.x - event.x;
+        const dy = pt.y - event.y;
+        return Math.sqrt(dx * dx + dy * dy) < threshold - 5;
+      });
+      if (near) {
+        drawPath.value.lineTo(event.x, event.y);
+        drawPath.modify();
+        runOnJS(updateVisitedCheckpoints)(event.x, event.y);
+      }
     });
-    if (near) { drawPath.value.moveTo(event.x, event.y); drawPath.modify(); }
-  }).onChange((event) => {
-    const near = checkpoints.some((pt) => {
-      const dx = pt.x - event.x; const dy = pt.y - event.y;
-      return Math.sqrt(dx * dx + dy * dy) < threshold - 5;
-    });
-    if (near) {
-      drawPath.value.lineTo(event.x, event.y);
-      drawPath.modify();
-      runOnJS(updateVisitedCheckpoints)(event.x, event.y);
-    }
-  });
   return (
     <View style={{flex: 1, backgroundColor: 'orange'}}>
       <Button title="Reset" onPress={reset} />
       <GestureHandlerRootView>
         <GestureDetector gesture={gesture}>
-          <Canvas style={{ width: "25%", height: "90%", alignSelf: "center" }}>
+          <Canvas style={{width: '25%', height: '90%', alignSelf: 'center'}}>
             <Fill color="orange" />
-            <Path path={Skia.Path.MakeFromSVGString(svgString)!} color={"white"} />
-            <Mask mask={
-              <Path path={drawPath}
-                color="black"
-                strokeWidth={50}
-                style="stroke" />
-            }
-            >
-              <Path path={Skia.Path.MakeFromSVGString(svgString)!} color="white" />
+            <Path
+              path={Skia.Path.MakeFromSVGString(svgString)!}
+              color={'white'}
+            />
+            <Mask
+              mask={
+                <Path
+                  path={drawPath}
+                  color="black"
+                  strokeWidth={50}
+                  style="stroke"
+                />
+              }>
+              <Path
+                path={Skia.Path.MakeFromSVGString(svgString)!}
+                color="white"
+              />
             </Mask>
             {checkpoints.map((pt, index) => (
               <Path
                 key={`cp-${index}`}
                 path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
-                color={visitedCheckpoints[index] ? "green" : "red"} />
-            ))
-            }
+                color={visitedCheckpoints[index] ? 'green' : 'red'}
+              />
+            ))}
             {svgGuides.map((guide, index) => {
-  try {
-    const path = Skia.Path.MakeFromSVGString(guide);
-    if (!path) throw new Error(`Invalid path at index ${index}`);
-    return (
-      <Path
-        key={`guide-${index}`}
-        path={path}
-        color="black"
-        strokeWidth={2}
-        style="stroke"
-      />
-    );
-  } catch (err) {
-    console.warn(`Invalid SVG path at index ${index}:`, guide);
-    return null;
-  }
-})}
+              try {
+                const path = Skia.Path.MakeFromSVGString(guide);
+                if (!path) throw new Error(`Invalid path at index ${index}`);
+                return (
+                  <Path
+                    key={`guide-${index}`}
+                    path={path}
+                    color="black"
+                    strokeWidth={2}
+                    style="stroke"
+                  />
+                );
+              } catch (err) {
+                console.warn(`Invalid SVG path at index ${index}:`, guide);
+                return null;
+              }
+            })}
           </Canvas>
         </GestureDetector>
       </GestureHandlerRootView>
-    </View >
+    </View>
   );
 };
 export default Tracing;

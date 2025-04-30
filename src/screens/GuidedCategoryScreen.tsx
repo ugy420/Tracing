@@ -8,45 +8,28 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {
+  NavigationProp,
+  RouteProp,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import CardCategory from '../components/CardCategory';
-
-type CardItem = {
-  id: string;
-  text: string;
-  backgroundColor: any;
-  screen: 'Tracing';
-};
+import {cardAlphabetData} from '../components/alphabetCardData';
+import {cardNumberData} from '../components/numberCardData';
 
 const GuidedCategory = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'GuidedCategory'>>();
+  const {category} = route.params; // Get the category parameter
 
-  const CardBgColors = [
-    'rgb(83, 213, 230)',
-    'rgb(234, 216, 103)',
-    'rgb(237, 135, 203)',
-    'rgb(69, 173, 224)',
-    'rgb(158, 105, 227)',
-  ];
-
-  const cardData: CardItem[] = [
-    {id: '1', text: 'ཀ', backgroundColor: CardBgColors[0], screen: 'Tracing'},
-    {id: '2', text: 'ཁ', backgroundColor: CardBgColors[1], screen: 'Tracing'},
-    {
-      id: '3',
-      text: 'ང',
-      backgroundColor: CardBgColors[2],
-      screen: 'Tracing',
-    },
-    {
-      id: '4',
-      text: 'ང',
-      backgroundColor: CardBgColors[3],
-      screen: 'Tracing',
-    },
-  ];
-
+  const cardData =
+    category === 'alphabets'
+      ? cardAlphabetData
+      : category === 'numbers'
+      ? cardNumberData
+      : [];
   return (
     <ImageBackground
       source={require('../assets/background_images/guided_bg.jpeg')}

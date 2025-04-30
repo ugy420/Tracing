@@ -16,6 +16,7 @@ type GridItem = {
   image: any;
   background: any;
   screen: keyof RootStackParamList;
+  category: string;
 };
 
 const GuidedScreen = () => {
@@ -28,16 +29,19 @@ const GuidedScreen = () => {
       image: require('../assets/alphabets/saljay.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
+      category: 'alphabets',
     },
     {
       image: require('../assets/numbers/numbers.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
+      category: 'numbers',
     },
     {
       image: require('../assets/alphabets/yaang.png'),
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
+      category: 'vowels',
     },
   ];
 
@@ -58,7 +62,9 @@ const GuidedScreen = () => {
             <TouchableOpacity
               key={index}
               style={[styles.gridItem]}
-              onPress={() => navigation.navigate(item.screen)}>
+              onPress={() =>
+                navigation.navigate(item.screen, {category: item.category})
+              }>
               <ImageBackground
                 source={item.background}
                 style={styles.gridItemBackground}>

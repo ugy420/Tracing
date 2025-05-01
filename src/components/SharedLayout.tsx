@@ -29,10 +29,23 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
   >(null);
   const [starCount, setStarCount] = useState<string | null>(null);
 
+  const clearModeData = async (mode: 'online') => {
+    if (mode === 'online') {
+      await AsyncStorage.removeItem('user_id');
+      await AsyncStorage.removeItem('gender');
+      await AsyncStorage.removeItem('username');
+      await AsyncStorage.removeItem('avatar_borders');
+      await AsyncStorage.removeItem('current_avatar_border');
+      await AsyncStorage.removeItem('starCount');
+    }
+  };
+
   const getUserData = async () => {
     try {
       const isGuest = await AsyncStorage.getItem('is_guest');
       if (isGuest === 'true') {
+        // Clear online async data
+        await clearModeData('online');
         const guestId = await AsyncStorage.getItem('guest_id');
         if (!guestId) {
           navigation.navigate('GuestLogin');
@@ -42,13 +55,21 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
 
       const get_gender = await AsyncStorage.getItem('gender');
       setGender(get_gender);
+
       const get_username = await AsyncStorage.getItem('username');
-      setUsername(get_username);
+      const get_guest_username = await AsyncStorage.getItem('guest_username');
+      if (!get_username) {
+        setUsername(get_guest_username);
+      } else {
+        setUsername(get_username);
+      }
+
       const get_avatar_border = await AsyncStorage.getItem(
         'current_avatar_border',
       );
-      const getStarCount = await AsyncStorage.getItem('starCount');
-      setStarCount(getStarCount);
+      const get_guest_avatar_border = await AsyncStorage.getItem(
+        'guest_current_avatar_border',
+      );
 
       if (get_avatar_border) {
         const avatarKey = `avatar${get_avatar_border}`; // Map number to avatar key
@@ -57,8 +78,17 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
             ? (avatarKey as keyof typeof avatarImages)
             : null,
         );
+      } else {
+        const avatarKey = `avatar${get_guest_avatar_border}`;
+        setCurrentAvatarBorder(
+          avatarKey in avatarImages
+            ? (avatarKey as keyof typeof avatarImages)
+            : null,
+        );
       }
-      console.log('Updated currentAvatarBorder:', get_avatar_border);
+
+      const getStarCount = await AsyncStorage.getItem('starCount');
+      setStarCount(getStarCount);
     } catch (error) {
       console.error('Error retrieving user data:', error);
     }

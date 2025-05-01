@@ -17,6 +17,7 @@ import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
 import {useMusic} from '../components/MusicContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
@@ -24,6 +25,7 @@ const SettingsScreen = () => {
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [showHomeButton, setShowHomeButton] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
 
   // Use music context for global music control
   const {volume, updateVolume} = useMusic();
@@ -47,6 +49,14 @@ const SettingsScreen = () => {
     const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
+
+    const checkGuestMode = async () => {
+      const idGuestValue = await AsyncStorage.getItem('is_guest');
+      setIsGuest(idGuestValue === 'true');
+    };
+
+    checkGuestMode();
+
     return () => {
       subscription?.remove();
     };
@@ -223,11 +233,13 @@ const SettingsScreen = () => {
               </TouchableOpacity>
 
               {/* Feedback Button */}
-              <TouchableOpacity
-                style={[styles.button, styles.feedbackButton]}
-                onPress={handleGiveFeedback}>
-                <Text style={styles.buttonText}>GIVE FEEDBACK</Text>
-              </TouchableOpacity>
+              {!isGuest && (
+                <TouchableOpacity
+                  style={[styles.button, styles.feedbackButton]}
+                  onPress={handleGiveFeedback}>
+                  <Text style={styles.buttonText}>GIVE FEEDBACK</Text>
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </ScrollView>

@@ -40,7 +40,7 @@ const CompletionScreen = () => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.text}>Lekso</Text>
+          <Text style={styles.text}>བཀྲ་ཤིས་བདེ་ལེགས</Text>
         </View>
 
         <View style={styles.feedbackIconContainer}>
@@ -115,9 +115,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    fontSize: height * 0.17,
-    fontWeight: 'bold',
-    color: 'white',
+    paddingTop: height * 0.1,
+    fontFamily: 'joyig',
+    fontSize: height * 0.18,
+    // color: 'white',
     textAlign: 'center',
   },
   feedbackIconContainer: {

@@ -62,7 +62,6 @@ const LoginScreen = () => {
     // Reset error state
     setError(null);
 
-    // Validate input
     if (!username.trim() || !password.trim()) {
       setError('Username and password are required.');
       return;
@@ -93,6 +92,7 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('username', getusername);
       await AsyncStorage.setItem('current_avatar_border', getCurrentAvatar);
       await AsyncStorage.setItem('starCount', getUserStar.toString());
+      await AsyncStorage.setItem('is_guest', 'false');
 
       // Navigate to the Guided screen
       navigation.navigate('Guided');

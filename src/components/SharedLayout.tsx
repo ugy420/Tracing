@@ -31,6 +31,15 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
 
   const getUserData = async () => {
     try {
+      const isGuest = await AsyncStorage.getItem('is_guest');
+      if (isGuest === 'true') {
+        const guestId = await AsyncStorage.getItem('guest_id');
+        if (!guestId) {
+          navigation.navigate('GuestLogin');
+          return;
+        }
+      }
+
       const get_gender = await AsyncStorage.getItem('gender');
       setGender(get_gender);
       const get_username = await AsyncStorage.getItem('username');
@@ -58,6 +67,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
   useEffect(() => {
     getUserData();
   }, []);
+
   return (
     <ImageBackground
       source={require('../assets/background_images/landing_bg.png')}

@@ -6,12 +6,32 @@ import {
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import uuid from 'react-native-uuid';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+
+  const handleGuestMode = async () => {
+    try {
+      // generate unique ID for guest user
+      const guestId = uuid.v4().toString();
+
+      // store guest data in AsyncStorage
+      await AsyncStorage.setItem('guestId', guestId);
+      await AsyncStorage.setItem('is_guest', 'true');
+
+      // navigate to Guided Screen
+      navigation.navigate('Guided');
+    } catch (error) {
+      console.error('Error setting up guest data:', error);
+      Alert.alert('Error', 'Failed to start guest session. Please try again.');
+    }
+  };
 
   return (
     <ImageBackground
@@ -49,7 +69,7 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.textBg}>
-          <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
+          <TouchableOpacity onPress={handleGuestMode}>
             <Text style={styles.modeText}>Guest</Text>
           </TouchableOpacity>
         </View>
@@ -85,7 +105,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     // Shadow
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: { width: 5, height: 5 },
+    textShadowOffset: {width: 5, height: 5},
     textShadowRadius: 5,
 
     padding: 10,

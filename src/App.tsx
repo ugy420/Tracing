@@ -21,6 +21,7 @@ import SignUpScreen from './screens/login/SignUp';
 import FeedbackSection from './screens/FeedbackSection';
 import SettingScreen from './screens/SettingScreen';
 import QuizScreen from './screens/QuizSection';
+import GuestLogin from './screens/login/guestLogin';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -100,6 +101,11 @@ const App = () => {
           <Stack.Screen
             name="QuizScreen"
             component={QuizScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="GuestLogin"
+            component={GuestLogin}
             options={{headerShown: false}}
           />
         </Stack.Navigator>

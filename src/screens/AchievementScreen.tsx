@@ -17,6 +17,7 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import axiosInstance from '../Api/config/axiosInstance';
 import api from '../Api/endPoints';
 import Orientation from 'react-native-orientation-locker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('window');
 
@@ -26,53 +27,91 @@ const AchievementScreen = () => {
   >([]);
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [, setIsGuest] = useState(false);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     // Fetching user achivements and combine with local achievements
     const fetchAchievements = async () => {
       try {
-        const response = await axiosInstance.get(
-          api.achievement.getUserAchievements,
-        );
+        // Guest Mode
+        // Check if the user is a guest
+        const isGuestValue = await AsyncStorage.getItem('is_guest');
+        setIsGuest(isGuestValue === 'true');
 
-        // Get all the achievements
-        const allAchievementsResponse = await axiosInstance.get(
-          api.achievement.getAchievements,
-        );
+        if (isGuestValue === 'true') {
+          // Guest Mode: Use local mock data
+          const localAchievements = [
+            {
+              id: 1,
+              name: 'First Steps',
+              description: 'Complete your first activity.',
+              criteria: 'Complete 1 activity.',
+              image: achievement.achievement1,
+              is_earned: true,
+            },
+            {
+              id: 2,
+              name: 'Explorer',
+              description: 'Explore 5 different activities.',
+              criteria: 'Complete 5 activities.',
+              image: achievement.achievement2,
+              is_earned: false,
+            },
+            {
+              id: 3,
+              name: 'Master',
+              description: 'Complete all activities.',
+              criteria: 'Complete all activities.',
+              image: achievement.achievement3,
+              is_earned: false,
+            },
+          ];
+          setAchievements(localAchievements);
+        } else {
+          // Online Mode
+          const response = await axiosInstance.get(
+            api.achievement.getUserAchievements,
+          );
 
-        const userAchievements = response.data || [];
-        const allAchievements = allAchievementsResponse.data;
+          // Get all the achievements
+          const allAchievementsResponse = await axiosInstance.get(
+            api.achievement.getAchievements,
+          );
 
-        console.log('User achievements:', response.data);
+          const userAchievements = response.data || [];
+          const allAchievements = allAchievementsResponse.data;
 
-        // Combine local achievements with user achievements
-        // const combinedAchievements = Object.keys(achievement).map(
-        //   (key, index) => ({
-        //     id: index + 1,
-        //     image: achievement[key],
-        //     is_earned: userAchievements.some(
-        //       (userAchievement: any) => userAchievement.id === index + 1,
-        //     ),
-        //   }),
-        // );
+          // console.log('User achievements:', response.data);
 
-        // // Combine achievements to mark earned ones
+          // Combine local achievements with user achievements
+          // const combinedAchievements = Object.keys(achievement).map(
+          //   (key, index) => ({
+          //     id: index + 1,
+          //     image: achievement[key],
+          //     is_earned: userAchievements.some(
+          //       (userAchievement: any) => userAchievement.id === index + 1,
+          //     ),
+          //   }),
+          // );
 
-        const combinedAchievements = allAchievements.map(
-          (achievementItem: any, index: number) => ({
-            ...achievementItem,
-            image:
-              achievement[
-                `achievement${index + 1}` as keyof typeof achievement
-              ],
-            is_earned: userAchievements.some(
-              (userAchievement: any) =>
-                userAchievement.id === achievementItem.id,
-            ),
-          }),
-        );
-        setAchievements(combinedAchievements);
+          // // Combine achievements to mark earned ones
+
+          const combinedAchievements = allAchievements.map(
+            (achievementItem: any, index: number) => ({
+              ...achievementItem,
+              image:
+                achievement[
+                  `achievement${index + 1}` as keyof typeof achievement
+                ],
+              is_earned: userAchievements.some(
+                (userAchievement: any) =>
+                  userAchievement.id === achievementItem.id,
+              ),
+            }),
+          );
+          setAchievements(combinedAchievements);
+        }
       } catch (error) {
         console.error('Error fetching achievements:', error);
       }

@@ -12,4 +12,5 @@ export type RootStackParamList = {
   FeedbackSection: undefined;
   SettingScreen: undefined;
   QuizScreen: undefined;
+  GuestLogin: undefined;
 };

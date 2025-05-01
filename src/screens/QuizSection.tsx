@@ -10,23 +10,23 @@ import {
   Animated,
 } from 'react-native';
 import SharedLayout from '../components/SharedLayout';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from '../types';
+import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {RootStackParamList} from '../types';
 
 // Define types for our quiz data
 interface QuizQuestion {
   question: string;
   options: string[];
   correctAnswer: string;
-  image: any; // Using 'any' for the image require since it's appropriate for asset requires
+  image: any;
 }
 
 const quizQuestions: QuizQuestion[] = [
   {
-    question: 'What sound does a cow make?',
-    options: ['Meow', 'Moo', 'Woof', 'Tweet'],
-    correctAnswer: 'Moo',
-    image: require('../assets/icons/animalIcon.png'),
+    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    options: ['ཀ', 'ཁ', 'ག', 'ང'],
+    correctAnswer: 'ཀ',
+    image: require('../assets/quiz_images/deer.png'),
   },
   {
     question: 'Which animal has a long neck?',
@@ -75,18 +75,11 @@ const QuizScreen: React.FC = () => {
     Dimensions.addEventListener('change', updateLayout);
 
     // Cleanup
-    return () => {
-      // For React Native versions < 0.65
-      // Dimensions.removeEventListener('change', updateLayout);
-      // For React Native versions >= 0.65
-      // No cleanup needed as the event listener returns an unsubscribe function
-    };
+    return () => {};
   }, []);
 
   const isLandscape = screenDimensions.width > screenDimensions.height;
   const isSmallScreen = screenDimensions.width < 375;
-  const isMediumScreen =
-    screenDimensions.width >= 375 && screenDimensions.width < 768;
 
   useEffect(() => {
     // Fade in animation for each new question or completion screen
@@ -103,7 +96,7 @@ const QuizScreen: React.FC = () => {
       tension: 40,
       useNativeDriver: true,
     }).start();
-  }, [currentQuestionIndex, quizCompleted]);
+  }, [bounceAnim, currentQuestionIndex, fadeAnim, quizCompleted]);
 
   const handleAnswerPress = (selectedAnswer: string): void => {
     const currentQuestion = quizQuestions[currentQuestionIndex];
@@ -130,7 +123,7 @@ const QuizScreen: React.FC = () => {
     } else {
       // Wrong answer
       playWrongSound();
-      Alert.alert('Try Again!', "That's not correct. Try another answer!", [
+      Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
         {text: 'OK'},
       ]);
     }
@@ -168,7 +161,6 @@ const QuizScreen: React.FC = () => {
     }).start();
   };
 
-
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
@@ -182,7 +174,9 @@ const QuizScreen: React.FC = () => {
             <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
               <Text style={styles.resetButtonText}>Play Again</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.nextButton} onPress={() => navigation.navigate('UnGuided')}>
+            <TouchableOpacity
+              style={styles.nextButton}
+              onPress={() => navigation.navigate('UnGuided')}>
               <Text style={styles.nextButtonText}>Next</Text>
             </TouchableOpacity>
           </View>
@@ -328,7 +322,7 @@ const QuizScreen: React.FC = () => {
   };
 
   return (
-    <SharedLayout headerTitle="Fun Quiz Time!">
+    <SharedLayout>
       <View style={styles.container}>{renderQuizContent()}</View>
     </SharedLayout>
   );
@@ -389,8 +383,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   questionText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 40,
+    fontFamily: 'joyig',
     color: '#EF8D38',
     textAlign: 'center',
     marginBottom: 6,
@@ -400,6 +394,7 @@ const styles = StyleSheet.create({
   },
   questionTextSmall: {
     fontSize: 15,
+    fontFamily: 'joyig',
   },
   imageContainer: {
     width: '100%',
@@ -409,9 +404,10 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   questionImage: {
-    width: '60%',
-    height: '60%',
+    width: '100%',
+    height: '100%',
     borderRadius: 8,
+    resizeMode: 'contain',
   },
   optionsGridContainer: {
     width: '85%',
@@ -437,7 +433,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   optionButtonGrid: {
-    width: '48%', // Slightly less than 50% to account for spacing
+    width: '48%',
     minHeight: 45,
     justifyContent: 'center',
   },
@@ -446,8 +442,8 @@ const styles = StyleSheet.create({
     minHeight: 40,
   },
   optionText: {
-    fontSize: 15,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontFamily: 'joyig',
     color: '#FFF',
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',

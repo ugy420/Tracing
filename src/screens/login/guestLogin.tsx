@@ -29,7 +29,8 @@ const GuestLogin = () => {
       // Store guest data in AsyncStorage
       await AsyncStorage.setItem('guest_id', guestId);
       await AsyncStorage.setItem('is_guest', 'true');
-      await AsyncStorage.setItem('username', username);
+      await AsyncStorage.setItem('guest_username', username);
+      // await AsyncStorage.setItem('guestStar', '0');
 
       // Navigate to the Guided screen
       navigation.navigate('Guided');

@@ -12,6 +12,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
+import NetInfo from '@react-native-community/netinfo';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -30,6 +31,28 @@ const HomeScreen = () => {
     } catch (error) {
       console.error('Error setting up guest data:', error);
       Alert.alert('Error', 'Failed to start guest session. Please try again.');
+    }
+  };
+
+  const handleOnlineMode = async () => {
+    try {
+      // Check network connectivity
+      const state = await NetInfo.fetch();
+      if (state.isConnected) {
+        console.log('Online mode selected');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert(
+          'No Internet Connection',
+          'Please check your internet connection.',
+        );
+      }
+    } catch (error) {
+      console.error('Error checking network connectivity:', error);
+      Alert.alert(
+        'Error',
+        'Failed to check network connectivity. Please try again.',
+      );
     }
   };
 
@@ -60,11 +83,7 @@ const HomeScreen = () => {
 
       <View style={styles.container}>
         <View style={styles.textBg}>
-          <TouchableOpacity
-            onPress={() => {
-              console.log('Online pressed');
-              navigation.navigate('Login');
-            }}>
+          <TouchableOpacity onPress={handleOnlineMode}>
             <Text style={styles.modeText}>Online</Text>
           </TouchableOpacity>
         </View>

@@ -45,35 +45,42 @@ const AvatarScreen = () => {
         setIsGuest(isGuestValue === 'true');
 
         if (isGuestValue === 'true') {
+          // Clear all online data in async storage
+
           // Guest Mode: Use local data
-          const localBorders = [
-            {
-              id: 1,
-              name: 'Gold Border',
-              cost: 100,
-              image: avatarImages.avatar1,
-              is_purchased: false,
-            },
-            {
-              id: 2,
-              name: 'Silver Border',
-              cost: 50,
-              image: avatarImages.avatar2,
-              is_purchased: false,
-            },
-            {
-              id: 3,
-              name: 'Bronze Border',
-              cost: 30,
-              image: avatarImages.avatar3,
-              is_purchased: false,
-            },
-          ];
+          const storedBorders = await AsyncStorage.getItem(
+            'guest_avatar_borders',
+          );
+          const localBorders = storedBorders
+            ? JSON.parse(storedBorders)
+            : [
+                {
+                  id: 1,
+                  name: 'Gold Border',
+                  cost: 100,
+                  image: avatarImages.avatar1,
+                  is_purchased: false,
+                },
+                {
+                  id: 2,
+                  name: 'Silver Border',
+                  cost: 50,
+                  image: avatarImages.avatar2,
+                  is_purchased: false,
+                },
+                {
+                  id: 3,
+                  name: 'Bronze Border',
+                  cost: 30,
+                  image: avatarImages.avatar3,
+                  is_purchased: false,
+                },
+              ];
           setAvatarBorders(localBorders);
 
           // Check if a border is equipped locally
           const equippedBorder = await AsyncStorage.getItem(
-            'current_avatar_border',
+            'guest_current_avatar_border',
           );
           setCurrentAvatarBorder(
             equippedBorder ? Number(equippedBorder) : null,
@@ -123,55 +130,7 @@ const AvatarScreen = () => {
     };
 
     initializeScreen();
-  }, []);
-
-  //   const fetchAvatarBorders = async () => {
-  //     try {
-  //       const userId = await AsyncStorage.getItem('user_id');
-  //       if (!userId) {
-  //         console.error('User ID not found in AsyncStorage');
-  //         return;
-  //       }
-
-  //       const purchasedBorderResponses = await axiosInstance.get(
-  //         api.avatar.getUserAvatarBorders,
-  //       );
-
-  //       const allBorderRespose = await axiosInstance.get(
-  //         api.avatar.getAvatarBorders,
-  //       );
-
-  //       const allBorders = allBorderRespose.data;
-  //       const purchasedBorders = purchasedBorderResponses.data;
-
-  //       console.log('PurchasedBorders: ', purchasedBorders);
-
-  //       // User equip border
-  //       const equippedAvatarBorder = await AsyncStorage.getItem(
-  //         'current_avatar_border',
-  //       );
-  //       setCurrentAvatarBorder(
-  //         equippedAvatarBorder ? Number(equippedAvatarBorder) : null,
-  //       );
-
-  //       const combinedBorders = allBorders.map(
-  //         (border: any, index: number) => ({
-  //           ...border,
-  //           image:
-  //             avatarImages[`avatar${index + 1}` as keyof typeof avatarImages],
-  //           is_purchased: purchasedBorders.some(
-  //             (purchasedBorder: any) => purchasedBorder.id === border.id,
-  //           ),
-  //         }),
-  //       );
-
-  //       setAvatarBorders(combinedBorders);
-  //     } catch (error) {
-  //       console.error('Error fetching avatar borders:', error);
-  //     }
-  //   };
-  //   fetchAvatarBorders();
-  // }, []);
+  }, [currentAvatarBorder]);
 
   const handleBorderPress = (border: any) => {
     setSelectedBorder(border);
@@ -195,67 +154,6 @@ const AvatarScreen = () => {
     </TouchableOpacity>
   );
 
-  // const handleBuyBorder = async () => {
-  //   try {
-  //     const userId = await AsyncStorage.getItem('user_id');
-  //     if (!userId) {
-  //       console.error('User ID not found in AsyncStorage');
-  //       return;
-  //     }
-
-  //     const userDetails = await axiosInstance.get(
-  //       api.user.getUserData(Number(userId)),
-  //     );
-  //     const userStars = userDetails.data.starCount;
-
-  //     if (userStars < selectedBorder.cost) {
-  //       Alert.alert('You do not have enough stars to purchase this border.');
-  //     } else {
-  //       const updatedStars = userStars - selectedBorder.cost;
-
-  //       await axiosInstance.post(api.user.updateUserData(Number(userId)), {
-  //         starCount: updatedStars,
-  //       });
-
-  //       await axiosInstance.post(api.avatar.updateUserAvatarBorder, {
-  //         avatar_border_id: selectedBorder.id,
-  //       });
-
-  //       const purchasedBorderResponses = await axiosInstance.get(
-  //         api.avatar.getUserAvatarBorders,
-  //       );
-
-  //       const allBorderRespose = await axiosInstance.get(
-  //         api.avatar.getAvatarBorders,
-  //       );
-
-  //       const allBorders = allBorderRespose.data;
-  //       const purchasedBorders = purchasedBorderResponses.data;
-
-  //       const combinedBorders = allBorders.map(
-  //         (border: any, index: number) => ({
-  //           ...border,
-  //           image:
-  //             avatarImages[`avatar${index + 1}` as keyof typeof avatarImages],
-  //           is_purchased: purchasedBorders.some(
-  //             (purchasedBorder: any) => purchasedBorder.id === border.id,
-  //           ),
-  //         }),
-  //       );
-
-  //       setAvatarBorders(combinedBorders);
-  //       console.log('Border purchased successfully!');
-  //       Alert.alert('Border purchased successfully!');
-  //       setModalVisible(false); // Close the modal
-  //     }
-  //   } catch (error) {
-  //     console.error('Error purchasing border:', error);
-  //     Alert.alert(
-  //       'An error occurred while purchasing the border. Please try again.',
-  //     );
-  //   }
-  // };
-
   const handleBuyBorder = async () => {
     if (isGuest) {
       // Guest Mode: Update local data
@@ -270,6 +168,10 @@ const AvatarScreen = () => {
           : border,
       );
       setAvatarBorders(updatedBorders);
+      await AsyncStorage.setItem(
+        'guest_avatar_borders',
+        JSON.stringify(updatedBorders),
+      );
       Alert.alert('Border purchased successfully!');
       setModalVisible(false);
     } else {
@@ -333,52 +235,16 @@ const AvatarScreen = () => {
     }
   };
 
-  // const handleEquipBorder = async () => {
-  //   try {
-  //     const userId = await AsyncStorage.getItem('user_id');
-  //     if (!userId) {
-  //       console.error('User ID not found in AsyncStorage');
-  //       return;
-  //     }
-
-  //     await axiosInstance.patch(api.user.updateUserData(Number(userId)), {
-  //       current_avatar_border_id: selectedBorder.id,
-  //     });
-
-  //     // Update AsyncStorage
-  //     await AsyncStorage.setItem(
-  //       'current_avatar_border',
-  //       selectedBorder.id.toString(),
-  //     );
-
-  //     // Update the frontend state to reflect the equipped border
-  //     const updatedBorders = avatarBorders.map((border: any) => ({
-  //       ...border,
-  //       is_equipped: border.id === selectedBorder.id, // Mark the selected border as equipped
-  //     }));
-  //     setAvatarBorders(updatedBorders);
-
-  //     // Show a success message
-  //     Alert.alert('Border equipped successfully!');
-  //     setModalVisible(false); // Close the modal
-  //     navigation.navigate('Guided');
-  //   } catch (error) {
-  //     console.error('Error equipping border:', error);
-  //     Alert.alert(
-  //       'An error occurred while equipping the border. Please try again.',
-  //     );
-  //   }
-  // };
-
   const handleEquipBorder = async () => {
     if (isGuest) {
       // Guest Mode: Update local data
       await AsyncStorage.setItem(
-        'current_avatar_border',
+        'guest_current_avatar_border',
         selectedBorder.id.toString(),
       );
       setCurrentAvatarBorder(selectedBorder.id);
       Alert.alert('Border equipped successfully!');
+      navigation.navigate('Guided');
       setModalVisible(false);
     } else {
       // Online Mode: Perform backend operations
@@ -415,12 +281,6 @@ const AvatarScreen = () => {
       style={styles.background}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
-          <Image
-            source={require('../assets/icons/home.png')}
-            style={styles.headerIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             source={require('../assets/icons/back_color.png')}
             style={styles.headerIcon}

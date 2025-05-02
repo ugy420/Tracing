@@ -322,9 +322,9 @@ const QuizScreen: React.FC = () => {
   };
 
   return (
-    <SharedLayout>
-      <View style={styles.container}>{renderQuizContent()}</View>
-    </SharedLayout>
+    // <SharedLayout>
+    <View style={styles.container}>{renderQuizContent()}</View>
+    // {/* </SharedLayout> */}
   );
 };
 

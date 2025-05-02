@@ -88,7 +88,12 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
       }
 
       const getStarCount = await AsyncStorage.getItem('starCount');
-      setStarCount(getStarCount);
+      const getGuestStarCount = await AsyncStorage.getItem('guest_starCount');
+      if (!getStarCount) {
+        setStarCount(getGuestStarCount);
+      } else {
+        setStarCount(getStarCount);
+      }
     } catch (error) {
       console.error('Error retrieving user data:', error);
     }

@@ -24,7 +24,6 @@ const SettingsScreen = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [showHomeButton, setShowHomeButton] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
 
   // Use music context for global music control
@@ -38,14 +37,6 @@ const SettingsScreen = () => {
   useEffect(() => {
     Orientation.lockToLandscape();
 
-    const state = navigation.getState();
-    const previousRoute = state.routes[state.routes.length - 2]?.name || null;
-
-    if (previousRoute === 'Home') {
-      setShowHomeButton(false);
-    } else {
-      setShowHomeButton(true);
-    }
     const subscription = Dimensions.addEventListener('change', ({window}) => {
       setDimensions(window);
     });
@@ -111,16 +102,6 @@ const SettingsScreen = () => {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerNavigation}>
-            {showHomeButton && (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Guided')}
-                style={styles.headerButton}>
-                <Image
-                  source={require('../assets/icons/home.png')}
-                  style={styles.headerIcon}
-                />
-              </TouchableOpacity>
-            )}
             <TouchableOpacity
               onPress={() => navigation.goBack()}
               style={styles.headerButton}>

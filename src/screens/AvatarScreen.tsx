@@ -11,6 +11,7 @@ import {
   Button,
   Dimensions,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import avatarImages from '../assets/avatarImages';
 import {RootStackParamList} from '../types';
@@ -36,17 +37,17 @@ const AvatarScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [currentAvatarBorder, setCurrentAvatarBorder] = useState<any>(null);
   const [isGuest, setIsGuest] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initializeScreen = async () => {
+      setLoading(true);
       try {
         // Check if the user is a guest
         const isGuestValue = await AsyncStorage.getItem('is_guest');
         setIsGuest(isGuestValue === 'true');
 
         if (isGuestValue === 'true') {
-          // Clear all online data in async storage
-
           // Guest Mode: Use local data
           const storedBorders = await AsyncStorage.getItem(
             'guest_avatar_borders',
@@ -126,11 +127,13 @@ const AvatarScreen = () => {
         }
       } catch (error) {
         console.error('Error initializing AvatarScreen:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     initializeScreen();
-  }, [currentAvatarBorder]);
+  }, []);
 
   const handleBorderPress = (border: any) => {
     setSelectedBorder(border);
@@ -156,8 +159,9 @@ const AvatarScreen = () => {
 
   const handleBuyBorder = async () => {
     if (isGuest) {
+      const guest_starCount = await AsyncStorage.getItem('guest_starCount');
       // Guest Mode: Update local data
-      if (selectedBorder.cost > 100) {
+      if (selectedBorder.cost > Number(guest_starCount)) {
         Alert.alert('You do not have enough stars to purchase this border.');
         return;
       }
@@ -274,6 +278,16 @@ const AvatarScreen = () => {
       }
     }
   };
+
+  if (loading) {
+    // Show loading indicator while data is being fetched
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -466,6 +480,11 @@ const styles = StyleSheet.create({
   equippedBorder: {
     borderColor: 'blue',
     borderWidth: 3,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

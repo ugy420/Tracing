@@ -9,7 +9,6 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import SharedLayout from '../components/SharedLayout';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 

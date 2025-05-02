@@ -84,19 +84,6 @@ const AchievementScreen = () => {
 
           // console.log('User achievements:', response.data);
 
-          // Combine local achievements with user achievements
-          // const combinedAchievements = Object.keys(achievement).map(
-          //   (key, index) => ({
-          //     id: index + 1,
-          //     image: achievement[key],
-          //     is_earned: userAchievements.some(
-          //       (userAchievement: any) => userAchievement.id === index + 1,
-          //     ),
-          //   }),
-          // );
-
-          // // Combine achievements to mark earned ones
-
           const combinedAchievements = allAchievements.map(
             (achievementItem: any, index: number) => ({
               ...achievementItem,
@@ -147,12 +134,6 @@ const AchievementScreen = () => {
       style={styles.background}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
-          <Image
-            source={require('../assets/icons/home.png')}
-            style={styles.headerIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Image
             source={require('../assets/icons/back_color.png')}
             style={styles.headerIcon}

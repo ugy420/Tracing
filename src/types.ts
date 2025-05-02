@@ -13,4 +13,5 @@ export type RootStackParamList = {
   SettingScreen: undefined;
   QuizScreen: undefined;
   GuestLogin: undefined;
+  QuizHomeScreen: undefined;
 };

@@ -22,7 +22,7 @@ import uuid from 'react-native-uuid';
 const GuestLogin = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const [username, setUsername] = useState<string>('');
-  const [gender, setGender] = useState<string>(''); // Options will be 'male' or 'female'
+  const [gender, setGender] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +46,7 @@ const GuestLogin = () => {
   const responsiveFontSize = isLandscape ? 15 : 14;
   const responsiveInputHeight = isLandscape ? 45 : 40;
   const formWidth = isLandscape
-    ? dimensions.width * 0.5  // Reduced from 0.7 to 0.5 for landscape
+    ? dimensions.width * 0.5 // Reduced from 0.7 to 0.5 for landscape
     : dimensions.width * 0.85;
   const titleFontSize = isLandscape ? 22 : 22;
 
@@ -77,14 +77,14 @@ const GuestLogin = () => {
     try {
       // Generate a unique guest ID using uuid
       const guestId = uuid.v4().toString();
-      
+
       // Store data in AsyncStorage
       await AsyncStorage.setItem('guest_id', guestId);
       await AsyncStorage.setItem('is_guest', 'true');
       await AsyncStorage.setItem('guest_username', username.trim());
-      await AsyncStorage.setItem('gender', gender);
-      await AsyncStorage.setItem('starCount', '0');
-      
+      await AsyncStorage.setItem('guest_gender', gender);
+      await AsyncStorage.setItem('guest_starCount', '0');
+
       // Navigate to the Guided screen
       navigation.navigate('Guided');
     } catch (err: any) {
@@ -132,13 +132,13 @@ const GuestLogin = () => {
                   <TouchableOpacity
                     style={[
                       styles.genderButton,
-                      gender === 'male' && styles.selectedGender,
+                      gender === 'Male' && styles.selectedGender,
                     ]}
-                    onPress={() => setGender('male')}>
+                    onPress={() => setGender('Male')}>
                     <Text
                       style={[
                         styles.genderText,
-                        gender === 'male' && styles.selectedGenderText,
+                        gender === 'Male' && styles.selectedGenderText,
                       ]}>
                       Male
                     </Text>
@@ -146,13 +146,13 @@ const GuestLogin = () => {
                   <TouchableOpacity
                     style={[
                       styles.genderButton,
-                      gender === 'female' && styles.selectedGender,
+                      gender === 'Female' && styles.selectedGender,
                     ]}
-                    onPress={() => setGender('female')}>
+                    onPress={() => setGender('Female')}>
                     <Text
                       style={[
                         styles.genderText,
-                        gender === 'female' && styles.selectedGenderText,
+                        gender === 'Female' && styles.selectedGenderText,
                       ]}>
                       Female
                     </Text>
@@ -172,11 +172,11 @@ const GuestLogin = () => {
                 )}
               </TouchableOpacity>
 
-              {/* Sign Up Link */}
+              {/* Sign Up Button */}
               <TouchableOpacity
                 style={styles.secondaryButton}
-                onPress={() => navigation.navigate('Login')}>
-              </TouchableOpacity>
+                onPress={() => navigation.navigate('Login')}
+              />
             </View>
           </View>
         </SafeAreaView>

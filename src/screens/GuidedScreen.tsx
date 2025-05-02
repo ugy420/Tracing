@@ -50,7 +50,7 @@ const GuidedScreen = () => {
     Orientation.lockToLandscape();
 
     return () => {
-      Orientation.lockToPortrait();
+      Orientation.unlockAllOrientations();
     };
   }, []);
 
@@ -64,7 +64,7 @@ const GuidedScreen = () => {
               key={index}
               style={[styles.gridItem]}
               onPress={() =>
-                navigation.navigate(item.screen, {category: item.category})
+                navigation.navigate(item.screen as any, {category: item.category})
               }>
               <ImageBackground
                 source={item.background}

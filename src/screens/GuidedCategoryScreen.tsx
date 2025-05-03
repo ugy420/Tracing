@@ -37,12 +37,6 @@ const GuidedCategory = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-              <Image
-                source={require('../assets/icons/home.png')}
-                style={styles.headerIcon}
-              />
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
               <Image
                 source={require('../assets/icons/back_color.png')}
@@ -90,8 +84,8 @@ const GuidedCategory = () => {
 
           <TouchableOpacity
             style={styles.quizButton}
-            onPress={() => navigation.navigate('QuizScreen')}>
-            <Text style={styles.quizButtonText}>Attempt Quiz</Text>
+            onPress={() => navigation.navigate('QuizHomeScreen')}>
+            <Text style={styles.quizButtonText}>འདྲི་རྩད་ རྒྱུགས</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -127,7 +121,7 @@ const styles = StyleSheet.create({
     fontFamily: 'joyig',
     fontSize: 60,
     lineHeight: 70,
-    marginBottom: 5,
+    marginTop: 5,
     textAlign: 'center',
   },
   cardContainer: {
@@ -150,16 +144,16 @@ const styles = StyleSheet.create({
   },
   quizButton: {
     backgroundColor: '#FF8C00',
-    paddingVertical: 15,
-    paddingHorizontal: 60,
+    paddingVertical: 5,
+    paddingHorizontal: 30,
     borderRadius: 30,
     marginTop: 30,
     elevation: 5,
   },
   quizButtonText: {
     color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 54,
+    fontFamily: 'joyig',
     textAlign: 'center',
   },
 });

@@ -22,6 +22,12 @@ const HomeScreen = () => {
       // generate unique ID for guest user
       const guestId = uuid.v4().toString();
 
+      const existingStarCount = await AsyncStorage.getItem('guest_starCount');
+
+      if (!existingStarCount) {
+        await AsyncStorage.setItem('guest_starCount', '0');
+      }
+
       // store guest data in AsyncStorage
       await AsyncStorage.setItem('guestId', guestId);
       await AsyncStorage.setItem('is_guest', 'true');

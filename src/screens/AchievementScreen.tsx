@@ -44,26 +44,37 @@ const AchievementScreen = () => {
           const localAchievements = [
             {
               id: 1,
-              name: 'First Steps',
-              description: 'Complete your first activity.',
-              criteria: 'Complete 1 activity.',
+              name: 'གསལ་བྱེད་ རྒྱལ་རྟགས།',
+              criteria: 'གསལ་བྱེད་ག་ར་ འཁྱིད་ཐིག་འབད།',
               image: achievement.achievement1,
               is_earned: true,
             },
             {
               id: 2,
-              name: 'Explorer',
-              description: 'Explore 5 different activities.',
-              criteria: 'Complete 5 activities.',
+              name: 'ཨང་གྲངས་ རྒྱལ་རྟགས།',
+              criteria: 'ཨང་གྲངས་ག་ར་ འཁྱིད་ཐིག་འབད།',
               image: achievement.achievement2,
               is_earned: false,
             },
             {
               id: 3,
-              name: 'Master',
-              description: 'Complete all activities.',
-              criteria: 'Complete all activities.',
+              name: 'དབྱངས་ རྒྱལ་རྟགས།',
+              criteria: 'དབྱངས་ག་ར་ འཁྱིད་ཐིག་འབད།',
               image: achievement.achievement3,
+              is_earned: false,
+            },
+            {
+              id: 4,
+              name: 'སེམས་ཅན་མཁས་མཆོག་ རྒྱལ་རྟགས།',
+              criteria: 'སེམས་ཅན་གི་ འདྲི་རྩད་རྒྱུགས་ འདི་མཇུག་བསྡུ།',
+              image: achievement.achievement4,
+              is_earned: false,
+            },
+            {
+              id: 5,
+              name: 'ཤིང་འབྲས་མཁས་མཆོག་ རྒྱལ་རྟགས།',
+              criteria: 'ཤིང་འབྲས་གི་ འདྲི་རྩད་རྒྱུགས་ འདི་མཇུག་བསྡུ།',
+              image: achievement.achievement5,
               is_earned: false,
             },
           ];
@@ -83,19 +94,6 @@ const AchievementScreen = () => {
           const allAchievements = allAchievementsResponse.data;
 
           // console.log('User achievements:', response.data);
-
-          // Combine local achievements with user achievements
-          // const combinedAchievements = Object.keys(achievement).map(
-          //   (key, index) => ({
-          //     id: index + 1,
-          //     image: achievement[key],
-          //     is_earned: userAchievements.some(
-          //       (userAchievement: any) => userAchievement.id === index + 1,
-          //     ),
-          //   }),
-          // );
-
-          // // Combine achievements to mark earned ones
 
           const combinedAchievements = allAchievements.map(
             (achievementItem: any, index: number) => ({
@@ -148,12 +146,6 @@ const AchievementScreen = () => {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.navigate('Guided')}>
           <Image
-            source={require('../assets/icons/home.png')}
-            style={styles.headerIcon}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Image
             source={require('../assets/icons/back_color.png')}
             style={styles.headerIcon}
           />
@@ -187,9 +179,6 @@ const AchievementScreen = () => {
                 <View style={styles.modalContent}>
                   <Text style={styles.modalTitle}>
                     {selectedAchievement.name}
-                  </Text>
-                  <Text style={styles.modalDescription}>
-                    {selectedAchievement.description}
                   </Text>
                   <Text style={styles.modalCriteria}>
                     {selectedAchievement.criteria}
@@ -244,7 +233,7 @@ const styles = StyleSheet.create({
   avatarWindowImage: {
     position: 'absolute',
     width: '110 %',
-    height: '150%',
+    height: '160%',
     resizeMode: 'stretch',
   },
   flatListStyle: {
@@ -252,8 +241,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
-    height: '100%',
-    marginTop: '8%',
+    height: '140%',
   },
   avatarContainer: {
     margin: 5,
@@ -290,18 +278,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  modalDescription: {
-    fontSize: 16,
-    marginBottom: 10,
-    textAlign: 'center',
+    fontSize: height * 0.15,
+    fontFamily: 'joyig',
   },
   modalCriteria: {
-    fontSize: 14,
-    marginBottom: 20,
+    fontSize: height * 0.12,
+    fontFamily: 'joyig',
+    marginBottom: 2,
     textAlign: 'center',
     color: 'gray',
   },

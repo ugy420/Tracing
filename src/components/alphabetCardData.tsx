@@ -41,7 +41,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '5',
     text: 'ཅ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -65,7 +65,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '9',
     text: 'ཏ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -90,7 +90,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '13',
     text: 'པ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -114,7 +114,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '17',
     text: 'ཙ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -138,7 +138,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '21',
     text: 'ཞ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
 
@@ -163,7 +163,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '25',
     text: 'ར',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -187,7 +187,7 @@ export const cardAlphabetData: CardItem[] = [
   {
     id: '29',
     text: 'ཧ',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {

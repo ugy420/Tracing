@@ -54,7 +54,12 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
       }
 
       const get_gender = await AsyncStorage.getItem('gender');
-      setGender(get_gender);
+      const get_guest_gender = await AsyncStorage.getItem('guest_gender');
+      if (!get_gender) {
+        setGender(get_guest_gender);
+      } else {
+        setGender(get_gender);
+      }
 
       const get_username = await AsyncStorage.getItem('username');
       const get_guest_username = await AsyncStorage.getItem('guest_username');
@@ -88,7 +93,12 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
       }
 
       const getStarCount = await AsyncStorage.getItem('starCount');
-      setStarCount(getStarCount);
+      const getGuestStarCount = await AsyncStorage.getItem('guest_starCount');
+      if (!getStarCount) {
+        setStarCount(getGuestStarCount);
+      } else {
+        setStarCount(getStarCount);
+      }
     } catch (error) {
       console.error('Error retrieving user data:', error);
     }

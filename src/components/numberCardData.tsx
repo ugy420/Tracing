@@ -41,7 +41,7 @@ export const cardNumberData: CardItem[] = [
   {
     id: '5',
     text: '༤',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {
@@ -65,7 +65,7 @@ export const cardNumberData: CardItem[] = [
   {
     id: '9',
     text: '༨',
-    backgroundColor: CardBgColors[4],
+    backgroundColor: CardBgColors[0],
     screen: 'Tracing',
   },
   {

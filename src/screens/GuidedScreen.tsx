@@ -11,7 +11,6 @@ import {
 import {RootStackParamList} from '../types';
 import SharedLayout from '../components/SharedLayout';
 import Orientation from 'react-native-orientation-locker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type GridItem = {
   image: any;
@@ -64,7 +63,9 @@ const GuidedScreen = () => {
               key={index}
               style={[styles.gridItem]}
               onPress={() =>
-                navigation.navigate(item.screen as any, {category: item.category})
+                navigation.navigate(item.screen as any, {
+                  category: item.category,
+                })
               }>
               <ImageBackground
                 source={item.background}

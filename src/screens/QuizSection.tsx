@@ -9,7 +9,6 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import SharedLayout from '../components/SharedLayout';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 
@@ -322,9 +321,9 @@ const QuizScreen: React.FC = () => {
   };
 
   return (
-    <SharedLayout>
-      <View style={styles.container}>{renderQuizContent()}</View>
-    </SharedLayout>
+    // <SharedLayout>
+    <View style={styles.container}>{renderQuizContent()}</View>
+    // {/* </SharedLayout> */}
   );
 };
 

@@ -57,23 +57,30 @@ const AvatarScreen = () => {
             : [
                 {
                   id: 1,
-                  name: 'Gold Border',
-                  cost: 100,
-                  image: avatarImages.avatar1,
+                  name: 'རག་གྱི་ མཐའ་མཚམས།',
+                  cost: 10,
+                  image: avatarImages.avatar8,
                   is_purchased: false,
                 },
                 {
                   id: 2,
-                  name: 'Silver Border',
-                  cost: 50,
+                  name: 'དངུལ་གྱི་ མཐའ་མཚམས།',
+                  cost: 20,
                   image: avatarImages.avatar2,
                   is_purchased: false,
                 },
                 {
                   id: 3,
-                  name: 'Bronze Border',
-                  cost: 30,
-                  image: avatarImages.avatar3,
+                  name: 'གསེར་གྱི་ མཐའ་མཚམས།',
+                  cost: 50,
+                  image: avatarImages.avatar1,
+                  is_purchased: false,
+                },
+                {
+                  id: 4,
+                  name: 'རྡོ་རྗེ་ཕ་ལམ་གྱི་ མཐའ་མཚམས།',
+                  cost: 75,
+                  image: avatarImages.avatar5,
                   is_purchased: false,
                 },
               ];
@@ -329,12 +336,12 @@ const AvatarScreen = () => {
               <Text style={styles.modalTitle}>{selectedBorder.name}</Text>
               <Image source={selectedBorder.image} style={styles.modalImage} />
               <Text style={styles.modalDescription}>
-                {`Cost: ${selectedBorder.cost}`}
+                {`གོང་ཚད་ : ${selectedBorder.cost}`}
               </Text>
               <Text style={styles.modalDescription}>
                 {selectedBorder.is_purchased
-                  ? 'This border is purchased.'
-                  : 'This border is not purchased.'}
+                  ? 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་ཨིན།'
+                  : 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་མེན།'}
               </Text>
               <View style={styles.modalButtons}>
                 {!selectedBorder.is_purchased && (
@@ -432,7 +439,6 @@ const styles = StyleSheet.create({
   borderName: {
     marginTop: 5,
     fontSize: 16,
-    fontWeight: 'bold',
   },
   borderCost: {
     fontSize: 14,
@@ -452,19 +458,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
+    fontFamily: 'joyig',
+    fontSize: height * 0.12,
   },
   modalImage: {
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
     resizeMode: 'contain',
-    marginBottom: 10,
+    marginBottom: 2,
   },
   modalDescription: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: height * 0.09,
+    fontFamily: 'joyig',
     textAlign: 'center',
   },
   modalButtons: {
@@ -478,7 +483,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
   },
   equippedBorder: {
-    borderColor: 'blue',
+    borderColor: 'green',
     borderWidth: 3,
   },
   loadingContainer: {

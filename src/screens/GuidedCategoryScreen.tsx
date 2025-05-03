@@ -84,8 +84,8 @@ const GuidedCategory = () => {
 
           <TouchableOpacity
             style={styles.quizButton}
-            onPress={() => navigation.navigate('QuizScreen')}>
-            <Text style={styles.quizButtonText}>ཚོད་དཔག་ རྒྱུགས</Text>
+            onPress={() => navigation.navigate('QuizHomeScreen')}>
+            <Text style={styles.quizButtonText}>འདྲི་རྩད་ རྒྱུགས</Text>
           </TouchableOpacity>
         </View>
       </View>

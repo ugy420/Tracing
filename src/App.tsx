@@ -36,7 +36,7 @@ const App = () => {
   }, []);
 
   return (
-    <MusicProvider>
+    <MusicProvider backgroundTrack='dummy_music'>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen

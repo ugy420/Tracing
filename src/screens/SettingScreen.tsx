@@ -16,7 +16,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
-import {useMusic} from '../components/MusicContext';
+import { useMusic } from '../components/MusicContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SettingsScreen = () => {

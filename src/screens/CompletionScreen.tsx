@@ -40,7 +40,7 @@ const CompletionScreen = () => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.text}>བཀྲ་ཤིས་བདེ་ལེགས</Text>
+          <Text style={styles.text}>བཀྲ་ཤིས་བདེ་ལེགས།</Text>
         </View>
 
         <View style={styles.feedbackIconContainer}>
@@ -117,8 +117,7 @@ const styles = StyleSheet.create({
   text: {
     paddingTop: height * 0.1,
     fontFamily: 'joyig',
-    fontSize: height * 0.18,
-    // color: 'white',
+    fontSize: height * 0.15,
     textAlign: 'center',
   },
   feedbackIconContainer: {

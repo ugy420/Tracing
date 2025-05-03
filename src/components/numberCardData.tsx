@@ -10,6 +10,7 @@ const CardBgColors = [
   'rgb(234, 216, 103)',
   'rgb(237, 135, 203)',
   'rgb(69, 173, 224)',
+  'rgb(143, 105, 208)',
 ];
 
 export const cardNumberData: CardItem[] = [

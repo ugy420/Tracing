@@ -86,7 +86,7 @@ const UnGuidedScreen = () => {
             <TouchableOpacity
               key={index}
               style={styles.gridItem}
-              onPress={() => navigation.navigate(item.screen)}>
+              onPress={() => navigation.navigate('Guided')}>
               <ImageBackground
                 source={item.background}
                 style={styles.gridItemBackground}>

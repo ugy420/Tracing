@@ -125,10 +125,14 @@ const styles = StyleSheet.create({
   },
   dzongkhaText: {
     fontFamily: 'joyig',
+    color: '#4B0082',
     fontSize: 60,
     lineHeight: 70,
     marginTop: 5,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
   },
   cardContainer: {
     alignItems: 'center',
@@ -153,7 +157,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 30,
     borderRadius: 30,
-    marginTop: 30,
+    marginTop: 10,
     elevation: 5,
   },
   quizButtonText: {

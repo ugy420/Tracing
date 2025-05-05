@@ -9,49 +9,15 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {
+  useNavigation,
+  NavigationProp,
+  RouteProp,
+  useRoute,
+} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
-
-// Define types for our quiz data
-interface QuizQuestion {
-  question: string;
-  options: string[];
-  correctAnswer: string;
-  image: any;
-}
-
-const quizQuestions: QuizQuestion[] = [
-  {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
-    options: ['ཀ', 'ཁ', 'ག', 'ང'],
-    correctAnswer: 'ཀ',
-    image: require('../assets/quiz_images/deer.png'),
-  },
-  {
-    question: 'Which animal has a long neck?',
-    options: ['Elephant', 'Lion', 'Giraffe', 'Monkey'],
-    correctAnswer: 'Giraffe',
-    image: require('../assets/icons/fruitsIcon.png'),
-  },
-  {
-    question: 'How many sides does a triangle have?',
-    options: ['Three', 'Four', 'Five', 'Six'],
-    correctAnswer: 'Three',
-    image: require('../assets/icons/star.png'),
-  },
-  {
-    question: 'What color is the sky on a sunny day?',
-    options: ['Green', 'Red', 'Yellow', 'Blue'],
-    correctAnswer: 'Blue',
-    image: require('../assets/icons/weatherIcon.png'),
-  },
-  {
-    question: 'Which fruit is red and grows on a tree?',
-    options: ['Banana', 'Apple', 'Grapes', 'Orange'],
-    correctAnswer: 'Apple',
-    image: require('../assets/icons/familyIcon.png'),
-  },
-];
+import {fruitsQuizData} from '../data/quizData/fruits';
+import {animalsQuizData} from '../data/quizData/animals';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -60,24 +26,20 @@ const QuizScreen: React.FC = () => {
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [fadeAnim] = useState<Animated.Value>(new Animated.Value(0));
   const [bounceAnim] = useState<Animated.Value>(new Animated.Value(0));
-  const [screenDimensions, setScreenDimensions] = useState<{
+  const [screenDimensions] = useState<{
     width: number;
     height: number;
   }>(Dimensions.get('window'));
+  const route = useRoute<RouteProp<RootStackParamList, 'QuizScreen'>>();
+  const {category} = route.params;
 
-  useEffect(() => {
-    // Handle screen dimension changes
-    const updateLayout = () => {
-      setScreenDimensions(Dimensions.get('window'));
-    };
+  const quizQuestions =
+    category === 'animals'
+      ? animalsQuizData
+      : category === 'fruits'
+      ? fruitsQuizData
+      : [];
 
-    Dimensions.addEventListener('change', updateLayout);
-
-    // Cleanup
-    return () => {};
-  }, []);
-
-  const isLandscape = screenDimensions.width > screenDimensions.height;
   const isSmallScreen = screenDimensions.width < 375;
 
   useEffect(() => {
@@ -191,12 +153,7 @@ const QuizScreen: React.FC = () => {
     });
 
     return (
-      <Animated.View
-        style={[
-          styles.quizContainer,
-          isLandscape && styles.quizContainerLandscape,
-          {opacity: fadeAnim},
-        ]}>
+      <Animated.View style={[styles.quizContainer, {opacity: fadeAnim}]}>
         {/* Progress indicator */}
         <View style={styles.progressContainer}>
           <Text style={styles.progressText}>
@@ -320,11 +277,7 @@ const QuizScreen: React.FC = () => {
     );
   };
 
-  return (
-    // <SharedLayout>
-    <View style={styles.container}>{renderQuizContent()}</View>
-    // {/* </SharedLayout> */}
-  );
+  return <View style={styles.container}>{renderQuizContent()}</View>;
 };
 
 const styles = StyleSheet.create({
@@ -340,11 +293,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 10,
-  },
-  quizContainerLandscape: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 15,
   },
   progressContainer: {
     width: '85%',

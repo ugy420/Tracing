@@ -18,11 +18,13 @@ import {RootStackParamList} from '../types';
 import CardCategory from '../components/CardCategory';
 import {cardAlphabetData} from '../components/alphabetCardData';
 import {cardNumberData} from '../components/numberCardData';
+import {useMusic} from '../components/MusicContext';
 
 const GuidedCategory = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'GuidedCategory'>>();
   const {category} = route.params; // Get the category parameter
+  const {isMuted, toggleMute} = useMusic();
 
   const cardData =
     category === 'alphabets'
@@ -46,9 +48,13 @@ const GuidedCategory = () => {
           </View>
           <Text style={styles.dzongkhaText}>དབྱེ་རིམ།</Text>
           <View style={styles.headerRight}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={toggleMute}>
               <Image
-                source={require('../assets/icons/volume.png')}
+                source={
+                  isMuted
+                    ? require('../assets/icons/mute.png')
+                    : require('../assets/icons/volume.png')
+                }
                 style={styles.headerIcon}
               />
             </TouchableOpacity>

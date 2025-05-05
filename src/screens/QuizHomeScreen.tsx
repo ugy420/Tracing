@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   StatusBar,
   Platform,
   SafeAreaView,
-  ScrollView,
   Image,
 } from 'react-native';
 import {RootStackParamList} from '../types';
@@ -58,7 +57,7 @@ const QuizHomeScreen = () => {
     },
     {
       id: 3,
-      name: 'གཟུགས་ཀྱི་   ཡན་ལག།',
+      name: 'གཟུགས་ཀྱི་ཡན་ལག།',
       image: require('../assets/quiz_images/deer.png'),
       category: 'body',
       screen: 'QuizScreen',
@@ -162,7 +161,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: normalize(16),
+    padding: normalize(4),
   },
   headerContainer: {
     flexDirection: 'row',

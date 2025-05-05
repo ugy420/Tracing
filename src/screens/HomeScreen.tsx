@@ -13,9 +13,11 @@ import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 import NetInfo from '@react-native-community/netinfo';
+import {useMusic} from '../components/MusicContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const {isMuted, toggleMute} = useMusic();
 
   const handleGuestMode = async () => {
     try {
@@ -71,9 +73,13 @@ const HomeScreen = () => {
           <Text style={styles.headerText}>SELECT MODE</Text>
         </View>
         <View style={styles.headerIcons}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={toggleMute}>
             <Image
-              source={require('../assets/icons/volume.png')}
+              source={
+                isMuted
+                  ? require('../assets/icons/mute.png')
+                  : require('../assets/icons/volume.png')
+              }
               style={styles.headerIcon}
             />
           </TouchableOpacity>

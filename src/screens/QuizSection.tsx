@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import {
   useNavigation,
@@ -18,6 +19,8 @@ import {
 import {RootStackParamList} from '../types';
 import {fruitsQuizData} from '../data/quizData/fruits';
 import {animalsQuizData} from '../data/quizData/animals';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -26,23 +29,31 @@ const QuizScreen: React.FC = () => {
   const [quizCompleted, setQuizCompleted] = useState<boolean>(false);
   const [fadeAnim] = useState<Animated.Value>(new Animated.Value(0));
   const [bounceAnim] = useState<Animated.Value>(new Animated.Value(0));
+  const route = useRoute<RouteProp<RootStackParamList, 'QuizScreen'>>();
+  const {category} = route.params;
+  const [earnedStars, setEarnedStars] = useState<number>(0);
+  const [previouslyCompleted, setPreviouslyCompleted] =
+    useState<boolean>(false);
+  const [showCelebration, setShowCelebration] = useState<boolean>(false);
+
   const [screenDimensions] = useState<{
     width: number;
     height: number;
   }>(Dimensions.get('window'));
-  const route = useRoute<RouteProp<RootStackParamList, 'QuizScreen'>>();
-  const {category} = route.params;
 
   const quizQuestions =
     category === 'animals'
       ? animalsQuizData
       : category === 'fruits'
       ? fruitsQuizData
+      : category === 'body'
+      ? fruitsQuizData
       : [];
 
   const isSmallScreen = screenDimensions.width < 375;
 
   useEffect(() => {
+    checkPreviousCompletion();
     // Fade in animation for each new question or completion screen
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -58,6 +69,71 @@ const QuizScreen: React.FC = () => {
       useNativeDriver: true,
     }).start();
   }, [bounceAnim, currentQuestionIndex, fadeAnim, quizCompleted]);
+
+  const checkPreviousCompletion = async () => {
+    try {
+      const quizKey = `quiz_${category}_completed`;
+      const starKey = `quiz_${category}_stars`;
+
+      const completedStatus = await AsyncStorage.getItem(quizKey);
+      const previousStars = await AsyncStorage.getItem(starKey);
+
+      if (completedStatus === 'true' && previousStars) {
+        setPreviouslyCompleted(true);
+        setEarnedStars(parseInt(previousStars, 10));
+      }
+    } catch (error) {
+      console.error('Error checking previous completion:', error);
+    }
+  };
+
+  const saveQuizCompletion = async (stars: number) => {
+    try {
+      const quizKey = `quiz_${category}_completed`;
+      const starKey = `quiz_${category}_stars`;
+
+      await AsyncStorage.setItem(quizKey, 'true');
+      await AsyncStorage.setItem(starKey, stars.toString());
+
+      // update category star in the main storage
+      await updateCategoryStars(category, stars);
+    } catch (error) {
+      console.error('Error saving quiz completion:', error);
+    }
+  };
+
+  const updateCategoryStars = async (categoryName: string, stars: number) => {
+    try {
+      // Get current stars data
+      const starsData = await AsyncStorage.getItem('category_stars');
+      const currentStarsData = starsData ? JSON.parse(starsData) : {};
+
+      // Update stars for this category
+      currentStarsData[categoryName] = stars;
+
+      // Save updated stars data
+      await AsyncStorage.setItem(
+        'category_stars',
+        JSON.stringify(currentStarsData),
+      );
+    } catch (error) {
+      console.error('Error updating category stars:', error);
+    }
+  };
+
+  const calculateStars = (score: number, total: number): number => {
+    const percentage = (score / total) * 100;
+    if (percentage >= 90) {
+      return 3;
+    }
+    if (percentage >= 70) {
+      return 2;
+    }
+    if (percentage >= 50) {
+      return 1;
+    }
+    return 0;
+  };
 
   const handleAnswerPress = (selectedAnswer: string): void => {
     const currentQuestion = quizQuestions[currentQuestionIndex];
@@ -77,9 +153,19 @@ const QuizScreen: React.FC = () => {
 
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
-        // Instead of showing alert, just transition to completion screen
+        // Calculate stars based on score
+        const stars = calculateStars(score + 1, quizQuestions.length);
+        setEarnedStars(stars);
+
+        // Save progress if not previously completed or if new score is better
+        if (!previouslyCompleted || stars > earnedStars) {
+          saveQuizCompletion(stars);
+        }
+
+        // Show celebration animation
         fadeAnim.setValue(0);
         setQuizCompleted(true);
+        setShowCelebration(true);
       }
     } else {
       // Wrong answer
@@ -104,6 +190,7 @@ const QuizScreen: React.FC = () => {
     setCurrentQuestionIndex(0);
     setScore(0);
     setQuizCompleted(false);
+    setShowCelebration(false);
     fadeAnim.setValue(0);
     bounceAnim.setValue(0);
 
@@ -122,23 +209,63 @@ const QuizScreen: React.FC = () => {
     }).start();
   };
 
+  const renderStars = (count: number) => {
+    const stars = [];
+    for (let i = 0; i < 3; i++) {
+      stars.push(
+        <Image
+          key={i}
+          source={
+            i < count
+              ? require('../assets/icons/star.png') // Replace with your star image
+              : require('../assets/icons/star-empty.png') // Replace with your empty star image
+          }
+          style={styles.starImage}
+        />,
+      );
+    }
+    return stars;
+  };
+
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
         <Animated.View
           style={[styles.completionContainer, {opacity: fadeAnim}]}>
+          {showCelebration && (
+            <View style={styles.celebrationOverlay}>
+              {/* Replace with your Lottie animation or custom celebration UI */}
+              <LottieView
+                source={require('../assets/lottie_anime/celebration1.json')}
+                autoPlay
+                loop={true}
+                style={styles.celebrationAnimation}
+                onAnimationFinish={() => setShowCelebration(false)}
+              />
+            </View>
+          )}
+
           <Text style={styles.completionText}>Quiz Completed!</Text>
           <Text style={styles.scoreText}>
             Your Score: {score} / {quizQuestions.length}
           </Text>
+
+          <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
+
+          {previouslyCompleted && (
+            <Text style={styles.previousCompletionText}>
+              You've already completed this quiz before!
+            </Text>
+          )}
+
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
               <Text style={styles.resetButtonText}>Play Again</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.nextButton}
-              onPress={() => navigation.navigate('UnGuided')}>
-              <Text style={styles.nextButtonText}>Next</Text>
+              onPress={() => navigation.navigate('QuizHomeScreen')}>
+              <Text style={styles.nextButtonText}>Back to Quiz Category</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -153,127 +280,135 @@ const QuizScreen: React.FC = () => {
     });
 
     return (
-      <Animated.View style={[styles.quizContainer, {opacity: fadeAnim}]}>
-        {/* Progress indicator */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>
-            Q{currentQuestionIndex + 1}/{quizQuestions.length}
-          </Text>
-          <View style={styles.progressBar}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${
-                    ((currentQuestionIndex + 1) / quizQuestions.length) * 100
-                  }%`,
-                },
-              ]}
-            />
+      <ImageBackground
+        source={require('../assets/background_images/landing_bg.png')} // Replace with your background
+        style={styles.backgroundImage}>
+        <Animated.View style={[styles.quizContainer, {opacity: fadeAnim}]}>
+          {/* Progress indicator */}
+          <View style={styles.progressContainer}>
+            <Text style={styles.progressText}>
+              Q {currentQuestionIndex + 1}/{quizQuestions.length}
+            </Text>
+            <View style={styles.progressBar}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${
+                      ((currentQuestionIndex + 1) / quizQuestions.length) * 100
+                    }%`,
+                  },
+                ]}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* Question */}
-        <Animated.View
-          style={[
-            styles.questionContainer,
-            {transform: [{translateY: bounceInterpolation}]},
-          ]}>
-          <Text
+          {/* Question */}
+          <Animated.View
             style={[
-              styles.questionText,
-              isSmallScreen && styles.questionTextSmall,
+              styles.questionContainer,
+              {transform: [{translateY: bounceInterpolation}]},
             ]}>
-            {currentQuestion.question}
-          </Text>
+            <Text
+              style={[
+                styles.questionText,
+                isSmallScreen && styles.questionTextSmall,
+              ]}>
+              {currentQuestion.question}
+            </Text>
 
-          {/* Question Image */}
-          <View style={styles.imageContainer}>
+            {/* Question Image */}
+            <View style={styles.imageContainer}>
+              <Image
+                source={currentQuestion.image}
+                style={styles.questionImage}
+                resizeMode="contain"
+              />
+            </View>
+          </Animated.View>
+
+          {/* Answer Options in 2x2 grid */}
+          <View style={styles.optionsGridContainer}>
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.optionButtonGrid,
+                  isSmallScreen && styles.optionButtonSmall,
+                ]}
+                onPress={() => handleAnswerPress(currentQuestion.options[0])}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSmallScreen && styles.optionTextSmall,
+                  ]}>
+                  {currentQuestion.options[0]}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.optionButtonGrid,
+                  isSmallScreen && styles.optionButtonSmall,
+                ]}
+                onPress={() => handleAnswerPress(currentQuestion.options[1])}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSmallScreen && styles.optionTextSmall,
+                  ]}>
+                  {currentQuestion.options[1]}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.optionButtonGrid,
+                  isSmallScreen && styles.optionButtonSmall,
+                ]}
+                onPress={() => handleAnswerPress(currentQuestion.options[2])}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSmallScreen && styles.optionTextSmall,
+                  ]}>
+                  {currentQuestion.options[2]}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.optionButton,
+                  styles.optionButtonGrid,
+                  isSmallScreen && styles.optionButtonSmall,
+                ]}
+                onPress={() => handleAnswerPress(currentQuestion.options[3])}>
+                <Text
+                  style={[
+                    styles.optionText,
+                    isSmallScreen && styles.optionTextSmall,
+                  ]}>
+                  {currentQuestion.options[3]}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Score Display
+          <View style={styles.scoreContainer}>
             <Image
-              source={currentQuestion.image}
-              style={styles.questionImage}
-              resizeMode="contain"
+              source={require('../assets/icons/boy.png')} // Replace with your score icon
+              style={styles.scoreIcon}
             />
-          </View>
+            <Text style={styles.scoreLabel}>Score:</Text>
+            <Text style={styles.scoreValue}>{score}</Text>
+          </View> */}
         </Animated.View>
-
-        {/* Answer Options in 2x2 grid */}
-        <View style={styles.optionsGridContainer}>
-          <View style={styles.optionsRow}>
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                styles.optionButtonGrid,
-                isSmallScreen && styles.optionButtonSmall,
-              ]}
-              onPress={() => handleAnswerPress(currentQuestion.options[0])}>
-              <Text
-                style={[
-                  styles.optionText,
-                  isSmallScreen && styles.optionTextSmall,
-                ]}>
-                {currentQuestion.options[0]}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                styles.optionButtonGrid,
-                isSmallScreen && styles.optionButtonSmall,
-              ]}
-              onPress={() => handleAnswerPress(currentQuestion.options[1])}>
-              <Text
-                style={[
-                  styles.optionText,
-                  isSmallScreen && styles.optionTextSmall,
-                ]}>
-                {currentQuestion.options[1]}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.optionsRow}>
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                styles.optionButtonGrid,
-                isSmallScreen && styles.optionButtonSmall,
-              ]}
-              onPress={() => handleAnswerPress(currentQuestion.options[2])}>
-              <Text
-                style={[
-                  styles.optionText,
-                  isSmallScreen && styles.optionTextSmall,
-                ]}>
-                {currentQuestion.options[2]}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.optionButton,
-                styles.optionButtonGrid,
-                isSmallScreen && styles.optionButtonSmall,
-              ]}
-              onPress={() => handleAnswerPress(currentQuestion.options[3])}>
-              <Text
-                style={[
-                  styles.optionText,
-                  isSmallScreen && styles.optionTextSmall,
-                ]}>
-                {currentQuestion.options[3]}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Score Display */}
-        <View style={styles.scoreContainer}>
-          <Text style={styles.scoreLabel}>Score:</Text>
-          <Text style={styles.scoreValue}>{score}</Text>
-        </View>
-      </Animated.View>
+      </ImageBackground>
     );
   };
 
@@ -283,6 +418,12 @@ const QuizScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -308,58 +449,63 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 4,
     borderWidth: 1,
     borderColor: '#2682F4',
   },
   progressFill: {
     height: '100%',
     backgroundColor: '#FF8C00',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   questionContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: 12,
-    padding: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 20,
+    padding: 5,
     width: '85%',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#2682F4',
-    marginBottom: 15,
+    marginBottom: 8,
     alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
   },
   questionText: {
     fontSize: 40,
     fontFamily: 'joyig',
     color: '#EF8D38',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 1,
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 1,
+    textShadowRadius: 2,
   },
   questionTextSmall: {
-    fontSize: 15,
+    fontSize: 20,
     fontFamily: 'joyig',
   },
   imageContainer: {
     width: '100%',
-    height: 70,
+    height: 80,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 3,
+    marginBottom: 1,
   },
   questionImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 15,
     resizeMode: 'contain',
   },
   optionsGridContainer: {
     width: '85%',
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: 1,
   },
   optionsRow: {
     flexDirection: 'row',
@@ -367,21 +513,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   optionButton: {
-    backgroundColor: 'rgba(38, 130, 244, 0.8)',
-    borderRadius: 10,
-    padding: 8,
+    backgroundColor: 'rgba(38, 130, 244, 0.9)',
+    borderRadius: 15,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FFF',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
-    shadowRadius: 1,
-    elevation: 1,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   optionButtonGrid: {
     width: '48%',
-    minHeight: 45,
+    minHeight: 55,
     justifyContent: 'center',
   },
   optionButtonSmall: {
@@ -389,65 +534,94 @@ const styles = StyleSheet.create({
     minHeight: 40,
   },
   optionText: {
-    fontSize: 30,
+    fontSize: 45,
     fontFamily: 'joyig',
     color: '#FFF',
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 1,
+    textShadowRadius: 2,
   },
   optionTextSmall: {
-    fontSize: 13,
+    fontSize: 18,
   },
-  scoreContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: '#FF8C00',
-    alignSelf: 'center',
-  },
-  scoreLabel: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#2682F4',
-    marginRight: 5,
-  },
-  scoreValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FF8C00',
-  },
+
+  // scoreContainer: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   marginBottom: 20,
+  //   paddingHorizontal: 15,
+  //   paddingVertical: 3,
+  //   backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  //   borderRadius: 10,
+  //   borderWidth: 2,
+  //   borderColor: '#FF8C00',
+  //   alignSelf: 'center',
+  //   shadowColor: '#000',
+  //   shadowOffset: {width: 0, height: 2},
+  //   shadowOpacity: 0.2,
+  //   shadowRadius: 2,
+  //   elevation: 3,
+  // },
+  // scoreIcon: {
+  //   width: 28,
+  //   height: 28,
+  //   marginRight: 8,
+  // },
+  // scoreValue: {
+  //   fontSize: 24,
+  //   fontWeight: 'bold',
+  //   color: '#FF8C00',
+  // },
+
   completionContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.85)',
-    borderRadius: 12,
-    padding: 20,
-    borderWidth: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 70,
+    borderRadius: 25,
+    borderWidth: 3,
     borderColor: '#2682F4',
     width: '80%',
-    maxHeight: '60%',
+    maxHeight: '80%',
     alignSelf: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 8,
   },
   completionText: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#EF8D38',
-    marginBottom: 15,
+    marginBottom: 10,
     textAlign: 'center',
   },
+
   scoreText: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#2682F4',
-    marginBottom: 25,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  starImage: {
+    width: 45,
+    height: 45,
+    marginHorizontal: 5,
+  },
+  previousCompletionText: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: '#666',
+    marginBottom: 20,
     textAlign: 'center',
   },
   buttonContainer: {
@@ -458,30 +632,52 @@ const styles = StyleSheet.create({
   resetButton: {
     backgroundColor: '#FF8C00',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FFF',
-    marginRight: 10,
+    marginRight: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   resetButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#FFF',
   },
   nextButton: {
     backgroundColor: '#2682F4',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderRadius: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#FFF',
-    marginLeft: 10,
+    marginLeft: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
   },
   nextButtonText: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#FFF',
+  },
+  celebrationOverlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  celebrationAnimation: {
+    width: 300,
+    height: 300,
   },
 });
 

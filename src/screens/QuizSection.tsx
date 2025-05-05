@@ -38,6 +38,8 @@ const QuizScreen: React.FC = () => {
       ? animalsQuizData
       : category === 'fruits'
       ? fruitsQuizData
+      : category === 'body'
+      ? fruitsQuizData
       : [];
 
   const isSmallScreen = screenDimensions.width < 375;

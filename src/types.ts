@@ -4,7 +4,7 @@ export type RootStackParamList = {
   UnGuided: undefined;
   GuidedCategory: {category: 'alphabets' | 'numbers' | 'vowels'};
   Avatar: undefined;
-  Tracing: {id: string};
+  Tracing: {id: string; category: string};
   Achievement: undefined;
   CompletionScreen: undefined;
   Login: undefined;

@@ -73,7 +73,9 @@ const GuidedCategory = () => {
             data={cardData}
             renderItem={({item}) => (
               <TouchableOpacity
-                onPress={() => navigation.navigate(item.screen, {id: item.id})}>
+                onPress={() =>
+                  navigation.navigate(item.screen, {id: item.id, category})
+                }>
                 <CardCategory
                   text={item.text}
                   backgroundColor={item.backgroundColor}

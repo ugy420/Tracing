@@ -161,19 +161,19 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: normalize(4),
+    padding: normalize(15),
   },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 2,
-    marginBottom: 5,
     position: 'relative',
     width: '100%',
   },
   headerIcon: {
     height: 40,
     width: 40,
+    marginLeft: normalize(10),
     resizeMode: 'contain',
   },
   headerButton: {

@@ -10,11 +10,15 @@ import {
 import {Dimensions} from 'react-native';
 import {RootStackParamList} from '../types';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, useRoute} from '@react-navigation/native';
 
 const {height, width} = Dimensions.get('window');
 
 const CompletionScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'CompletionScreen'>>();
+  const {category} = route.params;
+
   return (
     <ImageBackground
       source={require('../assets/background_images/guided_bg.jpeg')}
@@ -45,12 +49,7 @@ const CompletionScreen = () => {
 
         <View style={styles.feedbackIconContainer}>
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate({
-                name: 'GuidedCategory',
-                params: {category: 'alphabets'},
-              })
-            }>
+            onPress={() => navigation.navigate('GuidedCategory', {category})}>
             <Image
               source={require('../assets/icons/nextArrow.png')}
               style={styles.feedbackIcon}

@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
+  Dimensions,
   ImageBackground,
 } from 'react-native';
 import {RootStackParamList} from '../types';
@@ -20,6 +21,8 @@ type GridItem = {
 
 const GuidedScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const {width, height} = Dimensions.get('window');
+  const isLandscape = width > height;
 
   const gridItems: GridItem[] = [
     {
@@ -52,8 +55,9 @@ const GuidedScreen = () => {
 
   return (
     <SharedLayout>
-      <View style={styles.container}>
-        <View style={styles.grid}>
+      <View
+        style={[styles.container, isLandscape && styles.landscapeContainer]}>
+        <View style={[styles.grid, isLandscape && styles.landscapeGrid]}>
           {gridItems.map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -92,11 +96,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 10,
   },
+  landscapeContainer: {
+    paddingTop: 5,
+  },
   grid: {
-    width: '60%',
+    width: '35%',
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+  },
+  landscapeGrid: {
+    width: '50%',
   },
   gridItem: {
     width: '28%',

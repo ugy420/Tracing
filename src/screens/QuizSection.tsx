@@ -397,16 +397,6 @@ const QuizScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* Score Display
-          <View style={styles.scoreContainer}>
-            <Image
-              source={require('../assets/icons/boy.png')} // Replace with your score icon
-              style={styles.scoreIcon}
-            />
-            <Text style={styles.scoreLabel}>Score:</Text>
-            <Text style={styles.scoreValue}>{score}</Text>
-          </View> */}
         </Animated.View>
       </ImageBackground>
     );

@@ -22,30 +22,44 @@ import {
   useRoute,
 } from '@react-navigation/native';
 import {RootStackParamList} from '../types';
-import {dzongkhaLetters} from '../data/dzongkhaLetters';
+import {dzongkhaLetters} from '../data/tracingData/dzongkhaLetters';
 import {svgPathProperties} from 'svg-path-properties';
-import checkPointOrder from '../data/checkPointOrder';
+import alphabetCheckPoints from '../data/checkPoints/alphabetsCheckPoints';
+import {numbersTracing} from '../data/tracingData/numbersTracing';
+import numberCheckPoints from '../data/checkPoints/numbersCheckPoints';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
 const Tracing = () => {
   const route = useRoute<TracingScreenRouteProp>();
-  const {id} = route.params;
-  const letter = dzongkhaLetters.find(letter => letter.id === id);
+  const {id, category} = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-  if (!letter) {
-    console.error(`Letter with id ${id} not found`);
-    return null;
-  }
-  const svgString = letter.svgPath;
-  const svgGuides = letter.guidePath;
   const [currentPart, setCurrentPart] = useState(0);
   const drawPath = useSharedValue<SkPath>(Skia.Path.Make());
   const [checkpoints, setCheckpoints] = useState<SkPoint[]>([]);
   const [visitedCheckpoints, setVisitedCheckpoints] = useState<boolean[]>([]);
-
   const threshold = 25;
+
+  const dataSource =
+    category === 'alphabets' ? dzongkhaLetters : numbersTracing;
+  const selectedItem = dataSource.find(item => item.id === id);
+
+  // const letter = dzongkhaLetters.find(letter => letter.id === id);
+
+  if (!selectedItem) {
+    console.error(`Item with id ${id} not found for category ${category}`);
+    return null;
+  }
+  const svgString = selectedItem.svgPath;
+  const svgGuides = selectedItem.guidePath;
+
+  // Determine the correct checkpoint order based on the category
+  const checkPointOrder =
+    category === 'alphabets'
+      ? alphabetCheckPoints
+      : category === 'numbers'
+      ? numberCheckPoints
+      : {};
 
   const generateCheckpoints = (svg: string, numPoints = 50): SkPoint[] => {
     try {
@@ -65,12 +79,14 @@ const Tracing = () => {
   };
 
   useEffect(() => {
-    const newCheckpoints = generateCheckpoints(letter.guidePath[currentPart]);
+    const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
     // console.log('checkpoints:', newCheckpoints);
 
-    const currentOrder = checkPointOrder[currentPart] || [];
+    const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
+    // Filter out invalid indices and ensure they exist in newCheckpoints
     const reorderedCheckpoints = currentOrder
+      .filter(index => index >= 0 && index < newCheckpoints.length)
       .map(index => newCheckpoints[index])
       .filter(Boolean) as SkPoint[];
 
@@ -78,7 +94,7 @@ const Tracing = () => {
 
     setCheckpoints(reorderedCheckpoints);
     setVisitedCheckpoints(Array(reorderedCheckpoints.length).fill(false));
-  }, [currentPart]);
+  }, [currentPart, svgGuides]);
 
   const handleNextPart = () => {
     // console.log('Next part:', currentPart);
@@ -99,32 +115,68 @@ const Tracing = () => {
 
   const updateVisitedCheckpoints = (x: number, y: number) => {
     setVisitedCheckpoints(prev => {
+      // Return early if no checkpoints exist
+      if (checkpoints.length === 0) {
+        return prev;
+      }
       const updated = [...prev];
 
       // Find the next checkpoint to visit
       const nextCheckpointIndex = updated.findIndex(v => !v);
 
-      // Ensure only the next or i+2 checkpoint can be visited
-      if (nextCheckpointIndex !== -1) {
-        const cp = checkpoints[nextCheckpointIndex];
-        const dx = x - cp.x;
-        const dy = y - cp.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+      // Check if nextCheckpointIndex is valid
+      if (
+        nextCheckpointIndex === -1 ||
+        nextCheckpointIndex >= checkpoints.length
+      ) {
+        return prev;
+      }
 
-        if (dist < threshold) {
-          updated[nextCheckpointIndex] = true; // Mark the checkpoint as visited
-        } else if (nextCheckpointIndex + 1 < checkpoints.length) {
-          // Check if the user is near the i+3 checkpoint
-          const cpNext = checkpoints[nextCheckpointIndex + 2];
+      const cp = checkpoints[nextCheckpointIndex];
+      if (!cp) {
+        return prev;
+      } // Additional safety check
+
+      const dx = x - cp.x;
+      const dy = y - cp.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (dist < threshold) {
+        updated[nextCheckpointIndex] = true;
+      } else if (nextCheckpointIndex + 2 < checkpoints.length) {
+        const cpNext = checkpoints[nextCheckpointIndex + 2];
+        if (cpNext) {
+          // Check if cpNext exists
           const dxNext = x - cpNext.x;
           const dyNext = y - cpNext.y;
           const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
-
           if (distNext < threshold) {
-            updated[nextCheckpointIndex + 1] = true; // Skip i+1 and mark i+2 as visited
+            updated[nextCheckpointIndex + 1] = true;
           }
         }
       }
+
+      // Ensure only the next or i+2 checkpoint can be visited
+      // if (nextCheckpointIndex !== -1) {
+      //   const cp = checkpoints[nextCheckpointIndex];
+      //   const dx = x - cp.x;
+      //   const dy = y - cp.y;
+      //   const dist = Math.sqrt(dx * dx + dy * dy);
+
+      //   if (dist < threshold) {
+      //     updated[nextCheckpointIndex] = true; // Mark the checkpoint as visited
+      //   } else if (nextCheckpointIndex + 1 < checkpoints.length) {
+      //     // Check if the user is near the i+3 checkpoint
+      //     const cpNext = checkpoints[nextCheckpointIndex + 2];
+      //     const dxNext = x - cpNext.x;
+      //     const dyNext = y - cpNext.y;
+      //     const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
+
+      //     if (distNext < threshold) {
+      //       updated[nextCheckpointIndex + 1] = true; // Skip i+1 and mark i+2 as visited
+      //     }
+      //   }
+      // }
 
       // If all checkpoints are visited, move to the next part
       if (updated.every(v => v)) {
@@ -138,7 +190,14 @@ const Tracing = () => {
 
   const gesture = Gesture.Pan()
     .onBegin(event => {
+      if (checkpoints.length === 0) {
+        return;
+      }
       const firstCheckpoint = checkpoints[0];
+      if (!firstCheckpoint) {
+        return;
+      }
+
       const dx = firstCheckpoint.x - event.x;
       const dy = firstCheckpoint.y - event.y;
       const dist = Math.sqrt(dx * dx + dy * dy);

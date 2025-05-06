@@ -132,29 +132,62 @@ const Tracing = () => {
         return prev;
       }
 
-      const cp = checkpoints[nextCheckpointIndex];
-      if (!cp) {
-        return prev;
-      } // Additional safety check
+      // Get the current and next+3 checkpoints
+      const currentCp = checkpoints[nextCheckpointIndex];
+      const nextPlus3Cp = checkpoints[nextCheckpointIndex + 3];
 
-      const dx = x - cp.x;
-      const dy = y - cp.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      // Check if touch is near the next checkpoint
+      if (currentCp) {
+        const dx = x - currentCp.x;
+        const dy = y - currentCp.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist < threshold) {
-        updated[nextCheckpointIndex] = true;
-      } else if (nextCheckpointIndex + 2 < checkpoints.length) {
-        const cpNext = checkpoints[nextCheckpointIndex + 2];
-        if (cpNext) {
-          // Check if cpNext exists
-          const dxNext = x - cpNext.x;
-          const dyNext = y - cpNext.y;
-          const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
-          if (distNext < threshold) {
-            updated[nextCheckpointIndex + 1] = true;
+        if (dist < threshold) {
+          updated[nextCheckpointIndex] = true;
+        }
+      }
+
+      // Check if touch is near the next+3 checkpoint (skip intermediate points)
+      if (nextPlus3Cp) {
+        const dx = x - nextPlus3Cp.x;
+        const dy = y - nextPlus3Cp.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < threshold) {
+          // Mark current, next, next+1, next+2 as visited
+          for (
+            let i = 0;
+            i < 4 && nextCheckpointIndex + i < updated.length;
+            i++
+          ) {
+            updated[nextCheckpointIndex + i] = true;
           }
         }
       }
+
+      // const cp = checkpoints[nextCheckpointIndex];
+      // if (!cp) {
+      //   return prev;
+      // } // Additional safety check
+
+      // const dx = x - cp.x;
+      // const dy = y - cp.y;
+      // const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // if (dist < threshold) {
+      //   updated[nextCheckpointIndex] = true;
+      // } else if (nextCheckpointIndex + 2 < checkpoints.length) {
+      //   const cpNext = checkpoints[nextCheckpointIndex + 2];
+      //   if (cpNext) {
+      //     // Check if cpNext exists
+      //     const dxNext = x - cpNext.x;
+      //     const dyNext = y - cpNext.y;
+      //     const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
+      //     if (distNext < threshold) {
+      //       updated[nextCheckpointIndex + 1] = true;
+      //     }
+      //   }
+      // }
 
       // Ensure only the next or i+2 checkpoint can be visited
       // if (nextCheckpointIndex !== -1) {
@@ -178,10 +211,10 @@ const Tracing = () => {
       //   }
       // }
 
-      // If all checkpoints are visited, move to the next part
+      // If all checkpoints are visited, move to next part
       if (updated.every(v => v)) {
         runOnJS(handleNextPart)();
-        return Array(checkpoints.length).fill(false); // Reset for the next part
+        return Array(checkpoints.length).fill(false);
       }
 
       return updated;
@@ -190,40 +223,93 @@ const Tracing = () => {
 
   const gesture = Gesture.Pan()
     .onBegin(event => {
+      'worklet';
       if (checkpoints.length === 0) {
         return;
       }
-      const firstCheckpoint = checkpoints[0];
-      if (!firstCheckpoint) {
-        return;
+      const nextCheckpointIndex = visitedCheckpoints.findIndex(v => !v);
+      if (nextCheckpointIndex === -1) return;
+
+      // Get the next and next+3 checkpoints
+      const nextCp = checkpoints[nextCheckpointIndex];
+      const nextPlus3Cp = checkpoints[nextCheckpointIndex + 3];
+
+      // More generous starting threshold
+      const startThreshold = threshold * 1.5;
+
+      // Check if starting near either valid checkpoint
+      if (nextCp) {
+        const dx = nextCp.x - event.x;
+        const dy = nextCp.y - event.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist < startThreshold) {
+          drawPath.value = Skia.Path.Make();
+          drawPath.value.moveTo(event.x, event.y);
+          drawPath.modify();
+        }
       }
 
-      const dx = firstCheckpoint.x - event.x;
-      const dy = firstCheckpoint.y - event.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (nextPlus3Cp) {
+        const dx = nextPlus3Cp.x - event.x;
+        const dy = nextPlus3Cp.y - event.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
-      if (dist < threshold - 5 && !visitedCheckpoints[0]) {
-        drawPath.value.moveTo(event.x, event.y);
-        drawPath.modify();
+        if (dist < startThreshold) {
+          drawPath.value = Skia.Path.Make();
+          drawPath.value.moveTo(event.x, event.y);
+          drawPath.modify();
+        }
       }
     })
     .onChange(event => {
+      'worklet';
       // Allow tracing only for the next checkpoint in sequence
       const nextCheckpointIndex = visitedCheckpoints.findIndex(v => !v);
 
-      if (nextCheckpointIndex !== -1) {
-        const nextCheckpoint = checkpoints[nextCheckpointIndex];
-        const dx = nextCheckpoint.x - event.x;
-        const dy = nextCheckpoint.y - event.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        if (dist < threshold - 5) {
-          drawPath.value.lineTo(event.x, event.y);
-          drawPath.modify();
-          runOnJS(updateVisitedCheckpoints)(event.x, event.y);
-        }
+      if (nextCheckpointIndex === -1) {
+        return;
       }
-    });
+
+      // Get the next and next+3 checkpoints
+      const nextCp = checkpoints[nextCheckpointIndex];
+      const nextPlus3Cp = checkpoints[nextCheckpointIndex + 3];
+
+      // Calculate distances
+      let distToNext = Infinity;
+      let distToNextPlus3 = Infinity;
+
+      if (nextCp) {
+        const dx = nextCp.x - event.x;
+        const dy = nextCp.y - event.y;
+        distToNext = Math.sqrt(dx * dx + dy * dy);
+      }
+
+      if (nextPlus3Cp) {
+        const dx = nextPlus3Cp.x - event.x;
+        const dy = nextPlus3Cp.y - event.y;
+        distToNextPlus3 = Math.sqrt(dx * dx + dy * dy);
+      }
+
+      // Determine which checkpoint is closer
+      const minDist = Math.min(distToNext, distToNextPlus3);
+
+      // Only draw if within threshold of either checkpoint
+      if (minDist < threshold * 1.2) {
+        if (drawPath.value.isEmpty()) {
+          drawPath.value.moveTo(event.x, event.y);
+        } else {
+          const lastPoint = drawPath.value.getLastPt();
+          const controlX = (lastPoint.x + event.x) / 2;
+          const controlY = (lastPoint.y + event.y) / 2;
+          drawPath.value.quadTo(controlX, controlY, event.x, event.y);
+        }
+        drawPath.modify();
+
+        runOnJS(updateVisitedCheckpoints)(event.x, event.y);
+      }
+    })
+    .minDistance(1); // Make it more sensitive to small movements
 
   return (
     <View style={styles.container}>
@@ -235,14 +321,18 @@ const Tracing = () => {
             <Path
               path={Skia.Path.MakeFromSVGString(svgString)!}
               color={'white'}
+              // style="stroke"
+              // strokeWidth={4}
             />
             <Mask
               mask={
                 <Path
                   path={drawPath}
                   color="black"
-                  strokeWidth={50}
+                  strokeWidth={25}
                   style="stroke"
+                  // strokeCap="round" // Rounded ends for smoother look
+                  // strokeJoin="round" // Rounded joints for smoother corners
                 />
               }>
               <Path

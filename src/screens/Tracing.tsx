@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Button, StyleSheet} from 'react-native';
+import {View, Button, StyleSheet, ImageBackground} from 'react-native';
 import {
   Canvas,
   Fill,
@@ -103,7 +103,7 @@ const Tracing = () => {
       setCurrentPart(currentPart + 1);
     } else if (currentPart === svgGuides.length - 1) {
       console.log('All parts completed');
-      navigation.navigate('CompletionScreen');
+      navigation.navigate('CompletionScreen', {category});
     }
   };
 
@@ -164,52 +164,6 @@ const Tracing = () => {
           }
         }
       }
-
-      // const cp = checkpoints[nextCheckpointIndex];
-      // if (!cp) {
-      //   return prev;
-      // } // Additional safety check
-
-      // const dx = x - cp.x;
-      // const dy = y - cp.y;
-      // const dist = Math.sqrt(dx * dx + dy * dy);
-
-      // if (dist < threshold) {
-      //   updated[nextCheckpointIndex] = true;
-      // } else if (nextCheckpointIndex + 2 < checkpoints.length) {
-      //   const cpNext = checkpoints[nextCheckpointIndex + 2];
-      //   if (cpNext) {
-      //     // Check if cpNext exists
-      //     const dxNext = x - cpNext.x;
-      //     const dyNext = y - cpNext.y;
-      //     const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
-      //     if (distNext < threshold) {
-      //       updated[nextCheckpointIndex + 1] = true;
-      //     }
-      //   }
-      // }
-
-      // Ensure only the next or i+2 checkpoint can be visited
-      // if (nextCheckpointIndex !== -1) {
-      //   const cp = checkpoints[nextCheckpointIndex];
-      //   const dx = x - cp.x;
-      //   const dy = y - cp.y;
-      //   const dist = Math.sqrt(dx * dx + dy * dy);
-
-      //   if (dist < threshold) {
-      //     updated[nextCheckpointIndex] = true; // Mark the checkpoint as visited
-      //   } else if (nextCheckpointIndex + 1 < checkpoints.length) {
-      //     // Check if the user is near the i+3 checkpoint
-      //     const cpNext = checkpoints[nextCheckpointIndex + 2];
-      //     const dxNext = x - cpNext.x;
-      //     const dyNext = y - cpNext.y;
-      //     const distNext = Math.sqrt(dxNext * dxNext + dyNext * dyNext);
-
-      //     if (distNext < threshold) {
-      //       updated[nextCheckpointIndex + 1] = true; // Skip i+1 and mark i+2 as visited
-      //     }
-      //   }
-      // }
 
       // If all checkpoints are visited, move to next part
       if (updated.every(v => v)) {

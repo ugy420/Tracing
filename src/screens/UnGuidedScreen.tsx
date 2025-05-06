@@ -35,39 +35,6 @@ const UnGuidedScreen = () => {
       background: require('../assets/icons/blueBox.png'),
       screen: 'GuidedCategory',
     },
-    // {
-    //   image: require('../assets/icons/shapeIcon.png'),
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
-    // {
-    //   image: require('../assets/icons/clothingIcon.png'),
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
-    // {
-    //   image: require('../assets/icons/expressionIcon.png'),
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
-    // {
-    //   image: require('../assets/icons/sportsIcon.png'),
-    //   subText: 'Subtext',
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
-    // {
-    //   image: require('../assets/icons/fruitsIcon.png'),
-    //   subText: 'Subtext',
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
-    // {
-    //   image: require('../assets/icons/familyIcon.png'),
-    //   subText: 'Subtext',
-    //   background: require('../assets/icons/brownBox.png'),
-    //   screen: 'GuidedCategory',
-    // },
   ];
 
   return (

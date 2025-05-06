@@ -2,11 +2,11 @@ export type RootStackParamList = {
   Home: undefined;
   Guided: undefined;
   UnGuided: undefined;
-  GuidedCategory: {category: 'alphabets' | 'numbers' | 'vowels'};
+  GuidedCategory: {category: string};
   Avatar: undefined;
   Tracing: {id: string; category: string};
   Achievement: undefined;
-  CompletionScreen: undefined;
+  CompletionScreen: {category: string};
   Login: undefined;
   SignUp: undefined;
   FeedbackSection: undefined;

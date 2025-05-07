@@ -209,23 +209,23 @@ const QuizScreen: React.FC = () => {
     }).start();
   };
 
-  const renderStars = (count: number) => {
-    const stars = [];
-    for (let i = 0; i < 3; i++) {
-      stars.push(
-        <Image
-          key={i}
-          source={
-            i < count
-              ? require('../assets/icons/star.png') // Replace with your star image
-              : require('../assets/icons/star-empty.png') // Replace with your empty star image
-          }
-          style={styles.starImage}
-        />,
-      );
-    }
-    return stars;
-  };
+  // const renderStars = (count: number) => {
+  //   const stars = [];
+  //   for (let i = 0; i < 3; i++) {
+  //     stars.push(
+  //       <Image
+  //         key={i}
+  //         source={
+  //           i < count
+  //             ? require('../assets/icons/star.png') // Replace with your star image
+  //             : require('../assets/icons/star-empty.png') // Replace with your empty star image
+  //         }
+  //         style={styles.starImage}
+  //       />,
+  //     );
+  //   }
+  //   return stars;
+  // };
 
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {

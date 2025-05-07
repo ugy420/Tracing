@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Animated,
+  ImageBackground,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
@@ -163,23 +164,44 @@ const QuizScreen: React.FC = () => {
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
-        <Animated.View
-          style={[styles.completionContainer, {opacity: fadeAnim}]}>
-          <Text style={styles.completionText}>Quiz Completed!</Text>
-          <Text style={styles.scoreText}>
-            Your Score: {score} / {quizQuestions.length}
-          </Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
-              <Text style={styles.resetButtonText}>Play Again</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.nextButton}
-              onPress={() => navigation.navigate('UnGuided')}>
-              <Text style={styles.nextButtonText}>Next</Text>
-            </TouchableOpacity>
+        <ImageBackground
+          source={require('../assets/background_images/guided_bg.jpeg')} // Replace with your background image
+          style={styles.completionBackground}>
+          <View style={styles.completionSideImagesContainer}>
+            {/* Left side image */}
+            <Image
+              source={require('../assets/icons/boy.png')} // Replace with your left image
+              style={styles.completionSideImage}
+              resizeMode="contain"
+            />
+            
+            {/* Completion container */}
+            <Animated.View
+              style={[styles.completionContainer, {opacity: fadeAnim}]}>
+              <Text style={styles.completionText}>Quiz Completed!</Text>
+              <Text style={styles.scoreText}>
+                Your Score: {score} / {quizQuestions.length}
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
+                  <Text style={styles.resetButtonText}>Play Again</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.nextButton}
+                  onPress={() => navigation.navigate('UnGuided')}>
+                  <Text style={styles.nextButtonText}>Next</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+            
+            {/* Right side image */}
+            <Image
+              source={require('../assets/icons/girl.png')} // Replace with your right image
+              style={styles.completionSideImage}
+              resizeMode="contain"
+            />
           </View>
-        </Animated.View>
+        </ImageBackground>
       );
     }
 
@@ -475,8 +497,26 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FF8C00',
   },
-  completionContainer: {
+  // New and modified completion screen styles
+  completionBackground: {
     flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  completionSideImagesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '95%',  // Use most of the screen width
+  },
+  completionSideImage: {
+    width: 200,
+    height: 200,
+  },
+  completionContainer: {
+    flex: 0,  // Changed from flex: 1 to not expand
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.85)',
@@ -484,9 +524,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: '#2682F4',
-    width: '80%',
-    maxHeight: '60%',
-    alignSelf: 'center',
+    width: '50%',  // Reduced from 80% to make room for images
+    maxHeight: '100%',
   },
   completionText: {
     fontSize: 24,

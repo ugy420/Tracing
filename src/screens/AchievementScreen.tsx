@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingTop: height * 0.2, // Added padding to move content lower
+    paddingTop: height * 0.15, // Added padding to move content lower
   },
   container: {
     flex: 1,

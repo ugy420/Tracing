@@ -35,6 +35,7 @@ const QuizScreen: React.FC = () => {
   const [previouslyCompleted, setPreviouslyCompleted] =
     useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
+  const [starsAwarded, setStarsAwarded] = useState<boolean>(false);
 
   const [screenDimensions] = useState<{
     width: number;
@@ -97,8 +98,39 @@ const QuizScreen: React.FC = () => {
 
       // update category star in the main storage
       await updateCategoryStars(category, stars);
+
+      // Award 5 stars if this is the first completion
+      if (!previouslyCompleted) {
+        await awardStarsForFirstCompletion();
+        setStarsAwarded(true);
+      }
     } catch (error) {
       console.error('Error saving quiz completion:', error);
+    }
+  };
+
+  const awardStarsForFirstCompletion = async () => {
+    try {
+      // Get current total star count
+      const isGuest = await AsyncStorage.getItem('is_guest');
+      const starCountKey = isGuest === 'true' ? 'guest_starCount' : 'starCount';
+
+      const currentStarCount = await AsyncStorage.getItem(starCountKey);
+      const currentStars = currentStarCount
+        ? parseInt(currentStarCount, 10)
+        : 0;
+
+      // Add 5 stars
+      const newStarCount = currentStars + 5;
+
+      // Save updated star count
+      await AsyncStorage.setItem(starCountKey, newStarCount.toString());
+
+      console.log(
+        `Awarded 5 stars for first completion of ${category} quiz. New total: ${newStarCount}`,
+      );
+    } catch (error) {
+      console.error('Error awarding stars:', error);
     }
   };
 
@@ -209,24 +241,6 @@ const QuizScreen: React.FC = () => {
     }).start();
   };
 
-  // const renderStars = (count: number) => {
-  //   const stars = [];
-  //   for (let i = 0; i < 3; i++) {
-  //     stars.push(
-  //       <Image
-  //         key={i}
-  //         source={
-  //           i < count
-  //             ? require('../assets/icons/star.png') // Replace with your star image
-  //             : require('../assets/icons/star-empty.png') // Replace with your empty star image
-  //         }
-  //         style={styles.starImage}
-  //       />,
-  //     );
-  //   }
-  //   return stars;
-  // };
-
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
@@ -269,7 +283,7 @@ const QuizScreen: React.FC = () => {
         //     </TouchableOpacity>
 
         <ImageBackground
-          source={require('../assets/background_images/guided_bg.jpeg')} // Replace with your background image
+          source={require('../assets/background_images/guided_bg.jpeg')}
           style={styles.completionBackground}>
           <View style={styles.completionSideImagesContainer}>
             {/* Left side image */}
@@ -286,6 +300,18 @@ const QuizScreen: React.FC = () => {
               <Text style={styles.scoreText}>
                 Your Score: {score} / {quizQuestions.length}
               </Text>
+
+              {/* Show star award message if this is first completion */}
+              {!previouslyCompleted && (
+                <View style={styles.starAwardContainer}>
+                  <Image
+                    source={require('../assets/icons/star.png')}
+                    style={styles.starAwardImage}
+                  />
+                  <Text style={styles.starAwardText}>5 Stars Awarded!</Text>
+                </View>
+              )}
+
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
                   style={styles.resetButton}
@@ -294,7 +320,15 @@ const QuizScreen: React.FC = () => {
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.nextButton}
-                  onPress={() => navigation.navigate('UnGuided')}>
+                  onPress={() => {
+                    // If first completion, we need to refresh the star count in SharedLayout
+                    if (!previouslyCompleted && starsAwarded) {
+                      // Navigate back to refresh the header with updated star count
+                      navigation.navigate('QuizHomeScreen');
+                    } else {
+                      navigation.navigate('QuizHomeScreen');
+                    }
+                  }}>
                   <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
               </View>
@@ -302,7 +336,7 @@ const QuizScreen: React.FC = () => {
 
             {/* Right side image */}
             <Image
-              source={require('../assets/icons/girl.png')} // Replace with your right image
+              source={require('../assets/icons/girl.png')}
               style={styles.completionSideImage}
               resizeMode="contain"
             />
@@ -320,7 +354,7 @@ const QuizScreen: React.FC = () => {
 
     return (
       <ImageBackground
-        source={require('../assets/background_images/landing_bg.png')} // Replace with your background
+        source={require('../assets/background_images/landing_bg.png')}
         style={styles.backgroundImage}>
         <Animated.View style={[styles.quizContainer, {opacity: fadeAnim}]}>
           {/* Progress indicator */}
@@ -575,38 +609,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-  // scoreContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   marginBottom: 20,
-  //   paddingHorizontal: 15,
-  //   paddingVertical: 3,
-  //   backgroundColor: 'rgba(255, 255, 255, 0.9)',
-  //   borderRadius: 10,
-  //   borderWidth: 2,
-  //   borderColor: '#FF8C00',
-  //   alignSelf: 'center',
-  //   shadowColor: '#000',
-  //   shadowOffset: {width: 0, height: 2},
-  //   shadowOpacity: 0.2,
-  //   shadowRadius: 2,
-  //   elevation: 3,
-  // },
-  // scoreIcon: {
-  //   width: 28,
-  //   height: 28,
-  //   marginRight: 8,
-  // },
-  // scoreValue: {
-  //   fontSize: 24,
-  //   fontWeight: 'bold',
-  //   color: '#FF8C00',
-  // },
-
-  // completionContainer: {
-  //   // Add your styles here
-  // },
-  // New and modified completion screen styles
+  starAwardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderRadius: 15,
+    padding: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  starAwardImage: {
+    width: 30,
+    height: 30,
+    marginRight: 8,
+  },
+  starAwardText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FF8C00',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: {width: 0.5, height: 0.5},
+    textShadowRadius: 1,
+  },
   completionBackground: {
     flex: 1,
     width: '100%',
@@ -618,14 +643,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    width: '95%', // Use most of the screen width
+    width: '95%',
   },
   completionSideImage: {
     width: 200,
     height: 200,
   },
   completionContainer: {
-    flex: 0, // Changed from flex: 1 to not expand
+    flex: 0,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -634,15 +659,14 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#2682F4',
     // width: '80%',
-    // maxHeight: '80%',
+    maxHeight: '80%',
     alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 8,
-    width: '50%', // Reduced from 80% to make room for images
-    maxHeight: '100%',
+    width: '50%',
   },
   completionText: {
     fontSize: 32,

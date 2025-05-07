@@ -120,17 +120,6 @@ const Tracing = () => {
     setVisitedCheckpoints(Array(reorderedCheckpoints.length).fill(false));
   }, [currentPart, svgGuides]);
 
-  // const handleNextPart = () => {
-  //   // console.log('Next part:', currentPart);
-  //   if (currentPart < svgGuides.length - 1) {
-  //     drawPath.value = Skia.Path.Make();
-  //     setCurrentPart(currentPart + 1);
-  //   } else if (currentPart === svgGuides.length - 1) {
-  //     console.log('All parts completed');
-  //     navigation.navigate('CompletionScreen', {category});
-  //   }
-  // };
-
   const handleNextPart = () => {
     setCompletedParts(prev => [...prev, currentPart]);
     if (currentPart < svgGuides.length - 1) {
@@ -315,69 +304,6 @@ const Tracing = () => {
       pencilPos.value = withSpring({x: -100, y: -100});
     })
     .minDistance(1);
-
-  //   return (
-  //     <View style={styles.container}>
-  //       <Button title="Reset" onPress={reset} />
-  //       <GestureHandlerRootView>
-  //         <GestureDetector gesture={gesture}>
-  //           <Canvas style={styles.canvasContainer}>
-  //             <Fill color="orange" />
-  //             <Path
-  //               path={Skia.Path.MakeFromSVGString(svgString)!}
-  //               color={'white'}
-  //               // style="stroke"
-  //               // strokeWidth={4}
-  //             />
-  //             <Mask
-  //               mask={
-  //                 <Path
-  //                   path={drawPath}
-  //                   color="black"
-  //                   strokeWidth={25}
-  //                   style="stroke"
-  //                   // strokeCap="round" // Rounded ends for smoother look
-  //                   // strokeJoin="round" // Rounded joints for smoother corners
-  //                 />
-  //               }>
-  //               <Path
-  //                 path={Skia.Path.MakeFromSVGString(svgString)!}
-  //                 color="white"
-  //               />
-  //             </Mask>
-  //             {checkpoints.map((pt, index) => (
-  //               <Path
-  //                 key={`cp-${index}`}
-  //                 path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
-  //                 color={visitedCheckpoints[index] ? 'green' : 'red'}
-  //               />
-  //             ))}
-  //             {svgGuides.map((guide, index) => {
-  //               try {
-  //                 const path = Skia.Path.MakeFromSVGString(guide);
-  //                 if (!path) {
-  //                   throw new Error(`Invalid path at index ${index}`);
-  //                 }
-  //                 return (
-  //                   <Path
-  //                     key={`guide-${index}`}
-  //                     path={path}
-  //                     color="black"
-  //                     strokeWidth={2}
-  //                     style="stroke"
-  //                   />
-  //                 );
-  //               } catch (err) {
-  //                 console.warn(`Invalid SVG path at index ${index}:`, guide);
-  //                 return null;
-  //               }
-  //             })}
-  //           </Canvas>
-  //         </GestureDetector>
-  //       </GestureHandlerRootView>
-  //     </View>
-  //   );
-  // };
 
   return (
     <ImageBackground source={backgroundImage} style={styles.container}>

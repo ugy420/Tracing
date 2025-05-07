@@ -230,45 +230,84 @@ const QuizScreen: React.FC = () => {
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
-        <Animated.View
-          style={[styles.completionContainer, {opacity: fadeAnim}]}>
-          {showCelebration && (
-            <View style={styles.celebrationOverlay}>
-              {/* Replace with your Lottie animation or custom celebration UI */}
-              <LottieView
-                source={require('../assets/lottie_anime/celebration1.json')}
-                autoPlay
-                loop={true}
-                style={styles.celebrationAnimation}
-                onAnimationFinish={() => setShowCelebration(false)}
-              />
-            </View>
-          )}
+        // <Animated.View
+        //   style={[styles.completionContainer, {opacity: fadeAnim}]}>
+        //   {showCelebration && (
+        //     <View style={styles.celebrationOverlay}>
+        //       {/* Replace with your Lottie animation or custom celebration UI */}
+        //       <LottieView
+        //         source={require('../assets/lottie_anime/celebration1.json')}
+        //         autoPlay
+        //         loop={true}
+        //         style={styles.celebrationAnimation}
+        //         onAnimationFinish={() => setShowCelebration(false)}
+        //       />
+        //     </View>
+        //   )}
 
-          <Text style={styles.completionText}>Quiz Completed!</Text>
-          <Text style={styles.scoreText}>
-            Your Score: {score} / {quizQuestions.length}
-          </Text>
+        //   <Text style={styles.completionText}>Quiz Completed!</Text>
+        //   <Text style={styles.scoreText}>
+        //     Your Score: {score} / {quizQuestions.length}
+        //   </Text>
 
-          <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
+        //   <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
 
-          {previouslyCompleted && (
-            <Text style={styles.previousCompletionText}>
-              You've already completed this quiz before!
-            </Text>
-          )}
+        //   {previouslyCompleted && (
+        //     <Text style={styles.previousCompletionText}>
+        //       You've already completed this quiz before!
+        //     </Text>
+        //   )}
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
-              <Text style={styles.resetButtonText}>Play Again</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.nextButton}
-              onPress={() => navigation.navigate('QuizHomeScreen')}>
-              <Text style={styles.nextButtonText}>Back to Quiz Category</Text>
-            </TouchableOpacity>
+        //   <View style={styles.buttonContainer}>
+        //     <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
+        //       <Text style={styles.resetButtonText}>Play Again</Text>
+        //     </TouchableOpacity>
+        //     <TouchableOpacity
+        //       style={styles.nextButton}
+        //       onPress={() => navigation.navigate('QuizHomeScreen')}>
+        //       <Text style={styles.nextButtonText}>Back to Quiz Category</Text>
+        //     </TouchableOpacity>
+
+        <ImageBackground
+          source={require('../assets/background_images/guided_bg.jpeg')} // Replace with your background image
+          style={styles.completionBackground}>
+          <View style={styles.completionSideImagesContainer}>
+            {/* Left side image */}
+            <Image
+              source={require('../assets/icons/boy.png')} // Replace with your left image
+              style={styles.completionSideImage}
+              resizeMode="contain"
+            />
+
+            {/* Completion container */}
+            <Animated.View
+              style={[styles.completionContainer, {opacity: fadeAnim}]}>
+              <Text style={styles.completionText}>Quiz Completed!</Text>
+              <Text style={styles.scoreText}>
+                Your Score: {score} / {quizQuestions.length}
+              </Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={styles.resetButton}
+                  onPress={resetQuiz}>
+                  <Text style={styles.resetButtonText}>Play Again</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.nextButton}
+                  onPress={() => navigation.navigate('UnGuided')}>
+                  <Text style={styles.nextButtonText}>Next</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+
+            {/* Right side image */}
+            <Image
+              source={require('../assets/icons/girl.png')} // Replace with your right image
+              style={styles.completionSideImage}
+              resizeMode="contain"
+            />
           </View>
-        </Animated.View>
+        </ImageBackground>
       );
     }
 
@@ -564,8 +603,29 @@ const styles = StyleSheet.create({
   //   color: '#FF8C00',
   // },
 
-  completionContainer: {
+  // completionContainer: {
+  //   // Add your styles here
+  // },
+  // New and modified completion screen styles
+  completionBackground: {
     flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  completionSideImagesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '95%', // Use most of the screen width
+  },
+  completionSideImage: {
+    width: 200,
+    height: 200,
+  },
+  completionContainer: {
+    flex: 0, // Changed from flex: 1 to not expand
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -573,14 +633,16 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     borderWidth: 3,
     borderColor: '#2682F4',
-    width: '80%',
-    maxHeight: '80%',
+    // width: '80%',
+    // maxHeight: '80%',
     alignSelf: 'center',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 8,
+    width: '50%', // Reduced from 80% to make room for images
+    maxHeight: '100%',
   },
   completionText: {
     fontSize: 32,

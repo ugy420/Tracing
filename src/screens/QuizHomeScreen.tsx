@@ -246,10 +246,11 @@ const styles = StyleSheet.create({
     fontSize: normalize(22),
   },
   cardEnglishName: {
-    fontSize: normalize(11),
+    // fontSize: normalize(11),
+    fontSize: normalize(12),
     color: '#333',
     fontWeight: '600',
-    marginTop: normalize(5),
+    marginTop: normalize(3),
   },
 });
 

@@ -157,14 +157,16 @@ const AchievementScreen = () => {
           source={require('../assets/icons/avatarWindow.png')}
           style={styles.avatarWindowImage}
         />
-        <View style={styles.container}>
-          <FlatList
-            data={achievements}
-            keyExtractor={item => item.id.toString()}
-            numColumns={4}
-            contentContainerStyle={styles.flatListStyle}
-            renderItem={renderAchievement}
-          />
+        <View style={styles.containerWrapper}>
+          <View style={styles.container}>
+            <FlatList
+              data={achievements}
+              keyExtractor={item => item.id.toString()}
+              numColumns={4}
+              contentContainerStyle={styles.flatListStyle}
+              renderItem={renderAchievement}
+            />
+          </View>
         </View>
 
         {selectedAchievement &&
@@ -203,10 +205,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  containerWrapper: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingTop: height * 0.2, // Added padding to move content lower
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%', // Ensure it stays within bounds
   },
   header: {
     flexDirection: 'row',
@@ -232,7 +241,7 @@ const styles = StyleSheet.create({
   },
   avatarWindowImage: {
     position: 'absolute',
-    width: '110 %',
+    width: '110%',
     height: '160%',
     resizeMode: 'stretch',
   },
@@ -242,6 +251,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     height: '140%',
+    paddingBottom: height * 0.02,
   },
   avatarContainer: {
     margin: 5,

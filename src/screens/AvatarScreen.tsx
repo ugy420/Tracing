@@ -11,7 +11,6 @@ import {
   Button,
   Dimensions,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
 import avatarImages from '../assets/avatarImages';
 import {RootStackParamList} from '../types';
@@ -19,6 +18,7 @@ import {useNavigation, NavigationProp} from '@react-navigation/native';
 import axiosInstance from '../Api/config/axiosInstance';
 import api from '../Api/endPoints';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
 
 const {width, height} = Dimensions.get('window');
 
@@ -290,7 +290,14 @@ const AvatarScreen = () => {
     // Show loading indicator while data is being fetched
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        {/* <ActivityIndicator size="large" color="#0000ff" />
+        <Text>Loading...</Text> */}
+        <LottieView
+          source={require('../assets/lottie_anime/cat_loading.json')}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
         <Text>Loading...</Text>
       </View>
     );
@@ -377,7 +384,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: height * 0.2,
+    paddingTop: height * 0.15,
   },
   header: {
     flexDirection: 'row',
@@ -491,6 +498,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
 

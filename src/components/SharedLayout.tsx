@@ -7,11 +7,13 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
+  Animated,
 } from 'react-native';
 import {useNavigation, NavigationProp} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import avatarImages from '../assets/avatarImages';
+import LottieView from 'lottie-react-native';
 
 type SharedLayoutProps = {
   children: ReactNode;
@@ -28,6 +30,11 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
     keyof typeof avatarImages | null
   >(null);
   const [starCount, setStarCount] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  // Animation for star changes
+  const [starAnimation] = useState(new Animated.Value(1));
+  // Track last star count to animate changes
+  const [lastStarCount, setLastStarCount] = useState<string | null>(null);
 
   const clearModeData = async (mode: 'online') => {
     if (mode === 'online') {
@@ -42,6 +49,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
 
   const getUserData = async () => {
     try {
+      setLoading(true);
       const isGuest = await AsyncStorage.getItem('is_guest');
       if (isGuest === 'true') {
         // Clear online async data
@@ -94,19 +102,72 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
 
       const getStarCount = await AsyncStorage.getItem('starCount');
       const getGuestStarCount = await AsyncStorage.getItem('guest_starCount');
+
+      // Save the current star count for animation comparison
+      const currentStarCount = !getStarCount ? getGuestStarCount : getStarCount;
+      setLastStarCount(starCount);
+
       if (!getStarCount) {
         setStarCount(getGuestStarCount);
       } else {
         setStarCount(getStarCount);
       }
+
+      // If star count has changed, animate the star
+      if (lastStarCount !== null && currentStarCount !== lastStarCount) {
+        animateStarChange();
+      }
     } catch (error) {
       console.error('Error retrieving user data:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Function to animate star changes
+  const animateStarChange = () => {
+    // Scale up
+    Animated.sequence([
+      Animated.timing(starAnimation, {
+        toValue: 1.5,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      // Scale back down
+      Animated.timing(starAnimation, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   };
 
   useEffect(() => {
     getUserData();
-  }, []);
+
+    // Set up a listener for focus events to refresh star count
+    const unsubscribe = navigation.addListener('focus', () => {
+      getUserData();
+    });
+
+    // Clean up the listener
+    return unsubscribe;
+  }, [navigation]);
+
+  if (loading) {
+    // Show loading indicator while data is being fetched
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require('../assets/lottie_anime/cat_loading.json')}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <ImageBackground
@@ -318,6 +379,15 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginHorizontal: 3,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
 

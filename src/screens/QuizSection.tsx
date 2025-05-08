@@ -21,6 +21,8 @@ import {fruitsQuizData} from '../data/quizData/fruits';
 import {animalsQuizData} from '../data/quizData/animals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
+import {countingQuizData} from '../data/quizData/counting';
+import {bodyQuizData} from '../data/quizData/body';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -48,7 +50,9 @@ const QuizScreen: React.FC = () => {
       : category === 'fruits'
       ? fruitsQuizData
       : category === 'body'
-      ? fruitsQuizData
+      ? bodyQuizData
+      : category === 'counting'
+      ? countingQuizData
       : [];
 
   const isSmallScreen = screenDimensions.width < 375;

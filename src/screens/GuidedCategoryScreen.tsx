@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -19,12 +19,14 @@ import CardCategory from '../components/CardCategory';
 import {cardAlphabetData} from '../components/alphabetCardData';
 import {cardNumberData} from '../components/numberCardData';
 import {useMusic} from '../components/MusicContext';
+import LottieView from 'lottie-react-native';
 
 const GuidedCategory = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'GuidedCategory'>>();
   const {category} = route.params; // Get the category parameter
   const {isMuted, toggleMute} = useMusic();
+  const [loading, setLoading] = useState(false);
 
   const cardData =
     category === 'alphabets'
@@ -32,6 +34,21 @@ const GuidedCategory = () => {
       : category === 'numbers'
       ? cardNumberData
       : [];
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require('../assets/lottie_anime/cat_loading.json')}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
     <ImageBackground
       source={require('../assets/background_images/guided_bg.jpeg')}
@@ -73,9 +90,13 @@ const GuidedCategory = () => {
             data={cardData}
             renderItem={({item}) => (
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate(item.screen, {id: item.id, category})
-                }>
+                onPress={() => {
+                  setLoading(true);
+                  setTimeout(() => {
+                    navigation.navigate(item.screen, {id: item.id, category});
+                    setLoading(false);
+                  }, 500);
+                }}>
                 <CardCategory
                   text={item.text}
                   backgroundColor={item.backgroundColor}
@@ -92,7 +113,9 @@ const GuidedCategory = () => {
 
           <TouchableOpacity
             style={styles.quizButton}
-            onPress={() => navigation.navigate('QuizHomeScreen')}>
+            onPress={() =>
+              navigation.navigate('QuizHomeScreen', {quizCategory: category})
+            }>
             <Text style={styles.quizButtonText}>འདྲི་རྩད་ རྒྱུགས</Text>
           </TouchableOpacity>
         </View>
@@ -168,6 +191,21 @@ const styles = StyleSheet.create({
     fontSize: 54,
     fontFamily: 'joyig',
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingAnimation: {
+    width: 200,
+    height: 200,
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 

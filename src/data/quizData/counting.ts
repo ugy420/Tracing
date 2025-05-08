@@ -5,9 +5,9 @@ type questionItem = {
   image: any;
 };
 
-export const fruitsQuizData: questionItem[] = [
+export const countingQuizData: questionItem[] = [
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Counting',
     options: ['ཧ', 'ཨ', 'ག', 'ང'],
     correctAnswer: 'ཨ',
     image: require('../../assets/quiz_images/apple.png'),

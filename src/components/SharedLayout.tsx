@@ -164,7 +164,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
           loop
           style={styles.loadingAnimation}
         />
-        <Text>Loading...</Text>
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
     );
   }
@@ -388,6 +388,12 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 200,
     height: 200,
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 18,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 

@@ -75,14 +75,18 @@ const GuidedScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-        {/* <TouchableOpacity
-          style={styles.nextButton}
-          onPress={() => navigation.navigate('UnGuided')}>
-          <Image
-            source={require('../assets/icons/next.png')}
-            style={styles.nextButtonIcon}
-          />
-        </TouchableOpacity> */}
+        {
+          <TouchableOpacity
+            style={styles.nextButton}
+            onPress={() =>
+              navigation.navigate('QuizHomeScreen', {quizCategory: 'all'})
+            }>
+            <Image
+              source={require('../assets/icons/next.png')}
+              style={styles.nextButtonIcon}
+            />
+          </TouchableOpacity>
+        }
       </View>
     </SharedLayout>
   );

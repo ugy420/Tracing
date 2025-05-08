@@ -12,7 +12,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import NetInfo from '@react-native-community/netinfo';
+import NetInfo from 'react-native';
 import {useMusic} from '../components/MusicContext';
 
 const HomeScreen = () => {

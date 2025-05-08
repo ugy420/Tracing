@@ -14,7 +14,6 @@ import {
   Skia,
   SkPath,
   SkPoint,
-  Image,
   useImage,
 } from '@shopify/react-native-skia';
 import {

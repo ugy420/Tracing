@@ -12,7 +12,12 @@ import {
   Image,
 } from 'react-native';
 import {RootStackParamList} from '../types';
-import {useNavigation, NavigationProp} from '@react-navigation/native';
+import {
+  useNavigation,
+  NavigationProp,
+  useRoute,
+  RouteProp,
+} from '@react-navigation/native';
 
 type QuizItem = {
   id: number;
@@ -23,10 +28,14 @@ type QuizItem = {
   screen: keyof RootStackParamList;
   englishName: string;
   icon: string;
+  relatedTo: string[]; // New property to determine which category it belongs to
 };
 
 const QuizHomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'QuizHomeScreen'>>();
+  const {quizCategory} = route.params || {quizCategory: 'all'};
+
   const [dimensions] = useState({
     window: Dimensions.get('window'),
     screen: Dimensions.get('screen'),
@@ -34,7 +43,8 @@ const QuizHomeScreen = () => {
 
   const isLandscape = dimensions.window.width > dimensions.window.height;
 
-  const categories: QuizItem[] = [
+  // Define all available quiz categories with relatedTo property
+  const allCategories: QuizItem[] = [
     {
       id: 1,
       name: 'སེམས་ཅན།',
@@ -44,6 +54,7 @@ const QuizHomeScreen = () => {
       englishName: 'Animals',
       color: 'rgb(86, 191, 236)',
       icon: '🐼',
+      relatedTo: ['all', 'alphabets'],
     },
     {
       id: 2,
@@ -54,6 +65,7 @@ const QuizHomeScreen = () => {
       englishName: 'Fruits',
       color: 'rgb(153, 221, 136)',
       icon: '🍎',
+      relatedTo: ['all', 'alphabets'],
     },
     {
       id: 3,
@@ -64,8 +76,37 @@ const QuizHomeScreen = () => {
       englishName: 'Body Parts',
       color: 'rgb(155, 217, 210)',
       icon: '👤',
+      relatedTo: ['all', 'alphabets'],
+    },
+    {
+      id: 4,
+      name: 'གྲངས་ཀ།',
+      image: require('../assets/quiz_images/deer.png'),
+      category: 'counting',
+      screen: 'QuizScreen',
+      englishName: 'Counting',
+      color: 'rgb(252, 186, 3)',
+      icon: '🔢',
+      relatedTo: ['all', 'numbers'],
+    },
+    {
+      id: 5,
+      name: 'ཨང་ཀི་ངོས་འཛིན།',
+      image: require('../assets/quiz_images/deer.png'),
+      category: 'number_identification',
+      screen: 'QuizScreen',
+      englishName: 'Number Identification',
+      color: 'rgb(250, 128, 114)',
+      icon: '🔍',
+      relatedTo: ['all', 'numbers'],
     },
   ];
+
+  // Filter categories based on quizCategory param
+  const categories =
+    quizCategory === 'all'
+      ? allCategories
+      : allCategories.filter(item => item.relatedTo.includes(quizCategory));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -197,7 +238,6 @@ const styles = StyleSheet.create({
   },
   titleLandscape: {
     fontSize: normalize(28),
-    marginBottom: -10,
   },
   cardsContainer: {
     flex: 1,
@@ -246,7 +286,6 @@ const styles = StyleSheet.create({
     fontSize: normalize(22),
   },
   cardEnglishName: {
-    // fontSize: normalize(11),
     fontSize: normalize(12),
     color: '#333',
     fontWeight: '600',

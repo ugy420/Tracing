@@ -53,7 +53,7 @@ const QuizHomeScreen = () => {
       screen: 'QuizScreen',
       englishName: 'Animals',
       color: 'rgb(86, 191, 236)',
-      icon: '🐼',
+      icon: '🐾',
       relatedTo: ['all', 'alphabets'],
     },
     {
@@ -64,40 +64,18 @@ const QuizHomeScreen = () => {
       screen: 'QuizScreen',
       englishName: 'Fruits',
       color: 'rgb(153, 221, 136)',
-      icon: '🍎',
+      icon: '🍉',
       relatedTo: ['all', 'alphabets'],
     },
     {
       id: 3,
-      name: 'གཟུགས་ཀྱི་ཡན་ལག།',
-      image: require('../assets/quiz_images/deer.png'),
-      category: 'body',
-      screen: 'QuizScreen',
-      englishName: 'Body Parts',
-      color: 'rgb(155, 217, 210)',
-      icon: '👤',
-      relatedTo: ['all', 'alphabets'],
-    },
-    {
-      id: 4,
       name: 'གྲངས་ཀ།',
       image: require('../assets/quiz_images/deer.png'),
       category: 'counting',
       screen: 'QuizScreen',
       englishName: 'Counting',
-      color: 'rgb(252, 186, 3)',
-      icon: '🔢',
-      relatedTo: ['all', 'numbers'],
-    },
-    {
-      id: 5,
-      name: 'ཨང་ཀི་ངོས་འཛིན།',
-      image: require('../assets/quiz_images/deer.png'),
-      category: 'number_identification',
-      screen: 'QuizScreen',
-      englishName: 'Number Identification',
-      color: 'rgb(250, 128, 114)',
-      icon: '🔍',
+      color: 'rgb(219, 114, 140)',
+      icon: '🎲',
       relatedTo: ['all', 'numbers'],
     },
   ];
@@ -228,7 +206,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: normalize(38),
+    fontSize: normalize(34),
     fontFamily: 'joyig',
     textAlign: 'center',
     color: '#333',
@@ -237,13 +215,13 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   titleLandscape: {
-    fontSize: normalize(28),
+    fontSize: normalize(26),
   },
   cardsContainer: {
     flex: 1,
     justifyContent: 'space-evenly',
-    paddingHorizontal: normalize(10),
-    marginTop: normalize(0),
+    paddingHorizontal: normalize(5),
+    marginTop: normalize(-5),
   },
   cardsContainerLandscape: {
     flexDirection: 'row',
@@ -251,45 +229,45 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   card: {
-    height: normalize(90),
-    marginVertical: normalize(6),
-    borderRadius: normalize(20),
+    height: normalize(70), // Reduced from 90
+    marginVertical: normalize(5), // Reduced from 6
+    borderRadius: normalize(16), // Reduced from 20
     overflow: 'hidden',
-    elevation: 6,
+    elevation: 5, // Slightly reduced shadow
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 3},
-    shadowOpacity: 0.27,
-    shadowRadius: 4.65,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
   },
   cardLandscape: {
     width: '30%',
-    height: normalize(140),
+    height: normalize(110), // Reduced from 140
   },
   cardContent: {
     flex: 1,
-    padding: normalize(20),
+    padding: normalize(12), // Reduced from 20
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   cardIcon: {
-    fontSize: normalize(30),
-    marginBottom: normalize(10),
+    fontSize: normalize(24), // Reduced from 30
+    marginBottom: normalize(6), // Reduced from 10
   },
   cardTitle: {
-    fontSize: normalize(28),
+    fontSize: normalize(22), // Reduced from 28
     fontFamily: 'joyig',
     color: '#333',
     textAlign: 'center',
   },
   cardTitleLandscape: {
-    fontSize: normalize(22),
+    fontSize: normalize(18), // Reduced from 22
   },
   cardEnglishName: {
-    fontSize: normalize(12),
+    fontSize: normalize(10), // Reduced from 12
     color: '#333',
     fontWeight: '600',
-    marginTop: normalize(3),
+    marginTop: normalize(2), // Reduced from 3
   },
 });
 

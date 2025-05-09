@@ -22,18 +22,18 @@ export const fruitsQuizData: questionItem[] = [
     question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Orange',
     options: ['ཙ', 'ཚ', 'ཛ', 'ཝ'],
     correctAnswer: 'ཚ',
-    image: require('../../assets/quiz_images/bear.png'),
+    image: require('../../assets/quiz_images/orange.png'),
   },
   {
     question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Watermelon',
     options: ['ཀ', 'ཁ', 'ག', 'ང'],
     correctAnswer: 'ཁ',
-    image: require('../../assets/quiz_images/elephant.png'),
+    image: require('../../assets/quiz_images/melon.png'),
   },
   {
     question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Lemon',
     options: ['ཧ', 'ཨ', 'ག', 'ང'],
     correctAnswer: 'ཧ',
-    image: require('../../assets/quiz_images/cow.png'),
+    image: require('../../assets/quiz_images/lemon.png'),
   },
 ];

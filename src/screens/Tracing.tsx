@@ -6,6 +6,7 @@ import {
   ImageBackground,
   Dimensions,
   TouchableOpacity,
+  Modal,
 } from 'react-native';
 import {
   Canvas,
@@ -14,14 +15,13 @@ import {
   Skia,
   SkPath,
   SkPoint,
-  useImage,
 } from '@shopify/react-native-skia';
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
 } from 'react-native-gesture-handler';
-import {useSharedValue, runOnJS, withSpring} from 'react-native-reanimated';
+import {useSharedValue, runOnJS} from 'react-native-reanimated';
 import {
   NavigationProp,
   RouteProp,
@@ -35,6 +35,7 @@ import alphabetCheckPoints from '../data/checkPoints/alphabetsCheckPoints';
 import {numbersTracing} from '../data/tracingData/numbersTracing';
 import numberCheckPoints from '../data/checkPoints/numbersCheckPoints';
 import LottieView from 'lottie-react-native';
+import RenderCompletedCharacter from '../components/renderCompletedCharacter';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
@@ -47,13 +48,22 @@ const Tracing = () => {
   const [checkpoints, setCheckpoints] = useState<SkPoint[]>([]);
   const [visitedCheckpoints, setVisitedCheckpoints] = useState<boolean[]>([]);
   const threshold = 25;
-  const eraserIcon = require('../assets/icons/eraser.png');
   const starAnimation = require('../assets/lottie_anime/celebration.json');
-  const pencilPos = useSharedValue({x: 0, y: 0});
-  const isDrawing = useSharedValue(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [completedCheckpoints, setCompletedCheckpoints] = useState<SkPoint[][]>(
+    [],
+  );
+  const [animationPhase, setAnimationPhase] = useState<
+    'tracing' | 'showCompleted' | 'complete'
+  >('tracing');
 
-  const pencilIcon = require('../assets/icons/pencil.png');
-  const pencilImage = useImage(pencilIcon);
+  const checkPointOrder = React.useMemo(() => {
+    return category === 'alphabets'
+      ? alphabetCheckPoints
+      : category === 'numbers'
+      ? numberCheckPoints
+      : {};
+  }, [category]);
 
   const dataSource =
     category === 'alphabets' ? dzongkhaLetters : numbersTracing;
@@ -68,14 +78,6 @@ const Tracing = () => {
   const svgString = selectedItem.svgPath;
   const svgGuides = selectedItem.guidePath;
   const characterName = selectedItem.name;
-
-  // Determine the correct checkpoint order based on the category
-  const checkPointOrder =
-    category === 'alphabets'
-      ? alphabetCheckPoints
-      : category === 'numbers'
-      ? numberCheckPoints
-      : {};
 
   const generateCheckpoints = (svg: string, numPoints = 50): SkPoint[] => {
     try {
@@ -95,8 +97,20 @@ const Tracing = () => {
   };
 
   useEffect(() => {
+    const allCheckpoints = svgGuides.map((guide, partIndex) => {
+      const partCheckpoints = generateCheckpoints(guide);
+      const currentOrder = checkPointOrder[Number(id)]?.[partIndex] || [];
+      return currentOrder
+        .filter(index => index >= 0 && index < partCheckpoints.length)
+        .map(index => partCheckpoints[index])
+        .filter(Boolean) as SkPoint[];
+    });
+    setCompletedCheckpoints(allCheckpoints);
+  }, [svgGuides, checkPointOrder, id]);
+
+  useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    console.log('checkpoints:', newCheckpoints);
+    // console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
@@ -118,19 +132,20 @@ const Tracing = () => {
       drawPath.value = Skia.Path.Make();
       setCurrentPart(currentPart + 1);
     } else if (currentPart === svgGuides.length - 1) {
+      // Start showing completed animation
+      setAnimationPhase('showCompleted');
+
+      // After 2 seconds, proceed to completion
+      setTimeout(() => {
+        setAnimationPhase('complete');
+        navigation.navigate('CompletionScreen', {category});
+      }, 2000);
       console.log('All parts completed');
-      navigation.navigate('CompletionScreen', {category});
     }
   };
 
   const handleBack = () => {
     navigation.goBack();
-  };
-
-  const reset = () => {
-    drawPath.value = Skia.Path.Make();
-    setCurrentPart(0);
-    setVisitedCheckpoints([]);
   };
 
   const updateVisitedCheckpoints = (x: number, y: number) => {
@@ -195,12 +210,14 @@ const Tracing = () => {
     });
   };
 
+  const proceedToCompletionScreen = () => {
+    setShowCompletionModal(false);
+    navigation.navigate('CompletionScreen', {category});
+  };
+
   const gesture = Gesture.Pan()
     .onBegin(event => {
       'worklet';
-      isDrawing.value = true;
-      pencilPos.value = withSpring({x: event.x - 20, y: event.y - 40});
-
       if (checkpoints.length === 0) {
         return;
       }
@@ -291,12 +308,6 @@ const Tracing = () => {
     })
     .minDistance(1); // Make it more sensitive to small movements
 
-  // .onFinalize(() => {
-  //   'worklet';
-  //   isDrawing.value = false;
-  //   pencilPos.value = withSpring({x: -100, y: -100});
-  // });
-
   return (
     <ImageBackground
       source={require('../assets/background_images/home_bg.png')}
@@ -304,8 +315,7 @@ const Tracing = () => {
       <View style={styles.header}>
         <Text style={styles.title}>ཡི་གུ་ {characterName}་ འཁྱིད་ཐིག་འབད།</Text>
       </View>
-      {/* <View style={styles.container}> */}
-      {/* <Button title="Reset" onPress={reset} /> */}
+
       <GestureHandlerRootView style={styles.canvasWrapper}>
         <GestureDetector gesture={gesture}>
           <Canvas style={styles.canvasContainer}>
@@ -319,90 +329,95 @@ const Tracing = () => {
               // strokeWidth={4}
             />
 
-            {/* Guide paths */}
-            {/* <Mask
-              mask={
+            {animationPhase === 'tracing' ? (
+              // Show tracing UI
+              <>
+                {/* Guide paths */}
+                {svgGuides.map((guide, index) => {
+                  try {
+                    const path = Skia.Path.MakeFromSVGString(guide);
+                    if (!path) {
+                      return null;
+                    }
+                    return (
+                      <Path
+                        key={`guide-${index}`}
+                        path={path}
+                        color={currentPart === index ? '#FF7D33' : '#E0E0E0'}
+                        strokeWidth={currentPart === index ? 3 : 2}
+                        style="stroke"
+                        strokeCap="round"
+                        strokeJoin="round"
+                      />
+                    );
+                  } catch (err) {
+                    console.warn(`Invalid SVG path at index ${index}:`, guide);
+                    return null;
+                  }
+                })}
+
+                {checkpoints.map((pt, index) => (
+                  <Path
+                    key={`cp-${index}`}
+                    path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
+                    color={visitedCheckpoints[index] ? 'green' : 'red'}
+                  />
+                ))}
+
+                {svgGuides.map((guide, index) => {
+                  try {
+                    const path = Skia.Path.MakeFromSVGString(guide);
+                    if (!path) {
+                      throw new Error(`Invalid path at index ${index}`);
+                    }
+                    return (
+                      <Path
+                        key={`guide-${index}`}
+                        path={path}
+                        color="black"
+                        strokeWidth={2}
+                        style="stroke"
+                      />
+                    );
+                  } catch (err) {
+                    console.warn(`Invalid SVG path at index ${index}:`, guide);
+                    return null;
+                  }
+                })}
+              </>
+            ) : (
+              // Show completed animation
+              <>
+                {/* Completed character in green */}
                 <Path
-                  path={drawPath}
-                  color="black"
-                  strokeWidth={25}
+                  path={Skia.Path.MakeFromSVGString(svgString)!}
+                  color="#4CAF50"
                   style="stroke"
-                  // strokeCap="round" // Rounded ends for smoother look
-                  // strokeJoin="round" // Rounded joints for smoother corners
+                  strokeWidth={4}
                 />
-              }>
-              <Path
-                path={Skia.Path.MakeFromSVGString(svgString)!}
-                color="white"
-              />
-            </Mask> */}
 
-            {/* Guide paths */}
-            {svgGuides.map((guide, index) => {
-              try {
-                const path = Skia.Path.MakeFromSVGString(guide);
-                if (!path) {
-                  return null;
-                }
-                return (
+                {/* All completed checkpoints */}
+                {completedCheckpoints.flat().map((pt, index) => (
                   <Path
-                    key={`guide-${index}`}
-                    path={path}
-                    color={currentPart === index ? '#FF7D33' : '#E0E0E0'}
-                    strokeWidth={currentPart === index ? 3 : 2}
-                    style="stroke"
-                    strokeCap="round"
-                    strokeJoin="round"
+                    key={`completed-cp-${index}`}
+                    path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
+                    color="#4CAF50"
                   />
-                );
-              } catch (err) {
-                console.warn(`Invalid SVG path at index ${index}:`, guide);
-                return null;
-              }
-            })}
-
-            {checkpoints.map((pt, index) => (
-              <Path
-                key={`cp-${index}`}
-                path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
-                color={visitedCheckpoints[index] ? 'green' : 'red'}
-              />
-            ))}
-
-            {svgGuides.map((guide, index) => {
-              try {
-                const path = Skia.Path.MakeFromSVGString(guide);
-                if (!path) {
-                  throw new Error(`Invalid path at index ${index}`);
-                }
-                return (
-                  <Path
-                    key={`guide-${index}`}
-                    path={path}
-                    color="black"
-                    strokeWidth={2}
-                    style="stroke"
-                  />
-                );
-              } catch (err) {
-                console.warn(`Invalid SVG path at index ${index}:`, guide);
-                return null;
-              }
-            })}
-
-            {/* Pencil cursor
-            {isDrawing && pencilImage && (
-              <Image
-                image={pencilImage}
-                x={pencilPos.value.x}
-                y={pencilPos.value.y}
-                width={40}
-                height={40}
-              />
-            )} */}
+                ))}
+              </>
+            )}
           </Canvas>
         </GestureDetector>
       </GestureHandlerRootView>
+
+      {animationPhase === 'showCompleted' && (
+        <LottieView
+          source={starAnimation}
+          autoPlay
+          loop={false}
+          style={styles.celebrationAnimation}
+        />
+      )}
 
       <View style={styles.controls}>
         <TouchableOpacity style={styles.button} onPress={handleBack}>
@@ -412,18 +427,6 @@ const Tracing = () => {
           />
           <Text style={styles.buttonText}>Back</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={reset}>
-          <ImageBackground source={eraserIcon} style={styles.buttonIcon} />
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
-        {/* 
-        <LottieView
-          source={starAnimation}
-          autoPlay
-          loop
-          style={styles.animation}
-        /> */}
       </View>
     </ImageBackground>
   );
@@ -463,20 +466,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   canvasContainer: {
-    // width: '25%',
-    // height: '90%',
-    // alignSelf: 'center',
-    width: width * 0.8,
-    height: height * 0.5,
+    width: width * 0.35,
+    height: height * 0.55,
     backgroundColor: '#FFF9E6',
-    borderRadius: 20,
-    borderWidth: 4,
-    borderColor: '#FFB347',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 8,
   },
   controls: {
     flexDirection: 'row',
@@ -484,10 +476,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 30,
     paddingVertical: 10,
-    backgroundColor: 'rgba(255, 237, 194, 0.8)',
     marginHorizontal: 20,
     marginBottom: 5,
-    borderRadius: 20,
   },
   button: {
     flexDirection: 'row',
@@ -516,6 +506,12 @@ const styles = StyleSheet.create({
   animation: {
     width: 50,
     height: 50,
+  },
+  celebrationAnimation: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 10,
   },
 });
 

@@ -6,7 +6,6 @@ import {
   ImageBackground,
   Dimensions,
   TouchableOpacity,
-  Modal,
 } from 'react-native';
 import {
   Canvas,
@@ -35,7 +34,6 @@ import alphabetCheckPoints from '../data/checkPoints/alphabetsCheckPoints';
 import {numbersTracing} from '../data/tracingData/numbersTracing';
 import numberCheckPoints from '../data/checkPoints/numbersCheckPoints';
 import LottieView from 'lottie-react-native';
-import RenderCompletedCharacter from '../components/renderCompletedCharacter';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
@@ -49,7 +47,6 @@ const Tracing = () => {
   const [visitedCheckpoints, setVisitedCheckpoints] = useState<boolean[]>([]);
   const threshold = 25;
   const starAnimation = require('../assets/lottie_anime/celebration.json');
-  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completedCheckpoints, setCompletedCheckpoints] = useState<SkPoint[][]>(
     [],
   );
@@ -208,11 +205,6 @@ const Tracing = () => {
 
       return updated;
     });
-  };
-
-  const proceedToCompletionScreen = () => {
-    setShowCompletionModal(false);
-    navigation.navigate('CompletionScreen', {category});
   };
 
   const gesture = Gesture.Pan()
@@ -468,7 +460,10 @@ const styles = StyleSheet.create({
   canvasContainer: {
     width: width * 0.35,
     height: height * 0.55,
-    backgroundColor: '#FFF9E6',
+    alignSelf: 'center', // Center the canvas itself
+    backgroundColor: '#FFF9E6', // Optional: Add a background color
+    borderRadius: 10,
+    overflow: 'hidden', // Ensure content doesn't overflow
   },
   controls: {
     flexDirection: 'row',

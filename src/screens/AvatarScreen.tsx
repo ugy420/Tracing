@@ -290,8 +290,6 @@ const AvatarScreen = () => {
     // Show loading indicator while data is being fetched
     return (
       <View style={styles.loadingContainer}>
-        {/* <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Loading...</Text> */}
         <LottieView
           source={require('../assets/lottie_anime/cat_loading.json')}
           autoPlay

@@ -1,5 +1,5 @@
 import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   Image,
   View,

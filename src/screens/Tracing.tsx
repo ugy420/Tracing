@@ -107,7 +107,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    // console.log('checkpoints:', newCheckpoints);
+    console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 

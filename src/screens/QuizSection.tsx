@@ -22,7 +22,6 @@ import {animalsQuizData} from '../data/quizData/animals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
-import {bodyQuizData} from '../data/quizData/body';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -37,20 +36,21 @@ const QuizScreen: React.FC = () => {
   const [previouslyCompleted, setPreviouslyCompleted] =
     useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
-  const [starsAwarded, setStarsAwarded] = useState<boolean>(false);
+  const [, setStarsAwarded] = useState<boolean>(false);
 
   const [screenDimensions] = useState<{
     width: number;
     height: number;
   }>(Dimensions.get('window'));
 
+  const relatedTo =
+    category === 'animals' || category === 'fruits' ? 'alphabets' : 'numbers';
+
   const quizQuestions =
     category === 'animals'
       ? animalsQuizData
       : category === 'fruits'
       ? fruitsQuizData
-      : category === 'body'
-      ? bodyQuizData
       : category === 'counting'
       ? countingQuizData
       : [];
@@ -263,11 +263,6 @@ const QuizScreen: React.FC = () => {
         //     </View>
         //   )}
 
-        //   <Text style={styles.completionText}>Quiz Completed!</Text>
-        //   <Text style={styles.scoreText}>
-        //     Your Score: {score} / {quizQuestions.length}
-        //   </Text>
-
         //   <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
 
         //   {previouslyCompleted && (
@@ -301,9 +296,6 @@ const QuizScreen: React.FC = () => {
             <Animated.View
               style={[styles.completionContainer, {opacity: fadeAnim}]}>
               <Text style={styles.completionText}>Quiz Completed!</Text>
-              <Text style={styles.scoreText}>
-                Your Score: {score} / {quizQuestions.length}
-              </Text>
 
               {/* Show star award message if this is first completion */}
               {!previouslyCompleted && (
@@ -322,16 +314,14 @@ const QuizScreen: React.FC = () => {
                   onPress={resetQuiz}>
                   <Text style={styles.resetButtonText}>Play Again</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   style={styles.nextButton}
                   onPress={() => {
-                    // If first completion, we need to refresh the star count in SharedLayout
-                    if (!previouslyCompleted && starsAwarded) {
-                      // Navigate back to refresh the header with updated star count
-                      navigation.navigate('QuizHomeScreen');
-                    } else {
-                      navigation.navigate('QuizHomeScreen');
-                    }
+                    navigation.navigate('QuizHomeScreen', {
+                      quizCategory: relatedTo,
+                      fromCompletionScreen: true,
+                    });
                   }}>
                   <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>

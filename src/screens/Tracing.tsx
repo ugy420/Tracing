@@ -14,6 +14,7 @@ import {
   Skia,
   SkPath,
   SkPoint,
+  Group,
 } from '@shopify/react-native-skia';
 import {
   Gesture,
@@ -54,6 +55,23 @@ const Tracing = () => {
     'tracing' | 'showCompleted' | 'complete'
   >('tracing');
 
+  // Add states for scaling and transformation
+  const [, setSvgBounds] = useState({width: 0, height: 0});
+  const [scaleFactor, setScaleFactor] = useState(1);
+  const [transformMatrix, setTransformMatrix] = useState<number[]>([
+    1, 0, 0, 1, 0, 0,
+  ]);
+
+  // Transform object for Skia Group
+  const [transformObject, setTransformObject] = useState({
+    scaleX: 1,
+    skewY: 0,
+    skewX: 0,
+    scaleY: 1,
+    translateX: 0,
+    translateY: 0,
+  });
+
   const checkPointOrder = React.useMemo(() => {
     return category === 'alphabets'
       ? alphabetCheckPoints
@@ -75,6 +93,87 @@ const Tracing = () => {
   const svgString = selectedItem.svgPath;
   const svgGuides = selectedItem.guidePath;
   const characterName = selectedItem.name;
+
+  // Calculate SVG bounds and transformation matrix
+  useEffect(() => {
+    try {
+      const path = Skia.Path.MakeFromSVGString(svgString);
+      if (path) {
+        // Get the bounds of the SVG path
+        const bounds = path.getBounds();
+
+        // Use default size if bounds are invalid
+        const boundWidth =
+          isFinite(bounds.width) && bounds.width > 0 ? bounds.width : 100;
+        const boundHeight =
+          isFinite(bounds.height) && bounds.height > 0 ? bounds.height : 100;
+        const boundLeft = isFinite(bounds.x) ? bounds.x : 0;
+        const boundTop = isFinite(bounds.y) ? bounds.y : 0;
+
+        setSvgBounds({
+          width: boundWidth,
+          height: boundHeight,
+        });
+
+        // Calculate canvas size based on screen dimensions
+        const {width, height} = Dimensions.get('window');
+        const canvasWidth = width * 0.35;
+        const canvasHeight = height * 0.55;
+
+        // Calculate scale factors to fit the character into our standard viewport
+        const scaleX = (canvasWidth * 0.8) / boundWidth;
+        const scaleY = (canvasHeight * 0.8) / boundHeight;
+
+        // Use the smaller scale factor to maintain aspect ratio
+        const scaleFactor = Math.min(scaleX, scaleY);
+        setScaleFactor(scaleFactor);
+
+        // Calculate centering offsets
+        const offsetX =
+          (canvasWidth - boundWidth * scaleFactor) / 2 -
+          boundLeft * scaleFactor;
+        const offsetY =
+          (canvasHeight - boundHeight * scaleFactor) / 2 -
+          boundTop * scaleFactor;
+
+        // Create transformation matrix [scaleX, skewY, skewX, scaleY, translateX, translateY]
+        // Ensure all values are valid numbers
+        const matrix = [
+          isFinite(scaleFactor) ? scaleFactor : 1,
+          0,
+          0,
+          isFinite(scaleFactor) ? scaleFactor : 1,
+          isFinite(offsetX) ? offsetX : 0,
+          isFinite(offsetY) ? offsetY : 0,
+        ];
+
+        // console.log('Calculated transform matrix:', matrix);
+        setTransformMatrix(matrix);
+
+        // Also create a transform object that Skia Group will accept
+        setTransformObject({
+          scaleX: isFinite(scaleFactor) ? scaleFactor : 1,
+          skewY: 0,
+          skewX: 0,
+          scaleY: isFinite(scaleFactor) ? scaleFactor : 1,
+          translateX: isFinite(offsetX) ? offsetX : 0,
+          translateY: isFinite(offsetY) ? offsetY : 0,
+        });
+      }
+    } catch (err) {
+      console.warn('Error calculating SVG bounds:', err);
+      // Set default transformation matrix
+      setTransformMatrix([1, 0, 0, 1, 0, 0]);
+      setTransformObject({
+        scaleX: 1,
+        skewY: 0,
+        skewX: 0,
+        scaleY: 1,
+        translateX: 0,
+        translateY: 0,
+      });
+    }
+  }, [svgString]);
 
   const generateCheckpoints = (svg: string, numPoints = 50): SkPoint[] => {
     try {
@@ -107,7 +206,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    console.log('checkpoints:', newCheckpoints);
+    // console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
@@ -141,11 +240,47 @@ const Tracing = () => {
     }
   };
 
+  // Function to transform a point from screen coordinates to SVG coordinates
+  const screenToSvgPoint = (x: number, y: number): SkPoint => {
+    // Invert the transformation
+    const sx = transformObject.scaleX;
+    const sy = transformObject.scaleY;
+    const tx = transformObject.translateX;
+    const ty = transformObject.translateY;
+
+    // Only apply inverse transform if scales are non-zero to avoid division by zero
+    if (sx !== 0 && sy !== 0) {
+      return {
+        x: (x - tx) / sx,
+        y: (y - ty) / sy,
+      };
+    }
+
+    // Return original point if transformation is invalid
+    return {x, y};
+  };
+
+  // Function to transform a point from SVG coordinates to screen coordinates
+  const svgToScreenPoint = (point: SkPoint): SkPoint => {
+    if (!point || typeof point !== 'object' || point === null) {
+      console.warn('Invalid point provided to transformPoint:', point);
+      return {x: 0, y: 0};
+    }
+
+    return {
+      x: point.x * transformObject.scaleX + transformObject.translateX,
+      y: point.y * transformObject.scaleY + transformObject.translateY,
+    };
+  };
+
   const handleBack = () => {
     navigation.goBack();
   };
 
   const updateVisitedCheckpoints = (x: number, y: number) => {
+    // Convert screen coordinates to SVG coordinates for checkpoint testing
+    const svgPoint = screenToSvgPoint(x, y);
+
     setVisitedCheckpoints(prev => {
       // Return early if no checkpoints exist
       if (checkpoints.length === 0) {
@@ -170,8 +305,8 @@ const Tracing = () => {
 
       // Check if touch is near the next checkpoint
       if (currentCp) {
-        const dx = x - currentCp.x;
-        const dy = y - currentCp.y;
+        const dx = svgPoint.x - currentCp.x;
+        const dy = svgPoint.y - currentCp.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < threshold) {
@@ -181,8 +316,8 @@ const Tracing = () => {
 
       // Check if touch is near the next+3 checkpoint (skip intermediate points)
       if (nextPlus3Cp) {
-        const dx = x - nextPlus3Cp.x;
-        const dy = y - nextPlus3Cp.y;
+        const dx = svgPoint.x - nextPlus3Cp.x;
+        const dy = svgPoint.y - nextPlus3Cp.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < threshold) {
@@ -213,8 +348,16 @@ const Tracing = () => {
       if (checkpoints.length === 0) {
         return;
       }
+      // Convert screen coordinates to SVG coordinates
+      const svgPoint = {
+        x: (event.x - transformObject.translateX) / transformObject.scaleX,
+        y: (event.y - transformObject.translateY) / transformObject.scaleY,
+      };
+
       const nextCheckpointIndex = visitedCheckpoints.findIndex(v => !v);
-      if (nextCheckpointIndex === -1) return;
+      if (nextCheckpointIndex === -1) {
+        return;
+      }
 
       // Get the next and next+3 checkpoints
       const nextCp = checkpoints[nextCheckpointIndex];
@@ -225,8 +368,8 @@ const Tracing = () => {
 
       // Check if starting near either valid checkpoint
       if (nextCp) {
-        const dx = nextCp.x - event.x;
-        const dy = nextCp.y - event.y;
+        const dx = nextCp.x - svgPoint.x;
+        const dy = nextCp.y - svgPoint.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < startThreshold) {
@@ -237,8 +380,8 @@ const Tracing = () => {
       }
 
       if (nextPlus3Cp) {
-        const dx = nextPlus3Cp.x - event.x;
-        const dy = nextPlus3Cp.y - event.y;
+        const dx = nextPlus3Cp.x - svgPoint.x;
+        const dy = nextPlus3Cp.y - svgPoint.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
         if (dist < startThreshold) {
@@ -251,7 +394,11 @@ const Tracing = () => {
     .onChange(event => {
       'worklet';
 
-      // pencilPos.value = withSpring({x: event.x - 20, y: event.y - 40});
+      // Convert screen coordinates to SVG coordinates for checkpoint detection
+      const svgPoint = {
+        x: (event.x - transformObject.translateX) / transformObject.scaleX,
+        y: (event.y - transformObject.translateY) / transformObject.scaleY,
+      };
 
       // Allow tracing only for the next checkpoint in sequence
       const nextCheckpointIndex = visitedCheckpoints.findIndex(v => !v);
@@ -269,22 +416,25 @@ const Tracing = () => {
       let distToNextPlus3 = Infinity;
 
       if (nextCp) {
-        const dx = nextCp.x - event.x;
-        const dy = nextCp.y - event.y;
+        const dx = nextCp.x - svgPoint.x;
+        const dy = nextCp.y - svgPoint.y;
         distToNext = Math.sqrt(dx * dx + dy * dy);
       }
 
       if (nextPlus3Cp) {
-        const dx = nextPlus3Cp.x - event.x;
-        const dy = nextPlus3Cp.y - event.y;
+        const dx = nextPlus3Cp.x - svgPoint.x;
+        const dy = nextPlus3Cp.y - svgPoint.y;
         distToNextPlus3 = Math.sqrt(dx * dx + dy * dy);
       }
 
       // Determine which checkpoint is closer
       const minDist = Math.min(distToNext, distToNextPlus3);
 
+      // Scale threshold according to transformations
+      const adjustedThreshold = (threshold / scaleFactor) * 1.2;
+
       // Only draw if within threshold of either checkpoint
-      if (minDist < threshold * 1.2) {
+      if (minDist < adjustedThreshold) {
         if (drawPath.value.isEmpty()) {
           drawPath.value.moveTo(event.x, event.y);
         } else {
@@ -314,90 +464,106 @@ const Tracing = () => {
             <Fill color="#FFEDC2" />
 
             {/* Main character outline */}
-            <Path
-              path={Skia.Path.MakeFromSVGString(svgString)!}
-              color={'white'}
-              // style="stroke"
-              // strokeWidth={4}
-            />
+            <Group
+              transform={[
+                {scaleX: transformObject.scaleX},
+                {scaleY: transformObject.scaleY},
+                {translateX: transformObject.translateX},
+                {translateY: transformObject.translateY},
+                {skewX: transformObject.skewX},
+                {skewY: transformObject.skewY},
+              ]}>
+              <Path
+                path={Skia.Path.MakeFromSVGString(svgString)!}
+                color={'white'}
+                // style="stroke"
+                // strokeWidth={4}
+              />
 
-            {animationPhase === 'tracing' ? (
-              // Show tracing UI
-              <>
-                {/* Guide paths */}
-                {svgGuides.map((guide, index) => {
-                  try {
-                    const path = Skia.Path.MakeFromSVGString(guide);
-                    if (!path) {
+              {animationPhase === 'tracing' ? (
+                // Show tracing UI
+                <>
+                  {/* Guide paths */}
+                  {svgGuides.map((guide, index) => {
+                    try {
+                      const path = Skia.Path.MakeFromSVGString(guide);
+                      if (!path) {
+                        return null;
+                      }
+                      return (
+                        <Path
+                          key={`guide-${index}`}
+                          path={path}
+                          color={currentPart === index ? '#FF7D33' : '#E0E0E0'}
+                          strokeWidth={currentPart === index ? 3 : 2}
+                          style="stroke"
+                          strokeCap="round"
+                          strokeJoin="round"
+                        />
+                      );
+                    } catch (err) {
+                      console.warn(
+                        `Invalid SVG path at index ${index}:`,
+                        guide,
+                      );
                       return null;
                     }
-                    return (
-                      <Path
-                        key={`guide-${index}`}
-                        path={path}
-                        color={currentPart === index ? '#FF7D33' : '#E0E0E0'}
-                        strokeWidth={currentPart === index ? 3 : 2}
-                        style="stroke"
-                        strokeCap="round"
-                        strokeJoin="round"
-                      />
-                    );
-                  } catch (err) {
-                    console.warn(`Invalid SVG path at index ${index}:`, guide);
-                    return null;
-                  }
-                })}
+                  })}
 
-                {checkpoints.map((pt, index) => (
-                  <Path
-                    key={`cp-${index}`}
-                    path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
-                    color={visitedCheckpoints[index] ? 'green' : 'red'}
-                  />
-                ))}
+                  {checkpoints.map((pt, index) => (
+                    <Path
+                      key={`cp-${index}`}
+                      path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
+                      color={visitedCheckpoints[index] ? 'green' : 'red'}
+                    />
+                  ))}
 
-                {svgGuides.map((guide, index) => {
-                  try {
-                    const path = Skia.Path.MakeFromSVGString(guide);
-                    if (!path) {
-                      throw new Error(`Invalid path at index ${index}`);
+                  {svgGuides.map((guide, index) => {
+                    try {
+                      const path = Skia.Path.MakeFromSVGString(guide);
+                      if (!path) {
+                        throw new Error(`Invalid path at index ${index}`);
+                      }
+                      return (
+                        <Path
+                          key={`guide-${index}`}
+                          path={path}
+                          color="black"
+                          strokeWidth={2}
+                          style="stroke"
+                        />
+                      );
+                    } catch (err) {
+                      console.warn(
+                        `Invalid SVG path at index ${index}:`,
+                        guide,
+                      );
+                      return null;
                     }
-                    return (
-                      <Path
-                        key={`guide-${index}`}
-                        path={path}
-                        color="black"
-                        strokeWidth={2}
-                        style="stroke"
-                      />
-                    );
-                  } catch (err) {
-                    console.warn(`Invalid SVG path at index ${index}:`, guide);
-                    return null;
-                  }
-                })}
-              </>
-            ) : (
-              // Show completed animation
-              <>
-                {/* Completed character in green */}
-                <Path
-                  path={Skia.Path.MakeFromSVGString(svgString)!}
-                  color="#4CAF50"
-                  style="stroke"
-                  strokeWidth={4}
-                />
-
-                {/* All completed checkpoints */}
-                {completedCheckpoints.flat().map((pt, index) => (
+                  })}
+                </>
+              ) : (
+                // Show completed animation
+                <>
+                  {/* Completed character in green */}
                   <Path
-                    key={`completed-cp-${index}`}
-                    path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
+                    path={Skia.Path.MakeFromSVGString(svgString)!}
                     color="#4CAF50"
+                    style="stroke"
+                    strokeWidth={4}
                   />
-                ))}
-              </>
-            )}
+
+                  {/* All completed checkpoints */}
+                  {completedCheckpoints.flat().map((pt, index) => (
+                    <Path
+                      key={`completed-cp-${index}`}
+                      path={Skia.Path.Make().addCircle(pt.x, pt.y, 5)}
+                      color="#4CAF50"
+                    />
+                  ))}
+                </>
+              )}
+            </Group>
           </Canvas>
         </GestureDetector>
       </GestureHandlerRootView>

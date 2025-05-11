@@ -23,6 +23,7 @@ import SettingScreen from './screens/SettingScreen';
 import QuizScreen from './screens/QuizSection';
 import GuestLogin from './screens/login/guestLogin';
 import QuizHomeScreen from './screens/QuizHomeScreen';
+import {LanguageProvider} from './context/languageContext';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,85 +38,87 @@ const App = () => {
 
   return (
     <MusicProvider backgroundTrack="dummy_music">
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Guided"
-            component={GuidedScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="UnGuided"
-            component={UnGuidedScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="GuidedCategory"
-            component={GuidedCategory}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Avatar"
-            component={AvatarScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Tracing"
-            component={Tracing}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Achievement"
-            component={AchievementScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="CompletionScreen"
-            component={CompletionScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="SignUp"
-            component={SignUpScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="FeedbackSection"
-            component={FeedbackSection}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="SettingScreen"
-            component={SettingScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="QuizScreen"
-            component={QuizScreen}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="GuestLogin"
-            component={GuestLogin}
-            options={{headerShown: false}}
-          />
-          <Stack.Screen
-            name="QuizHomeScreen"
-            component={QuizHomeScreen}
-            options={{headerShown: false}}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <LanguageProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Home">
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Guided"
+              component={GuidedScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="UnGuided"
+              component={UnGuidedScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="GuidedCategory"
+              component={GuidedCategory}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Avatar"
+              component={AvatarScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Tracing"
+              component={Tracing}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Achievement"
+              component={AchievementScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="CompletionScreen"
+              component={CompletionScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="Login"
+              component={LoginScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SignUp"
+              component={SignUpScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="FeedbackSection"
+              component={FeedbackSection}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SettingScreen"
+              component={SettingScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="QuizScreen"
+              component={QuizScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="GuestLogin"
+              component={GuestLogin}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="QuizHomeScreen"
+              component={QuizHomeScreen}
+              options={{headerShown: false}}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </LanguageProvider>
     </MusicProvider>
   );
 };

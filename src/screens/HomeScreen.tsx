@@ -14,10 +14,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
 import NetInfo from 'react-native';
 import {useMusic} from '../components/MusicContext';
+import {useLanguage} from '../context/languageContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {isMuted, toggleMute} = useMusic();
+  const {language, setLanguage} = useLanguage();
 
   const handleGuestMode = async () => {
     try {
@@ -70,7 +72,12 @@ const HomeScreen = () => {
       style={styles.background}>
       <View style={styles.header}>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerText}>SELECT MODE</Text>
+          <Text
+            style={
+              language === 'Eng' ? styles.headerText : styles.headerTextDzo
+            }>
+            {language === 'Eng' ? 'SELECT MODE' : 'རྩེད་ཀྱི་ཐབས་ལམ་གདམ་ཁ་རྐྱབ།'}
+          </Text>
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={toggleMute}>
@@ -94,14 +101,50 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.container}>
+        <View style={styles.languageToggleContainer}>
+          <TouchableOpacity
+            style={[
+              styles.languageButton,
+              language === 'Eng' && styles.selectedLanguageButton,
+            ]}
+            onPress={() => setLanguage('Eng')}>
+            <Text
+              style={[
+                styles.languageButtonText,
+                language === 'Eng' && styles.selectedLanguageButtonText,
+              ]}>
+              Eng
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.languageButton,
+              language === 'Dzo' && styles.selectedLanguageButton,
+            ]}
+            onPress={() => setLanguage('Dzo')}>
+            <Text
+              style={[
+                styles.languageButtonText,
+                language === 'Dzo' && styles.selectedLanguageButtonText,
+              ]}>
+              Dzo
+            </Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.textBg}>
           <TouchableOpacity onPress={handleOnlineMode}>
-            <Text style={styles.modeText}>Online</Text>
+            <Text
+              style={language === 'Eng' ? styles.modeText : styles.modeDzoText}>
+              {language === 'Eng' ? 'Online' : 'ཡོངས་འབྲེལ།'}
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.textBg}>
           <TouchableOpacity onPress={handleGuestMode}>
-            <Text style={styles.modeText}>Guest</Text>
+            <Text
+              style={language === 'Eng' ? styles.modeText : styles.modeDzoText}>
+              {language === 'Eng' ? 'Guest' : 'མགྱོནམོ་སྦེ་རྩེདམོ་རྩེ།'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -142,6 +185,18 @@ const styles = StyleSheet.create({
     padding: 10,
     letterSpacing: 1.5,
   },
+  headerTextDzo: {
+    fontFamily: 'joyig',
+    fontSize: 40,
+    color: 'rgb(255, 255, 255)',
+    // Shadow
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: 5, height: 5},
+    textShadowRadius: 5,
+
+    padding: 10,
+    letterSpacing: 1.5,
+  },
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -163,10 +218,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modeText: {
-    fontFamily: 'Unlock-Bold',
     fontSize: 40,
     color: 'rgb(200, 213, 236)',
     fontWeight: 'bold',
+  },
+  modeDzoText: {
+    fontFamily: 'joyig',
+    fontSize: 40,
+    color: 'rgb(200, 213, 236)',
   },
   textBg: {
     justifyContent: 'center',
@@ -176,6 +235,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#2E6283',
     borderRadius: 30,
     margin: 10,
+  },
+  languageToggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  languageButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: '#2E6283',
+    marginHorizontal: 5,
+  },
+  selectedLanguageButton: {
+    backgroundColor: '#5E2B97',
+  },
+  languageButtonText: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  selectedLanguageButtonText: {
+    color: '#FFD700',
   },
 });
 

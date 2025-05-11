@@ -14,6 +14,7 @@ import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import avatarImages from '../assets/avatarImages';
 import LottieView from 'lottie-react-native';
+import {useLanguage} from '../context/languageContext';
 
 type SharedLayoutProps = {
   children: ReactNode;
@@ -35,6 +36,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
   const [starAnimation] = useState(new Animated.Value(1));
   // Track last star count to animate changes
   const [lastStarCount, setLastStarCount] = useState<string | null>(null);
+  const {language} = useLanguage();
 
   const clearModeData = async (mode: 'online') => {
     if (mode === 'online') {
@@ -222,7 +224,14 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
             style={styles.starIcon}
           />
           <View style={styles.starCountBox}>
-            <Text style={styles.starCountText}>{starCount}</Text>
+            <Text
+              style={
+                language === 'Eng'
+                  ? styles.starCountText
+                  : styles.starCountTextDzo
+              }>
+              {starCount}
+            </Text>
           </View>
         </View>
 
@@ -357,6 +366,15 @@ const styles = StyleSheet.create({
     color: '#FF8C00',
     fontWeight: 'bold',
     fontSize: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: {width: 0.5, height: 0.5},
+    textShadowRadius: 1,
+  },
+  starCountTextDzo: {
+    color: '#FF8C00',
+    // fontWeight: 'bold',
+    fontFamily: 'joyig',
+    fontSize: 20,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: {width: 0.5, height: 0.5},
     textShadowRadius: 1,

@@ -16,9 +16,31 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import Orientation from 'react-native-orientation-locker';
 import Slider from '@react-native-community/slider';
-import { useMusic } from '../components/MusicContext';
+import {useMusic} from '../components/MusicContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useLanguage} from '../context/languageContext';
 
+type LanguageType = 'Eng' | 'Dzo';
+
+// Define translation key type
+type TranslationKey =
+  | 'title'
+  | 'notifications'
+  | 'soundVolume'
+  | 'musicVolume'
+  | 'saveSettings'
+  | 'giveFeedback'
+  | 'saveSuccess'
+  | 'saveMessage';
+// Define the type for a single language's translations
+type TranslationsForLanguage = {
+  [key in TranslationKey]: string;
+};
+
+// Define the type for all translations
+type TranslationsType = {
+  [key in LanguageType]: TranslationsForLanguage;
+};
 const SettingsScreen = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -53,12 +75,64 @@ const SettingsScreen = () => {
     };
   }, [navigation]);
 
+  // Get language context
+    const {language} = useLanguage();
+    
+    // Ensure language is typed correctly
+    const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
+  // Text translations based on selected language
+  const translations = {
+    Eng: {
+      title: 'App Settings',
+      notifications: 'Enable Notifications',
+      soundVolume: 'Sound Volume',
+      musicVolume: 'Background Music Volume',
+      saveSettings: 'SAVE SETTINGS',
+      giveFeedback: 'GIVE FEEDBACK',
+      saveSuccess: 'Success',
+      saveMessage: 'Your settings have been saved!',
+    },
+    Dzo: {
+      title: 'གཞི་བཙུགས་བཟོ་བཀོད།',
+      notifications: 'བརྡ་བཀོད་ལྷུ་སྒྲིག',
+      soundVolume: 'སྒྲ་གདངས་ཚད་གཞི།',
+      musicVolume: 'རྒྱབ་ལྗོངས་རོལ་དབྱངས་ཚད་གཞི།',
+      saveSettings: 'གཞི་བཙུགས་ཉར་བཞག',
+      giveFeedback: 'བསམ་འཆར་བཤད།',
+      saveSuccess: 'ལེགས་སྒྲུབ།',
+      saveMessage: 'ཁྱོད་ཀྱི་གཞི་བཙུགས་ཚུ་ཉར་ཚགས་འབད་ཡི!',
+    },
+  };
+
+  // Get text based on current language
+  const getText = (key: TranslationKey): string => {
+    return translations[currentLanguage][key] || translations['Eng'][key];
+  };
+
+
   // Responsive values based on screen dimensions
   const isSmallScreen = dimensions.height < 400;
-  const responsiveFontSize = isSmallScreen ? 14 : 16;
+
+  // Base font sizes - now different for each language
+  const baseFontSize = isSmallScreen ? 14 : 16;
+  // Dzongkha text should be larger than English
+  const getFontSize = () => {
+    return language === 'Dzo'
+      ? baseFontSize * 1.25 // 25% larger for Dzongkha
+      : baseFontSize;
+  };
+
   const responsiveButtonHeight = isSmallScreen ? 40 : 50;
   const formWidth = Math.min(dimensions.width * 0.8, 500);
-  const titleFontSize = isSmallScreen ? 18 : 22;
+
+  // Title font size also adjusts based on language
+  const baseTitleSize = isSmallScreen ? 18 : 22;
+  const getTitleFontSize = () => {
+    return language === 'Dzo'
+      ? baseTitleSize * 1.25 // 25% larger for Dzongkha titles
+      : baseTitleSize;
+  };
+
   const sectionSpacing = isSmallScreen ? 15 : 20;
 
   const handleSaveSettings = () => {
@@ -67,7 +141,7 @@ const SettingsScreen = () => {
       soundVolume,
       musicVolume: volume,
     });
-    Alert.alert('Success', 'Your settings have been saved!');
+    Alert.alert(getText('saveSuccess'), getText('saveMessage'));
   };
 
   const handleGiveFeedback = () => {
@@ -75,12 +149,13 @@ const SettingsScreen = () => {
   };
 
   const styles = createStyles(
-    responsiveFontSize,
+    getFontSize(),
     responsiveButtonHeight,
     formWidth,
-    titleFontSize,
+    getTitleFontSize(),
     sectionSpacing,
     dimensions,
+    language,
   );
 
   // Handle sound volume change with type annotation
@@ -111,7 +186,7 @@ const SettingsScreen = () => {
               />
             </TouchableOpacity>
           </View>
-          <Text style={styles.title}>App Settings</Text>
+          <Text style={styles.title}>{getText('title')}</Text>
         </View>
 
         <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -126,7 +201,7 @@ const SettingsScreen = () => {
                       style={styles.settingIcon}
                     />
                     <Text style={styles.settingLabel}>
-                      Enable Notifications
+                      {getText('notifications')}
                     </Text>
                   </View>
                   <Switch
@@ -149,7 +224,9 @@ const SettingsScreen = () => {
                     }
                     style={styles.settingIcon}
                   />
-                  <Text style={styles.settingLabel}>Sound Volume</Text>
+                  <Text style={styles.settingLabel}>
+                    {getText('soundVolume')}
+                  </Text>
                 </View>
                 <View style={styles.sliderContainer}>
                   <Slider
@@ -183,7 +260,7 @@ const SettingsScreen = () => {
                     style={styles.settingIcon}
                   />
                   <Text style={styles.settingLabel}>
-                    Background Music Volume
+                    {getText('musicVolume')}
                   </Text>
                 </View>
                 <View style={styles.sliderContainer}>
@@ -210,7 +287,7 @@ const SettingsScreen = () => {
               <TouchableOpacity
                 style={styles.button}
                 onPress={handleSaveSettings}>
-                <Text style={styles.buttonText}>SAVE SETTINGS</Text>
+                <Text style={styles.buttonText}>{getText('saveSettings')}</Text>
               </TouchableOpacity>
 
               {/* Feedback Button */}
@@ -218,7 +295,9 @@ const SettingsScreen = () => {
                 <TouchableOpacity
                   style={[styles.button, styles.feedbackButton]}
                   onPress={handleGiveFeedback}>
-                  <Text style={styles.buttonText}>GIVE FEEDBACK</Text>
+                  <Text style={styles.buttonText}>
+                    {getText('giveFeedback')}
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -236,12 +315,34 @@ const createStyles = (
   titleFontSize: number,
   sectionSpacing: number,
   screenDimensions: {width: number; height: number},
+  language: string,
 ) => {
   // Calculate responsive values based on screen dimensions
   const headerHeight = screenDimensions.height * 0.2;
   const headerIconSize = Math.max(40, screenDimensions.height * 0.08);
-  const responsiveTitleSize = Math.min(26, screenDimensions.width * 0.03);
+  const responsiveTitleSize =
+    language === 'Dzo'
+      ? Math.min(44, screenDimensions.width * 0.05) // Larger for Dzongkha
+      : Math.min(28, screenDimensions.width * 0.03); // Original size for English
+
   const headerPadding = screenDimensions.width * 0.01;
+
+  // Calculate button text size based on language
+  const buttonTextSize =
+    language === 'Dzo'
+      ? Math.max(fontSize * 2.2, screenDimensions.width * 0.05)
+      : Math.max(fontSize, screenDimensions.width * 0.016);
+
+  // Calculate volume text size based on language
+  const volumeTextSize =
+    language === 'Dzo'
+      ? Math.max(fontSize * 0.95, screenDimensions.width * 0.015)
+      : Math.max(fontSize * 0.9, screenDimensions.width * 0.014);
+  // for label
+  const labelTextSize =
+    language === 'Dzo'
+      ? Math.max(fontSize * 2.2, screenDimensions.width * 0.05)
+      : Math.max(fontSize, screenDimensions.width * 0.016);
 
   return StyleSheet.create({
     backgroundImage: {
@@ -295,8 +396,9 @@ const createStyles = (
       marginVertical: screenDimensions.height * 0.02,
     },
     title: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
       fontSize: responsiveTitleSize,
-      fontWeight: 'bold',
+      fontWeight: language === 'Dzo' ? 'normal' : 'bold',
       color: 'rgba(239, 141, 56, 0.78)',
       position: 'absolute',
       left: 0,
@@ -324,15 +426,16 @@ const createStyles = (
       justifyContent: 'space-between',
     },
     settingIcon: {
-      width: Math.min(24, screenDimensions.width * 0.02),
-      height: Math.min(24, screenDimensions.width * 0.02),
+      width: Math.min(24, screenDimensions.width * 0.03),
+      height: Math.min(24, screenDimensions.width * 0.03),
       marginRight: screenDimensions.width * 0.01,
       resizeMode: 'contain',
     },
     settingLabel: {
-      fontSize: Math.max(fontSize, screenDimensions.width * 0.015),
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: labelTextSize, // This already has language-specific sizing applied
       color: '#fff',
-      fontWeight: '600',
+      fontWeight: language === 'Dzo' ? 'normal' : '600',
     },
     sliderContainer: {
       flexDirection: 'row',
@@ -348,7 +451,7 @@ const createStyles = (
       color: '#fff',
       width: screenDimensions.width * 0.05,
       textAlign: 'right',
-      fontSize: Math.max(fontSize * 0.9, screenDimensions.width * 0.014),
+      fontSize: volumeTextSize, // Language-specific volume text size
     },
     button: {
       backgroundColor: '#AA75CB',
@@ -363,9 +466,10 @@ const createStyles = (
       marginTop: screenDimensions.height * 0.02,
     },
     buttonText: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
       color: 'white',
-      fontSize: Math.max(fontSize, screenDimensions.width * 0.016),
-      fontWeight: 'bold',
+      fontSize: buttonTextSize, // Language-specific button text size
+      fontWeight: language === 'Dzo' ? 'normal' : 'bold',
     },
   });
 };

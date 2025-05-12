@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Switch,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
@@ -66,6 +67,11 @@ const HomeScreen = () => {
     }
   };
 
+  // Handle language toggle switch
+  const handleLanguageToggle = (value) => {
+    setLanguage(value ? 'Dzo' : 'Eng');
+  };
+
   return (
     <ImageBackground
       source={require('../assets/background_images/home_bg.png')}
@@ -102,34 +108,16 @@ const HomeScreen = () => {
 
       <View style={styles.container}>
         <View style={styles.languageToggleContainer}>
-          <TouchableOpacity
-            style={[
-              styles.languageButton,
-              language === 'Eng' && styles.selectedLanguageButton,
-            ]}
-            onPress={() => setLanguage('Eng')}>
-            <Text
-              style={[
-                styles.languageButtonText,
-                language === 'Eng' && styles.selectedLanguageButtonText,
-              ]}>
-              Eng
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.languageButton,
-              language === 'Dzo' && styles.selectedLanguageButton,
-            ]}
-            onPress={() => setLanguage('Dzo')}>
-            <Text
-              style={[
-                styles.languageButtonText,
-                language === 'Dzo' && styles.selectedLanguageButtonText,
-              ]}>
-              Dzo
-            </Text>
-          </TouchableOpacity>
+          <Text style={styles.languageLabel}>Eng</Text>
+          <Switch
+            trackColor={{false: '#2E6283', true: '#5E2B97'}}
+            thumbColor={language === 'Dzo' ? '#FFD700' : '#FFFFFF'}
+            ios_backgroundColor="#2E6283"
+            onValueChange={handleLanguageToggle}
+            value={language === 'Dzo'}
+            style={styles.languageSwitch}
+          />
+          <Text style={styles.languageLabel}>Dzo</Text>
         </View>
         <View style={styles.textBg}>
           <TouchableOpacity onPress={handleOnlineMode}>
@@ -240,25 +228,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginBottom: 20,
   },
-  languageButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#2E6283',
-    marginHorizontal: 5,
-  },
-  selectedLanguageButton: {
-    backgroundColor: '#5E2B97',
-  },
-  languageButtonText: {
+  languageLabel: {
     fontSize: 16,
     color: 'white',
     fontWeight: 'bold',
+    marginHorizontal: 10,
   },
-  selectedLanguageButtonText: {
-    color: '#FFD700',
+  languageSwitch: {
+    transform: [{scaleX: 1.2}, {scaleY: 1.2}],
   },
 });
 

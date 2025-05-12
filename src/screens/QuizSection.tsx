@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
 import Sound from 'react-native-sound';
+import achievement from '../assets/achievementImages';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -53,6 +54,12 @@ const QuizScreen: React.FC = () => {
     counting: 'achievement6',
     // Add more categories and their corresponding achievements as needed
   };
+
+  const achievementId = QUIZ_ACHIEVEMENTS[category];
+  const achievementImage =
+    achievementId && achievementId in achievement
+      ? achievement[achievementId as keyof typeof achievement]
+      : null;
 
   const relatedTo =
     category === 'animals' || category === 'fruits' ? 'alphabets' : 'numbers';
@@ -248,49 +255,49 @@ const QuizScreen: React.FC = () => {
       setScore(score + 1);
 
       // Move to next question or complete quiz
-      if (currentQuestionIndex < quizQuestions.length - 1) {
-        // For counting quiz, navigate to tracing screen for the correct answer
-        if (category === 'counting') {
-          setWaitingForTracing(true);
-          setReturningFromTracing(true);
-          const current_id = Number(currentQuestion.correctAnswer);
-          const next_id = (current_id + 1).toString();
-          // Use the correct answer as the ID
 
-          console.log('Category:', category);
-          navigation.navigate('Tracing', {
-            id: next_id, // Use the correct answer as the ID
-            category: 'numbers',
-            fromQuiz: true,
-          });
+      // For counting quiz, navigate to tracing screen for the correct answer
+      if (category === 'counting') {
+        setWaitingForTracing(true);
+        setReturningFromTracing(true);
+        const current_id = Number(currentQuestion.correctAnswer);
+        const next_id = (current_id + 1).toString();
+        // Use the correct answer as the ID
+
+        console.log('Category:', category);
+        navigation.navigate('Tracing', {
+          id: next_id, // Use the correct answer as the ID
+          category: 'numbers',
+          fromQuiz: true,
+        });
+        return;
+      } else if (category === 'animals' || category === 'fruits') {
+        setWaitingForTracing(true);
+        setReturningFromTracing(true);
+
+        const current_id =
+          alphabetMapping[currentQuestion.correctAnswer].toString();
+        if (!current_id) {
+          console.error(
+            `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+          );
+          Alert.alert(
+            'Error',
+            `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+          );
           return;
-        } else if (category === 'animals' || category === 'fruits') {
-          setWaitingForTracing(true);
-          setReturningFromTracing(true);
-
-          const current_id =
-            alphabetMapping[currentQuestion.correctAnswer].toString();
-          if (!current_id) {
-            console.error(
-              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-            );
-            Alert.alert(
-              'Error',
-              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-            );
-            return;
-          }
-          navigation.navigate('Tracing', {
-            id: current_id, // Use the correct numeric id
-            category: 'alphabets',
-            fromQuiz: true,
-          });
-        } else {
-          // Reset animations and move to next question for other categories
-          fadeAnim.setValue(0);
-          bounceAnim.setValue(0);
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
         }
+        navigation.navigate('Tracing', {
+          id: current_id, // Use the correct numeric id
+          category: 'alphabets',
+          fromQuiz: true,
+        });
+      }
+      if (currentQuestionIndex < quizQuestions.length - 1) {
+        // Reset animations and move to next question for other categories
+        fadeAnim.setValue(0);
+        bounceAnim.setValue(0);
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
         // Calculate stars based on score
         const stars = calculateStars(score + 1, quizQuestions.length);
@@ -375,7 +382,24 @@ const QuizScreen: React.FC = () => {
       ) {
         fadeAnim.setValue(0);
         bounceAnim.setValue(0);
-        setCurrentQuestionIndex(prev => prev + 1);
+
+        if (currentQuestionIndex < quizQuestions.length - 1) {
+          setCurrentQuestionIndex(prev => prev + 1);
+        } else {
+          // Calculate stars based on score
+          const stars = calculateStars(score, quizQuestions.length);
+          setEarnedStars(stars);
+
+          // Save progress if not previously completed or if new score is better
+          if (!previouslyCompleted || stars > earnedStars) {
+            saveQuizCompletion(stars);
+          }
+
+          // Show celebration animation
+          setQuizCompleted(true);
+          setShowCelebration(true);
+        }
+
         setWaitingForTracing(false);
         setReturningFromTracing(false);
       }
@@ -390,6 +414,12 @@ const QuizScreen: React.FC = () => {
     category,
     fadeAnim,
     bounceAnim,
+    currentQuestionIndex,
+    quizQuestions.length,
+    score,
+    previouslyCompleted,
+    earnedStars,
+    saveQuizCompletion,
   ]);
 
   const renderQuizContent = (): JSX.Element => {
@@ -448,7 +478,7 @@ const QuizScreen: React.FC = () => {
               {!previouslyCompleted && QUIZ_ACHIEVEMENTS[category] && (
                 <View style={styles.achievementContainer}>
                   <Image
-                    source={require('../assets/icons/star.png')} // Add your achievement icon
+                    source={achievementImage} // Add your achievement icon
                     style={styles.achievementImage}
                   />
                   <Text style={styles.achievementText}>

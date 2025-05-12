@@ -22,6 +22,7 @@ import {animalsQuizData} from '../data/quizData/animals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
+import Sound from 'react-native-sound';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -37,6 +38,9 @@ const QuizScreen: React.FC = () => {
     useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
   const [, setStarsAwarded] = useState<boolean>(false);
+  const [waitingForTracing, setWaitingForTracing] = useState<boolean>(false);
+  const [returningFromTracing, setReturningFromTracing] =
+    useState<boolean>(false);
 
   const [screenDimensions] = useState<{
     width: number;
@@ -220,6 +224,19 @@ const QuizScreen: React.FC = () => {
     return 0;
   };
 
+  const alphabetMapping: Record<string, number> = {
+    ཀ: 2,
+    ཕ: 14,
+    ད: 11,
+    བ: 15,
+    ག: 3,
+    ཨ: 30,
+    ང: 4,
+    ཚ: 8,
+    ཁ: 2,
+    ཧ: 29,
+  };
+
   const handleAnswerPress = (selectedAnswer: string): void => {
     const currentQuestion = quizQuestions[currentQuestionIndex];
 
@@ -232,11 +249,48 @@ const QuizScreen: React.FC = () => {
 
       // Move to next question or complete quiz
       if (currentQuestionIndex < quizQuestions.length - 1) {
-        // Reset animations
-        fadeAnim.setValue(0);
-        bounceAnim.setValue(0);
+        // For counting quiz, navigate to tracing screen for the correct answer
+        if (category === 'counting') {
+          setWaitingForTracing(true);
+          setReturningFromTracing(true);
+          const current_id = Number(currentQuestion.correctAnswer);
+          const next_id = (current_id + 1).toString();
+          // Use the correct answer as the ID
 
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
+          console.log('Category:', category);
+          navigation.navigate('Tracing', {
+            id: next_id, // Use the correct answer as the ID
+            category: 'numbers',
+            fromQuiz: true,
+          });
+          return;
+        } else if (category === 'animals' || category === 'fruits') {
+          setWaitingForTracing(true);
+          setReturningFromTracing(true);
+
+          const current_id =
+            alphabetMapping[currentQuestion.correctAnswer].toString();
+          if (!current_id) {
+            console.error(
+              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+            );
+            Alert.alert(
+              'Error',
+              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+            );
+            return;
+          }
+          navigation.navigate('Tracing', {
+            id: current_id, // Use the correct numeric id
+            category: 'alphabets',
+            fromQuiz: true,
+          });
+        } else {
+          // Reset animations and move to next question for other categories
+          fadeAnim.setValue(0);
+          bounceAnim.setValue(0);
+          setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }
       } else {
         // Calculate stars based on score
         const stars = calculateStars(score + 1, quizQuestions.length);
@@ -262,13 +316,28 @@ const QuizScreen: React.FC = () => {
   };
 
   const playCorrectSound = (): void => {
-    // Placeholder for sound effect functionality
-    console.log('Playing correct sound');
+    // Make sure you have a copy of the sound in your assets folder
+    const sound = new Sound(
+      require('../assets/sound/completion_sound.mp3'),
+      error => {
+        if (error) {
+          console.log('Failed to load sound with require:', error);
+          return;
+        }
+        sound.play(() => sound.release());
+      },
+    );
   };
 
   const playWrongSound = (): void => {
-    // Placeholder for sound effect functionality
-    console.log('Playing wrong sound');
+    // Make sure you have a copy of the sound in your assets folder
+    const sound = new Sound(require('../assets/sound/wrong_ans.mp3'), error => {
+      if (error) {
+        console.log('Failed to load sound with require:', error);
+        return;
+      }
+      sound.play(() => sound.release());
+    });
   };
 
   const resetQuiz = (): void => {
@@ -293,6 +362,35 @@ const QuizScreen: React.FC = () => {
       useNativeDriver: true,
     }).start();
   };
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Only move to next question if we're returning from tracing
+      if (
+        (category === 'counting' ||
+          category === 'animals' ||
+          category === 'fruits') &&
+        returningFromTracing &&
+        !quizCompleted
+      ) {
+        fadeAnim.setValue(0);
+        bounceAnim.setValue(0);
+        setCurrentQuestionIndex(prev => prev + 1);
+        setWaitingForTracing(false);
+        setReturningFromTracing(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [
+    navigation,
+    quizCompleted,
+    waitingForTracing,
+    returningFromTracing,
+    category,
+    fadeAnim,
+    bounceAnim,
+  ]);
 
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
@@ -412,6 +510,14 @@ const QuizScreen: React.FC = () => {
       <ImageBackground
         source={require('../assets/background_images/landing_bg.png')}
         style={styles.backgroundImage}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.headerButton}>
+          <Image
+            source={require('../assets/icons/back_color.png')}
+            style={styles.headerIcon}
+          />
+        </TouchableOpacity>
         <Animated.View style={[styles.quizContainer, {opacity: fadeAnim}]}>
           {/* Progress indicator */}
           <View style={styles.progressContainer}>
@@ -731,24 +837,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-
-  scoreText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2682F4',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  starsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 15,
-  },
-  starImage: {
-    width: 45,
-    height: 45,
-    marginHorizontal: 5,
-  },
   previousCompletionText: {
     fontSize: 16,
     fontStyle: 'italic',
@@ -833,6 +921,19 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: {width: 0.5, height: 0.5},
     textShadowRadius: 1,
+  },
+  headerIcon: {
+    height: 40,
+    width: 40,
+    marginTop: 25,
+    marginLeft: 15,
+    resizeMode: 'contain',
+  },
+  headerButton: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    zIndex: 10,
   },
 });
 

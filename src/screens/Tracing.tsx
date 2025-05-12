@@ -35,12 +35,15 @@ import alphabetCheckPoints from '../data/checkPoints/alphabetsCheckPoints';
 import {numbersTracing} from '../data/tracingData/numbersTracing';
 import numberCheckPoints from '../data/checkPoints/numbersCheckPoints';
 import LottieView from 'lottie-react-native';
+import Sound from 'react-native-sound';
+import {alphabetSound} from '../assets/sound/alphabet';
+import {numberSound} from '../assets/sound/numbers';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
 const Tracing = () => {
   const route = useRoute<TracingScreenRouteProp>();
-  const {id, category} = route.params;
+  const {id, category, fromQuiz} = route.params || {fromQuiz: false};
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [currentPart, setCurrentPart] = useState(0);
   const drawPath = useSharedValue<SkPath>(Skia.Path.Make());
@@ -206,7 +209,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    console.log('checkpoints:', newCheckpoints);
+    // console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
@@ -223,18 +226,25 @@ const Tracing = () => {
   }, [currentPart, svgGuides]);
 
   const handleNextPart = () => {
-    // console.log('Next part:', currentPart);
     if (currentPart < svgGuides.length - 1) {
       drawPath.value = Skia.Path.Make();
       setCurrentPart(currentPart + 1);
     } else if (currentPart === svgGuides.length - 1) {
+      // Play the sound for the current item
+      if (selectedItem.sound) {
+        playItemSound(selectedItem.sound);
+      }
       // Start showing completed animation
       setAnimationPhase('showCompleted');
 
       // After 2 seconds, proceed to completion
       setTimeout(() => {
         setAnimationPhase('complete');
-        navigation.navigate('CompletionScreen', {category});
+        if (fromQuiz) {
+          navigation.goBack();
+        } else {
+          navigation.navigate('CompletionScreen', {category});
+        }
       }, 2000);
       console.log('All parts completed');
     }
@@ -262,6 +272,25 @@ const Tracing = () => {
 
   const handleBack = () => {
     navigation.goBack();
+  };
+
+  const playItemSound = (soundFile: string): void => {
+    const soundPath =
+      alphabetSound[soundFile as keyof typeof alphabetSound] ||
+      numberSound[soundFile as keyof typeof numberSound];
+    if (!soundPath) {
+      console.error(`Sound file ${soundFile} not found in soundMapping.`);
+      return;
+    }
+    const sound = new Sound(soundPath, error => {
+      if (error) {
+        console.error('Failed to load sound', error);
+        return;
+      }
+      sound.play(() => {
+        sound.release(); // Release the sound resource after playback
+      });
+    });
   };
 
   const updateVisitedCheckpoints = (x: number, y: number) => {

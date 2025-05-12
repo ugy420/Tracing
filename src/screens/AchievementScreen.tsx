@@ -9,7 +9,6 @@ import {
   Dimensions,
   Modal,
   Text,
-  Button,
   Alert,
 } from 'react-native';
 import achievement from '../assets/achievementImages';
@@ -28,7 +27,7 @@ const {width, height} = Dimensions.get('window');
 type LanguageType = 'Eng' | 'Dzo';
 
 // Define translation key type
-type TranslationKey = 
+type TranslationKey =
   | 'loading'
   | 'closeButton'
   | 'achievementTitle'
@@ -40,11 +39,14 @@ type TranslationKey =
   | 'vowelStar'
   | 'animalGenius'
   | 'fruitGenius'
+  | 'CountingGenius'
+  | 'CountingGenius'
   | 'completeConsonants'
   | 'completeNumbers'
   | 'completeVowels'
   | 'completeAnimalQuiz'
-  | 'completeFruitQuiz';
+  | 'completeFruitQuiz'
+  | 'completeCountingQuiz';
 
 // Define the type for a single language's translations
 type TranslationsForLanguage = {
@@ -58,17 +60,23 @@ type TranslationsType = {
 
 const AchievementScreen = () => {
   const [achievements, setAchievements] = useState<
-    {id: number; is_earned: boolean; name?: string; criteria?: string; image?: any}[]
+    {
+      id: number;
+      is_earned: boolean;
+      name?: string;
+      criteria?: string;
+      image?: any;
+    }[]
   >([]);
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+
   // Get language context
   const {language} = useLanguage();
-  
+
   // Ensure language is typed correctly
   const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
 
@@ -87,12 +95,14 @@ const AchievementScreen = () => {
       vowelStar: 'Vowel Star Badge',
       animalGenius: 'Animal Genius Badge',
       fruitGenius: 'Fruit Genius Badge',
+      CountingGenius: 'Counting Genius Badge',
       // Achievement criteria
       completeConsonants: 'Complete all tracing of consonants!',
       completeNumbers: 'Complete all tracing of numbers!',
       completeVowels: 'Complete all tracing of vowels!',
       completeAnimalQuiz: 'Complete the animal quiz!',
       completeFruitQuiz: 'Complete the fruit quiz!',
+      completeCountingQuiz: 'Complete the counting quiz!',
     },
     Dzo: {
       loading: 'བསྒུག...',
@@ -107,12 +117,14 @@ const AchievementScreen = () => {
       vowelStar: 'དབྱངས་ཡིག་སྐར་མའི་རྟགས།',
       animalGenius: 'སེམས་ཅན་མཁས་པའི་རྟགས།',
       fruitGenius: 'ཤིང་འབྲས་མཁས་པའི་རྟགས།',
+      CountingGenius: 'གྱངས་ཁ་མཁས་པའི་རྟགས།',
       // Achievement criteria
       completeConsonants: 'གསལ་བྱེད་ག་ར་ འཁྱིད་ཐིག་འབད།',
       completeNumbers: 'གྱངས་ཁ་ཚུ་ ཆ་ཚང་རྗེས་འདེད་ འབད་ནི་ཚར་བཅུག',
       completeVowels: 'དབྱངས་ཡིག་ཚུ་ ཆ་ཚང་རྗེས་འདེད་ འབད་ནི་ཚར་བཅུག',
       completeAnimalQuiz: 'སེམས་ཅན་གྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
       completeFruitQuiz: 'ཤིང་འབྲས་ཀྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
+      completeCountingQuiz: 'གྱངས་ཁ་ཀྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
     },
   };
 
@@ -129,9 +141,9 @@ const AchievementScreen = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
     // Fetching user achievements and combine with local achievements
     const fetchAchievements = async () => {
-      setLoading(true);
       try {
         // Guest Mode
         // Check if the user is a guest
@@ -139,42 +151,56 @@ const AchievementScreen = () => {
         setIsGuest(isGuestValue === 'true');
 
         if (isGuestValue === 'true') {
-          // Guest Mode: Use local mock data
+          // Guest Mode: Use local mock data but check which achievements are unlocked
+          const guestAchievements = await AsyncStorage.getItem(
+            'guest_achievements',
+          );
+          const unlockedAchievements = guestAchievements
+            ? JSON.parse(guestAchievements)
+            : {};
+
           const localAchievements = [
             {
               id: 1,
               name: getText('brightStar'),
               criteria: getText('completeConsonants'),
               image: achievement.achievement1,
-              is_earned: true,
+              is_earned: !!unlockedAchievements.achievement1,
             },
             {
               id: 2,
               name: getText('numberMaster'),
               criteria: getText('completeNumbers'),
               image: achievement.achievement2,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement2,
             },
             {
               id: 3,
               name: getText('vowelStar'),
               criteria: getText('completeVowels'),
               image: achievement.achievement3,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement3,
             },
             {
               id: 4,
               name: getText('animalGenius'),
               criteria: getText('completeAnimalQuiz'),
               image: achievement.achievement4,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement4,
             },
             {
               id: 5,
               name: getText('fruitGenius'),
               criteria: getText('completeFruitQuiz'),
               image: achievement.achievement5,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement5,
+            },
+            {
+              id: 6,
+              name: getText('CountingGenius'),
+              criteria: getText('completeCountingQuiz'),
+              image: achievement.achievement6,
+              is_earned: !!unlockedAchievements.achievement6,
             },
           ];
           setAchievements(localAchievements);
@@ -223,11 +249,15 @@ const AchievementScreen = () => {
   const dynamicStyles = StyleSheet.create({
     modalTitle: {
       fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
-      fontSize: getFontSize(currentLanguage === 'Dzo' ? height * 0.12 : height * 0.07),
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.12 : height * 0.07,
+      ),
       marginBottom: 10,
     },
     modalCriteria: {
-      fontSize: getFontSize(currentLanguage === 'Dzo' ? height * 0.09 : height * 0.05),
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.09 : height * 0.05,
+      ),
       fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
       marginBottom: 20,
       textAlign: 'center',

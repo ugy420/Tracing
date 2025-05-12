@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   Modal,
-  Button,
   Dimensions,
   Alert,
 } from 'react-native';
@@ -36,7 +35,7 @@ const AvatarScreen = () => {
   type LanguageType = 'Eng' | 'Dzo';
 
   // Define a type for translation keys
-  type TranslationKey = 
+  type TranslationKey =
     | 'loading'
     | 'buyButton'
     | 'equipButton'
@@ -51,7 +50,7 @@ const AvatarScreen = () => {
     | 'price';
 
   // Get language context
-  const {language} = useLanguage() as { language: LanguageType };
+  const {language} = useLanguage() as {language: LanguageType};
 
   const [avatarBorders, setAvatarBorders] = useState<AvatarBorder[]>([]);
   const [selectedBorder, setSelectedBorder] = useState<any>(null);
@@ -241,6 +240,11 @@ const AvatarScreen = () => {
         return;
       }
 
+      // Calculate new star count
+      const newStarCount = Number(guest_starCount) - selectedBorder.cost;
+      // Update AsyncStorage with new star count
+      await AsyncStorage.setItem('guest_starCount', newStarCount.toString());
+
       const updatedBorders = avatarBorders.map(border =>
         border.id === selectedBorder.id
           ? {...border, is_purchased: true}
@@ -251,6 +255,10 @@ const AvatarScreen = () => {
         'guest_avatar_borders',
         JSON.stringify(updatedBorders),
       );
+
+      // Force navigation to refresh SharedLayout
+      navigation.navigate('Guided');
+
       Alert.alert(getText('purchaseSuccess'));
       setModalVisible(false);
     } else {

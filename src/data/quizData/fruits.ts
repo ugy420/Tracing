@@ -19,19 +19,19 @@ export const fruitsQuizData: questionItem[] = [
     image: require('../../assets/quiz_images/banana.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Orange',
+    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
     options: ['ཙ', 'ཚ', 'ཛ', 'ཝ'],
     correctAnswer: 'ཚ',
     image: require('../../assets/quiz_images/orange.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Watermelon',
+    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
     options: ['ཀ', 'ཁ', 'ག', 'ང'],
     correctAnswer: 'ཁ',
     image: require('../../assets/quiz_images/melon.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ? Lemon',
+    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
     options: ['ཧ', 'ཨ', 'ག', 'ང'],
     correctAnswer: 'ཧ',
     image: require('../../assets/quiz_images/lemon.png'),

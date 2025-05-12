@@ -206,7 +206,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    // console.log('checkpoints:', newCheckpoints);
+    console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
@@ -258,19 +258,6 @@ const Tracing = () => {
 
     // Return original point if transformation is invalid
     return {x, y};
-  };
-
-  // Function to transform a point from SVG coordinates to screen coordinates
-  const svgToScreenPoint = (point: SkPoint): SkPoint => {
-    if (!point || typeof point !== 'object' || point === null) {
-      console.warn('Invalid point provided to transformPoint:', point);
-      return {x: 0, y: 0};
-    }
-
-    return {
-      x: point.x * transformObject.scaleX + transformObject.translateX,
-      y: point.y * transformObject.scaleY + transformObject.translateY,
-    };
   };
 
   const handleBack = () => {

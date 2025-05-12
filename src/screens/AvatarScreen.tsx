@@ -8,7 +8,6 @@ import {
   FlatList,
   Image,
   Modal,
-  Button,
   Dimensions,
   Alert,
 } from 'react-native';
@@ -19,6 +18,7 @@ import axiosInstance from '../Api/config/axiosInstance';
 import api from '../Api/endPoints';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
+import {useLanguage} from '../context/languageContext'; // Import language context
 
 const {width, height} = Dimensions.get('window');
 
@@ -31,6 +31,27 @@ const AvatarScreen = () => {
     is_purchased: boolean;
   }
 
+  // Define a type for available languages
+  type LanguageType = 'Eng' | 'Dzo';
+
+  // Define a type for translation keys
+  type TranslationKey =
+    | 'loading'
+    | 'buyButton'
+    | 'equipButton'
+    | 'closeButton'
+    | 'notEnoughStars'
+    | 'purchaseSuccess'
+    | 'equipSuccess'
+    | 'purchaseError'
+    | 'equipError'
+    | 'isPurchased'
+    | 'notPurchased'
+    | 'price';
+
+  // Get language context
+  const {language} = useLanguage() as {language: LanguageType};
+
   const [avatarBorders, setAvatarBorders] = useState<AvatarBorder[]>([]);
   const [selectedBorder, setSelectedBorder] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,6 +59,52 @@ const AvatarScreen = () => {
   const [currentAvatarBorder, setCurrentAvatarBorder] = useState<any>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // Text translations based on selected language
+  const translations: Record<LanguageType, Record<TranslationKey, string>> = {
+    Eng: {
+      loading: 'Loading...',
+      buyButton: 'Buy',
+      equipButton: 'Equip',
+      closeButton: 'Close',
+      notEnoughStars: 'You do not have enough stars to purchase this border.',
+      purchaseSuccess: 'Border purchased successfully!',
+      equipSuccess: 'Border equipped successfully!',
+      purchaseError:
+        'An error occurred while purchasing the border. Please try again.',
+      equipError:
+        'An error occurred while equipping the border. Please try again.',
+      isPurchased: 'This border has been purchased.',
+      notPurchased: 'This border has not been purchased.',
+      price: 'Price: ',
+    },
+    Dzo: {
+      loading: 'བསྒུག...',
+      buyButton: 'ཉོ་ནི།',
+      equipButton: 'བཙུགས་ནི།',
+      closeButton: 'ཁ་བསྡམ་ནི།',
+      notEnoughStars: 'ཁྱོད་ལུ་མཐའ་མཚམས་འདི་ ཉོ་ནི་གི་སྐར་མ་ལངམ་མེད།',
+      purchaseSuccess: 'མཐའ་མཚམས་ ཉོ་ནི་མཐར་འཁྱོལ་བྱུང་ཡི!',
+      equipSuccess: 'མཐའ་མཚམས་ བཙུགས་ནི་མཐར་འཁྱོལ་བྱུང་ཡི!',
+      purchaseError: 'མཐའ་མཚམས་ཉོ་བའི་སྐབས་ལུ་འཛོལ་བ་ཅིག་བྱུང་ཡི། ལོག་འབད་དགོ།',
+      equipError: 'མཐའ་མཚམས་བཙུགས་པའི་སྐབས་ལུ་འཛོལ་བ་ཅིག་བྱུང་ཡི། ལོག་འབད་དགོ།',
+      isPurchased: 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་ཨིན།',
+      notPurchased: 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་མེན།',
+      price: 'གོང་ཚད་ : ',
+    },
+  };
+
+  // Get text based on current language
+  const getText = (key: TranslationKey): string => {
+    return translations[language][key] || translations['Eng'][key];
+  };
+
+  // Function to get language-specific font size
+  const getFontSize = (baseSize: number): number => {
+    return language === 'Dzo'
+      ? baseSize * 1.25 // 25% larger for Dzongkha
+      : baseSize;
+  };
 
   useEffect(() => {
     const initializeScreen = async () => {
@@ -169,9 +236,14 @@ const AvatarScreen = () => {
       const guest_starCount = await AsyncStorage.getItem('guest_starCount');
       // Guest Mode: Update local data
       if (selectedBorder.cost > Number(guest_starCount)) {
-        Alert.alert('You do not have enough stars to purchase this border.');
+        Alert.alert(getText('notEnoughStars'));
         return;
       }
+
+      // Calculate new star count
+      const newStarCount = Number(guest_starCount) - selectedBorder.cost;
+      // Update AsyncStorage with new star count
+      await AsyncStorage.setItem('guest_starCount', newStarCount.toString());
 
       const updatedBorders = avatarBorders.map(border =>
         border.id === selectedBorder.id
@@ -183,7 +255,11 @@ const AvatarScreen = () => {
         'guest_avatar_borders',
         JSON.stringify(updatedBorders),
       );
-      Alert.alert('Border purchased successfully!');
+
+      // Force navigation to refresh SharedLayout
+      navigation.navigate('Guided');
+
+      Alert.alert(getText('purchaseSuccess'));
       setModalVisible(false);
     } else {
       // Online Mode: Perform backend operations
@@ -200,7 +276,7 @@ const AvatarScreen = () => {
         const userStars = userDetails.data.starCount;
 
         if (userStars < selectedBorder.cost) {
-          Alert.alert('You do not have enough stars to purchase this border.');
+          Alert.alert(getText('notEnoughStars'));
         } else {
           const updatedStars = userStars - selectedBorder.cost;
 
@@ -234,14 +310,12 @@ const AvatarScreen = () => {
           );
 
           setAvatarBorders(combinedBorders);
-          Alert.alert('Border purchased successfully!');
+          Alert.alert(getText('purchaseSuccess'));
           setModalVisible(false);
         }
       } catch (error) {
         console.error('Error purchasing border:', error);
-        Alert.alert(
-          'An error occurred while purchasing the border. Please try again.',
-        );
+        Alert.alert(getText('purchaseError'));
       }
     }
   };
@@ -254,7 +328,7 @@ const AvatarScreen = () => {
         selectedBorder.id.toString(),
       );
       setCurrentAvatarBorder(selectedBorder.id);
-      Alert.alert('Border equipped successfully!');
+      Alert.alert(getText('equipSuccess'));
       navigation.navigate('Guided');
       setModalVisible(false);
     } else {
@@ -275,16 +349,38 @@ const AvatarScreen = () => {
           selectedBorder.id.toString(),
         );
         setCurrentAvatarBorder(selectedBorder.id);
-        Alert.alert('Border equipped successfully!');
+        Alert.alert(getText('equipSuccess'));
         setModalVisible(false);
       } catch (error) {
         console.error('Error equipping border:', error);
-        Alert.alert(
-          'An error occurred while equipping the border. Please try again.',
-        );
+        Alert.alert(getText('equipError'));
       }
     }
   };
+
+  // Create dynamic styles based on language and screen dimensions
+  const dynamicStyles = StyleSheet.create({
+    modalTitle: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(language === 'Dzo' ? height * 0.12 : height * 0.07),
+      marginBottom: 10,
+    },
+    modalDescription: {
+      fontSize: getFontSize(language === 'Dzo' ? height * 0.09 : height * 0.05),
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      textAlign: 'center',
+      marginBottom: 5,
+    },
+    loadingText: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(16),
+    },
+    buttonText: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(language === 'Dzo' ? 24 : 20),
+      color: 'white',
+    },
+  });
 
   if (loading) {
     // Show loading indicator while data is being fetched
@@ -296,7 +392,7 @@ const AvatarScreen = () => {
           loop
           style={styles.loadingAnimation}
         />
-        <Text>Loading...</Text>
+        <Text style={dynamicStyles.loadingText}>{getText('loading')}</Text>
       </View>
     );
   }
@@ -338,30 +434,47 @@ const AvatarScreen = () => {
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{selectedBorder.name}</Text>
-              <Image source={selectedBorder.image} style={styles.modalImage} />
-              <Text style={styles.modalDescription}>
-                {`གོང་ཚད་ : ${selectedBorder.cost}`}
+              <Text style={dynamicStyles.modalTitle}>
+                {selectedBorder.name}
               </Text>
-              <Text style={styles.modalDescription}>
+              <Image source={selectedBorder.image} style={styles.modalImage} />
+              <Text style={dynamicStyles.modalDescription}>
+                {language === 'Dzo'
+                  ? `${getText('price')}${selectedBorder.cost}`
+                  : `Price: ${selectedBorder.cost}`}
+              </Text>
+              <Text style={dynamicStyles.modalDescription}>
                 {selectedBorder.is_purchased
-                  ? 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་ཨིན།'
-                  : 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་མེན།'}
+                  ? getText('isPurchased')
+                  : getText('notPurchased')}
               </Text>
               <View style={styles.modalButtons}>
                 {!selectedBorder.is_purchased && (
-                  <Button title="Buy" onPress={handleBuyBorder} />
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={handleBuyBorder}>
+                    <Text style={dynamicStyles.buttonText}>
+                      {getText('buyButton')}
+                    </Text>
+                  </TouchableOpacity>
                 )}
                 {selectedBorder.is_purchased &&
                   selectedBorder.id !== currentAvatarBorder && (
-                    <Button title="Equip" onPress={handleEquipBorder} />
+                    <TouchableOpacity
+                      style={[styles.actionButton, styles.equipButton]}
+                      onPress={handleEquipBorder}>
+                      <Text style={dynamicStyles.buttonText}>
+                        {getText('equipButton')}
+                      </Text>
+                    </TouchableOpacity>
                   )}
-                <View style={styles.closebtn}>
-                  <Button
-                    title="Close"
-                    onPress={() => setModalVisible(false)}
-                  />
-                </View>
+                <TouchableOpacity
+                  style={[styles.actionButton, styles.closeButton]}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={dynamicStyles.buttonText}>
+                    {getText('closeButton')}
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -408,7 +521,7 @@ const styles = StyleSheet.create({
   },
   avatarWindowImage: {
     position: 'absolute',
-    width: '110 %',
+    width: '110%',
     height: '150%',
     resizeMode: 'stretch',
   },
@@ -463,30 +576,32 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
   },
-  modalTitle: {
-    fontFamily: 'joyig',
-    fontSize: height * 0.12,
-  },
   modalImage: {
     width: 70,
     height: 70,
     resizeMode: 'contain',
-    marginBottom: 2,
-  },
-  modalDescription: {
-    fontSize: height * 0.09,
-    fontFamily: 'joyig',
-    textAlign: 'center',
+    marginBottom: 10,
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    width: '30%',
-    padding: 10,
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 15,
   },
-  closebtn: {
-    borderRadius: '10%',
-    backgroundColor: 'red',
+  actionButton: {
+    backgroundColor: '#4682B4',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  equipButton: {
+    backgroundColor: '#28A745',
+  },
+  closeButton: {
+    backgroundColor: '#DC3545',
   },
   equippedBorder: {
     borderColor: 'green',

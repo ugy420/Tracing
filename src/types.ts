@@ -11,7 +11,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   FeedbackSection: undefined;
   SettingScreen: undefined;
-  QuizScreen: {category: 'animals' | 'fruits' | 'body' | 'counting'};
+  QuizScreen: {category: string};
   GuestLogin: undefined;
-  QuizHomeScreen: {quizCategory: string};
+  QuizHomeScreen: {quizCategory: string; fromCompletionScreen: boolean};
 };

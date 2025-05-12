@@ -34,7 +34,10 @@ type QuizItem = {
 const QuizHomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizHomeScreen'>>();
-  const {quizCategory} = route.params || {quizCategory: 'all'};
+  const {quizCategory, fromCompletionScreen} = route.params || {
+    quizCategory: 'all',
+    fromCompletionScreen: false,
+  };
 
   const [dimensions] = useState({
     window: Dimensions.get('window'),
@@ -97,6 +100,9 @@ const QuizHomeScreen = () => {
       ? allCategories
       : allCategories.filter(item => item.relatedTo.includes(quizCategory));
 
+  console.log('Received quizCategory:', quizCategory);
+  console.log('Filtered Categories:', categories);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar translucent backgroundColor="transparent" />
@@ -108,7 +114,16 @@ const QuizHomeScreen = () => {
           <View style={styles.container}>
             <View style={styles.headerContainer}>
               <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                // onPress={() => navigation.goBack()}
+                onPress={() => {
+                  if (fromCompletionScreen) {
+                    navigation.navigate('GuidedCategory', {
+                      category: quizCategory,
+                    }); // Navigate to GuidedCategoryScreen
+                  } else {
+                    navigation.goBack(); // Default behavior
+                  }
+                }}
                 style={styles.headerButton}>
                 <Image
                   source={require('../assets/icons/back_color.png')}
@@ -140,6 +155,7 @@ const QuizHomeScreen = () => {
                   onPress={() =>
                     navigation.navigate(item.screen as any, {
                       category: item.category,
+                      relatedTo: quizCategory,
                     })
                   }>
                   <View style={styles.cardContent}>

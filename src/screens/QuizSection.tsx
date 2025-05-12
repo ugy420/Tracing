@@ -22,7 +22,6 @@ import {animalsQuizData} from '../data/quizData/animals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
-import {bodyQuizData} from '../data/quizData/body';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -37,20 +36,28 @@ const QuizScreen: React.FC = () => {
   const [previouslyCompleted, setPreviouslyCompleted] =
     useState<boolean>(false);
   const [showCelebration, setShowCelebration] = useState<boolean>(false);
-  const [starsAwarded, setStarsAwarded] = useState<boolean>(false);
+  const [, setStarsAwarded] = useState<boolean>(false);
 
   const [screenDimensions] = useState<{
     width: number;
     height: number;
   }>(Dimensions.get('window'));
 
+  const QUIZ_ACHIEVEMENTS: Record<string, string> = {
+    animals: 'achievement4',
+    fruits: 'achievement5',
+    counting: 'achievement6',
+    // Add more categories and their corresponding achievements as needed
+  };
+
+  const relatedTo =
+    category === 'animals' || category === 'fruits' ? 'alphabets' : 'numbers';
+
   const quizQuestions =
     category === 'animals'
       ? animalsQuizData
       : category === 'fruits'
       ? fruitsQuizData
-      : category === 'body'
-      ? bodyQuizData
       : category === 'counting'
       ? countingQuizData
       : [];
@@ -107,9 +114,51 @@ const QuizScreen: React.FC = () => {
       if (!previouslyCompleted) {
         await awardStarsForFirstCompletion();
         setStarsAwarded(true);
+
+        // Unlock the corresponding achievement
+        const achievementId = QUIZ_ACHIEVEMENTS[category];
+        if (achievementId) {
+          await unlockAchievement(achievementId);
+        }
       }
     } catch (error) {
       console.error('Error saving quiz completion:', error);
+    }
+  };
+
+  const unlockAchievement = async (achievementId: string) => {
+    try {
+      const isGuest = await AsyncStorage.getItem('is_guest');
+      const achievementsKey =
+        isGuest === 'true' ? 'guest_achievements' : 'achievements';
+
+      // Get current achievements
+      const currentAchievements = await AsyncStorage.getItem(achievementsKey);
+      const achievements = currentAchievements
+        ? JSON.parse(currentAchievements)
+        : {};
+
+      // Check if achievement is already unlocked
+      if (!achievements[achievementId]) {
+        // Unlock the achievement
+        achievements[achievementId] = true;
+        await AsyncStorage.setItem(
+          achievementsKey,
+          JSON.stringify(achievements),
+        );
+
+        // Show achievement unlocked message
+        Alert.alert('Congratulations!', `You've unlocked a new achievement!`, [
+          {text: 'OK'},
+        ]);
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error unlocking achievement:', error);
+      return false;
     }
   };
 
@@ -263,11 +312,6 @@ const QuizScreen: React.FC = () => {
         //     </View>
         //   )}
 
-        //   <Text style={styles.completionText}>Quiz Completed!</Text>
-        //   <Text style={styles.scoreText}>
-        //     Your Score: {score} / {quizQuestions.length}
-        //   </Text>
-
         //   <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
 
         //   {previouslyCompleted && (
@@ -301,9 +345,19 @@ const QuizScreen: React.FC = () => {
             <Animated.View
               style={[styles.completionContainer, {opacity: fadeAnim}]}>
               <Text style={styles.completionText}>Quiz Completed!</Text>
-              <Text style={styles.scoreText}>
-                Your Score: {score} / {quizQuestions.length}
-              </Text>
+
+              {/* Show achievement unlocked message if this is first completion */}
+              {!previouslyCompleted && QUIZ_ACHIEVEMENTS[category] && (
+                <View style={styles.achievementContainer}>
+                  <Image
+                    source={require('../assets/icons/star.png')} // Add your achievement icon
+                    style={styles.achievementImage}
+                  />
+                  <Text style={styles.achievementText}>
+                    New Achievement Unlocked!
+                  </Text>
+                </View>
+              )}
 
               {/* Show star award message if this is first completion */}
               {!previouslyCompleted && (
@@ -322,16 +376,14 @@ const QuizScreen: React.FC = () => {
                   onPress={resetQuiz}>
                   <Text style={styles.resetButtonText}>Play Again</Text>
                 </TouchableOpacity>
+
                 <TouchableOpacity
                   style={styles.nextButton}
                   onPress={() => {
-                    // If first completion, we need to refresh the star count in SharedLayout
-                    if (!previouslyCompleted && starsAwarded) {
-                      // Navigate back to refresh the header with updated star count
-                      navigation.navigate('QuizHomeScreen');
-                    } else {
-                      navigation.navigate('QuizHomeScreen');
-                    }
+                    navigation.navigate('QuizHomeScreen', {
+                      quizCategory: relatedTo,
+                      fromCompletionScreen: true,
+                    });
                   }}>
                   <Text style={styles.nextButtonText}>Next</Text>
                 </TouchableOpacity>
@@ -758,6 +810,29 @@ const styles = StyleSheet.create({
   celebrationAnimation: {
     width: 300,
     height: 300,
+  },
+  achievementContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(76, 175, 80, 0.2)', // Green background
+    borderRadius: 20,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+  },
+  achievementImage: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
+  achievementText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: {width: 0.5, height: 0.5},
+    textShadowRadius: 1,
   },
 });
 

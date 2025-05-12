@@ -13,7 +13,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import NetInfo from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import {useMusic} from '../components/MusicContext';
 import {useLanguage} from '../context/languageContext';
 
@@ -68,7 +68,7 @@ const HomeScreen = () => {
   };
 
   // Handle language toggle switch
-  const handleLanguageToggle = (value) => {
+  const handleLanguageToggle = (value: any) => {
     setLanguage(value ? 'Dzo' : 'Eng');
   };
 

@@ -35,7 +35,7 @@ interface MusicProviderProps {
 
 export const MusicProvider: React.FC<MusicProviderProps> = ({
   children,
-  backgroundTrack = 'dummy_music', // Default track name
+  backgroundTrack = 'background_music', // Default track name
 }) => {
   const [backgroundMusic, setBackgroundMusic] = useState<Sound | null>(null);
   const [volume, setVolume] = useState<number>(0.7);

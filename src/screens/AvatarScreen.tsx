@@ -36,7 +36,7 @@ const AvatarScreen = () => {
   type LanguageType = 'Eng' | 'Dzo';
 
   // Define a type for translation keys
-  type TranslationKey = 
+  type TranslationKey =
     | 'loading'
     | 'buyButton'
     | 'equipButton'
@@ -51,7 +51,7 @@ const AvatarScreen = () => {
     | 'price';
 
   // Get language context
-  const {language} = useLanguage() as { language: LanguageType };
+  const {language} = useLanguage() as {language: LanguageType};
 
   const [avatarBorders, setAvatarBorders] = useState<AvatarBorder[]>([]);
   const [selectedBorder, setSelectedBorder] = useState<any>(null);
@@ -354,11 +354,13 @@ const AvatarScreen = () => {
   const dynamicStyles = StyleSheet.create({
     modalTitle: {
       fontFamily: language === 'Dzo' ? 'joyig' : undefined,
-      fontSize: getFontSize(language === 'Dzo' ? height * 0.12 : height * 0.07),
-      marginBottom: 10,
+      fontSize: getFontSize(language === 'Dzo' ? height * 0.08 : height * 0.05),
+      marginBottom: 5,
+      marginTop: 5,
+      textAlign: 'center',
     },
     modalDescription: {
-      fontSize: getFontSize(language === 'Dzo' ? height * 0.09 : height * 0.05),
+      fontSize: getFontSize(language === 'Dzo' ? height * 0.06 : height * 0.04),
       fontFamily: language === 'Dzo' ? 'joyig' : undefined,
       textAlign: 'center',
       marginBottom: 5,
@@ -369,8 +371,17 @@ const AvatarScreen = () => {
     },
     buttonText: {
       fontFamily: language === 'Dzo' ? 'joyig' : undefined,
-      fontSize: getFontSize(language === 'Dzo' ? 24 : 20),
+      fontSize: getFontSize(language === 'Dzo' ? 22 : 16),
       color: 'white',
+    },
+    modalContent: {
+      width: language === 'Dzo' ? '70%' : '60%',
+      backgroundColor: 'white',
+      borderRadius: 10,
+      paddingVertical: language === 'Dzo' ? 15 : 12,
+      paddingHorizontal: language === 'Dzo' ? 10 : 15,
+      alignItems: 'center',
+      position: 'relative',
     },
   });
 
@@ -425,7 +436,14 @@ const AvatarScreen = () => {
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}>
           <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
+            <View style={dynamicStyles.modalContent}>
+              {/* Close button (X) at top right */}
+              <TouchableOpacity
+                style={styles.closeIcon}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.closeIconText}>✕</Text>
+              </TouchableOpacity>
+
               <Text style={dynamicStyles.modalTitle}>
                 {selectedBorder.name}
               </Text>
@@ -460,13 +478,6 @@ const AvatarScreen = () => {
                       </Text>
                     </TouchableOpacity>
                   )}
-                <TouchableOpacity
-                  style={[styles.actionButton, styles.closeButton]}
-                  onPress={() => setModalVisible(false)}>
-                  <Text style={dynamicStyles.buttonText}>
-                    {getText('closeButton')}
-                  </Text>
-                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -487,7 +498,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: height * 0.15,
+    paddingTop: height * 0.18,
   },
   header: {
     flexDirection: 'row',
@@ -561,39 +572,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
   modalImage: {
-    width: 70,
-    height: 70,
+    width: 50,
+    height: 50,
     resizeMode: 'contain',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   modalButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'center',
     width: '100%',
-    marginTop: 15,
+    marginTop: 10,
+    marginBottom: 5,
   },
   actionButton: {
     backgroundColor: '#4682B4',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
     borderRadius: 5,
     marginHorizontal: 5,
-    minWidth: 80,
+    minWidth: 70,
     alignItems: 'center',
   },
   equipButton: {
     backgroundColor: '#28A745',
-  },
-  closeButton: {
-    backgroundColor: '#DC3545',
   },
   equippedBorder: {
     borderColor: 'green',
@@ -607,6 +609,21 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 200,
     height: 200,
+  },
+  closeIcon: {
+    position: 'absolute',
+    top: 5,
+    right: 10,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  closeIconText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#555',
   },
 });
 

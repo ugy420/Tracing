@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 20,
     position: 'absolute',
     top: 0,
   },
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   },
   headerTextDzo: {
     fontFamily: 'joyig',
-    fontSize: 40,
+    fontSize: 56,
     color: 'rgb(255, 255, 255)',
     // Shadow
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   },
   modeDzoText: {
     fontFamily: 'joyig',
-    fontSize: 40,
+    fontSize: 52,
     color: 'rgb(200, 213, 236)',
   },
   textBg: {
@@ -229,6 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    paddingTop: 15,
   },
   languageLabel: {
     fontSize: 16,

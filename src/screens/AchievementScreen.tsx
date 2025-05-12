@@ -28,7 +28,7 @@ const {width, height} = Dimensions.get('window');
 type LanguageType = 'Eng' | 'Dzo';
 
 // Define translation key type
-type TranslationKey = 
+type TranslationKey =
   | 'loading'
   | 'closeButton'
   | 'achievementTitle'
@@ -58,17 +58,23 @@ type TranslationsType = {
 
 const AchievementScreen = () => {
   const [achievements, setAchievements] = useState<
-    {id: number; is_earned: boolean; name?: string; criteria?: string; image?: any}[]
+    {
+      id: number;
+      is_earned: boolean;
+      name?: string;
+      criteria?: string;
+      image?: any;
+    }[]
   >([]);
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  
+
   // Get language context
   const {language} = useLanguage();
-  
+
   // Ensure language is typed correctly
   const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
 
@@ -223,11 +229,15 @@ const AchievementScreen = () => {
   const dynamicStyles = StyleSheet.create({
     modalTitle: {
       fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
-      fontSize: getFontSize(currentLanguage === 'Dzo' ? height * 0.12 : height * 0.07),
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.12 : height * 0.06,
+      ),
       marginBottom: 10,
     },
     modalCriteria: {
-      fontSize: getFontSize(currentLanguage === 'Dzo' ? height * 0.09 : height * 0.05),
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.09 : height * 0.05,
+      ),
       fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
       marginBottom: 20,
       textAlign: 'center',
@@ -236,11 +246,6 @@ const AchievementScreen = () => {
     loadingText: {
       fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
       fontSize: getFontSize(16),
-    },
-    buttonText: {
-      fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
-      fontSize: getFontSize(currentLanguage === 'Dzo' ? 24 : 20),
-      color: 'white',
     },
   });
 
@@ -318,19 +323,17 @@ const AchievementScreen = () => {
             onRequestClose={() => setModalVisible(false)}>
             <View style={styles.modalContainer}>
               <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={styles.closeIconButton}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeIcon}>×</Text>
+                </TouchableOpacity>
                 <Text style={dynamicStyles.modalTitle}>
                   {selectedAchievement.name}
                 </Text>
                 <Text style={dynamicStyles.modalCriteria}>
                   {selectedAchievement.criteria}
                 </Text>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setModalVisible(false)}>
-                  <Text style={dynamicStyles.buttonText}>
-                    {getText('closeButton')}
-                  </Text>
-                </TouchableOpacity>
               </View>
             </View>
           </Modal>
@@ -351,7 +354,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingTop: height * 0.15, // Added padding to move content lower
+    paddingTop: height * 0.18, // Added padding to move content lower
   },
   container: {
     flex: 1,
@@ -428,14 +431,22 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
+    position: 'relative',
   },
-  closeButton: {
-    backgroundColor: '#DC3545',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    minWidth: 80,
+  closeIconButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1,
+  },
+  closeIcon: {
+    fontSize: 30,
+    color: '#DC3545',
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,

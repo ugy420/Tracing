@@ -22,6 +22,7 @@ import {cardNumberData} from '../components/numberCardData';
 import {useMusic} from '../components/MusicContext';
 import LottieView from 'lottie-react-native';
 import {useLanguage} from '../context/languageContext'; // Import language context
+import {cardVowelData} from '../components/vowelCardData';
 
 const {width, height} = Dimensions.get('window');
 
@@ -40,7 +41,7 @@ const GuidedCategory = () => {
   const {category} = route.params; // Get the category parameter
   const {isMuted, toggleMute} = useMusic();
   const [loading, setLoading] = useState(false);
-  
+
   // Get language context
   const {language} = useLanguage();
 
@@ -64,7 +65,9 @@ const GuidedCategory = () => {
 
   // Get text based on current language
   const getText = (key: TranslationKey): string => {
-    return translations[language as LanguageKey][key] || translations['Eng'][key];
+    return (
+      translations[language as LanguageKey][key] || translations['Eng'][key]
+    );
   };
 
   // Function to get language-specific font size
@@ -79,6 +82,8 @@ const GuidedCategory = () => {
       ? cardAlphabetData
       : category === 'numbers'
       ? cardNumberData
+      : category === 'vowels'
+      ? cardVowelData
       : [];
 
   if (loading) {
@@ -90,10 +95,14 @@ const GuidedCategory = () => {
           loop
           style={styles.loadingAnimation}
         />
-        <Text style={[styles.loadingText, {
-          fontFamily: language === 'Dzo' ? 'joyig' : undefined,
-          fontSize: getFontSize(18),
-        }]}>
+        <Text
+          style={[
+            styles.loadingText,
+            {
+              fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+              fontSize: getFontSize(18),
+            },
+          ]}>
           {getText('loading')}
         </Text>
       </View>
@@ -165,7 +174,11 @@ const GuidedCategory = () => {
                 onPress={() => {
                   setLoading(true);
                   setTimeout(() => {
-                    navigation.navigate(item.screen, {id: item.id, category});
+                    navigation.navigate(item.screen, {
+                      id: item.id,
+                      category,
+                      fromQuiz: false,
+                    });
                     setLoading(false);
                   }, 500);
                 }}>

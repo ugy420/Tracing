@@ -38,6 +38,8 @@ import LottieView from 'lottie-react-native';
 import Sound from 'react-native-sound';
 import {alphabetSound} from '../assets/sound/alphabet';
 import {numberSound} from '../assets/sound/numbers';
+import vowelCheckPoints from '../data/checkPoints/vowelCheckPoints';
+import {yangTracing} from '../data/tracingData/yang';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
@@ -80,11 +82,19 @@ const Tracing = () => {
       ? alphabetCheckPoints
       : category === 'numbers'
       ? numberCheckPoints
+      : category === 'vowels'
+      ? vowelCheckPoints
       : {};
   }, [category]);
 
   const dataSource =
-    category === 'alphabets' ? dzongkhaLetters : numbersTracing;
+    category === 'alphabets'
+      ? dzongkhaLetters
+      : category === 'numbers'
+      ? numbersTracing
+      : category === 'vowels'
+      ? yangTracing // Replace with the correct data source for vowels if different
+      : [];
   const selectedItem = dataSource.find(item => item.id === id);
 
   // const letter = dzongkhaLetters.find(letter => letter.id === id);
@@ -209,7 +219,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    // console.log('checkpoints:', newCheckpoints);
+    console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 

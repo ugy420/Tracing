@@ -602,7 +602,7 @@ const QuizScreen: React.FC = () => {
           {/* Progress indicator */}
           <View style={styles.progressContainer}>
             <Text style={styles.progressText}>
-              Q {currentQuestionIndex + 1}/{quizQuestions.length}
+              Question {currentQuestionIndex + 1}/{quizQuestions.length}
             </Text>
             <View style={styles.progressBar}>
               <View

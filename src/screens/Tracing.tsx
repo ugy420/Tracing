@@ -45,7 +45,11 @@ type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
 const Tracing = () => {
   const route = useRoute<TracingScreenRouteProp>();
-  const {id, category, fromQuiz} = route.params || {fromQuiz: false};
+  const {id, category, fromQuiz, isLastQuestion, questionsCount} =
+    route.params || {
+      fromQuiz: false,
+      isLastQuestion: false,
+    };
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [currentPart, setCurrentPart] = useState(0);
   const drawPath = useSharedValue<SkPath>(Skia.Path.Make());
@@ -219,7 +223,7 @@ const Tracing = () => {
 
   useEffect(() => {
     const newCheckpoints = generateCheckpoints(svgGuides[currentPart]);
-    console.log('checkpoints:', newCheckpoints);
+    // console.log('checkpoints:', newCheckpoints);
 
     const currentOrder = checkPointOrder[Number(id)]?.[currentPart] || [];
 
@@ -250,7 +254,7 @@ const Tracing = () => {
       // After 2 seconds, proceed to completion
       setTimeout(() => {
         setAnimationPhase('complete');
-        if (fromQuiz) {
+        if (fromQuiz && !isLastQuestion) {
           navigation.goBack();
         } else {
           navigation.navigate('CompletionScreen', {category});
@@ -603,15 +607,17 @@ const Tracing = () => {
         />
       )}
 
-      <View style={styles.controls}>
-        <TouchableOpacity style={styles.button} onPress={handleBack}>
-          <ImageBackground
-            source={require('../assets/icons/back.png')}
-            style={styles.buttonIcon}
-          />
-          <Text style={styles.buttonText}>Back</Text>
-        </TouchableOpacity>
-      </View>
+      {!fromQuiz && (
+        <View style={styles.controls}>
+          <TouchableOpacity style={styles.button} onPress={handleBack}>
+            <ImageBackground
+              source={require('../assets/icons/back.png')}
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.buttonText}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </ImageBackground>
   );
 };

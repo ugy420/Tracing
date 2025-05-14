@@ -24,7 +24,7 @@ const CompletionScreen = () => {
   // Bilingual congratulatory text
   const congratulatoryText = {
     Eng: 'Congratulations!',
-    Dzo: 'བཀྲ་ཤིས་བདེ་ལེགས།'
+    Dzo: 'བཀྲ་ཤིས་བདེ་ལེགས།',
   };
 
   return (
@@ -52,13 +52,14 @@ const CompletionScreen = () => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text 
+          <Text
             style={[
-              styles.text, 
-              language === 'Eng' ? styles.textEnglish : styles.textDzongkha
-            ]}
-          >
-            {language === 'Eng' ? congratulatoryText.Eng : congratulatoryText.Dzo}
+              styles.text,
+              language === 'Eng' ? styles.textEnglish : styles.textDzongkha,
+            ]}>
+            {language === 'Eng'
+              ? congratulatoryText.Eng
+              : congratulatoryText.Dzo}
           </Text>
         </View>
 

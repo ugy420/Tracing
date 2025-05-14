@@ -10,7 +10,6 @@ import {
   Image,
   Alert,
   ScrollView,
-  Switch,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
@@ -43,7 +42,6 @@ type TranslationsType = {
 };
 const SettingsScreen = () => {
   const [dimensions, setDimensions] = useState(Dimensions.get('window'));
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isGuest, setIsGuest] = useState(false);
@@ -76,15 +74,14 @@ const SettingsScreen = () => {
   }, [navigation]);
 
   // Get language context
-    const {language} = useLanguage();
-    
-    // Ensure language is typed correctly
-    const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
+  const {language} = useLanguage();
+
+  // Ensure language is typed correctly
+  const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
   // Text translations based on selected language
   const translations = {
     Eng: {
       title: 'App Settings',
-      notifications: 'Enable Notifications',
       soundVolume: 'Sound Volume',
       musicVolume: 'Background Music Volume',
       saveSettings: 'SAVE SETTINGS',
@@ -94,7 +91,6 @@ const SettingsScreen = () => {
     },
     Dzo: {
       title: 'གཞི་བཙུགས་བཟོ་བཀོད།',
-      notifications: 'བརྡ་བཀོད་ལྷུ་སྒྲིག',
       soundVolume: 'སྒྲ་གདངས་ཚད་གཞི།',
       musicVolume: 'རྒྱབ་ལྗོངས་རོལ་དབྱངས་ཚད་གཞི།',
       saveSettings: 'གཞི་བཙུགས་ཉར་བཞག',
@@ -106,9 +102,11 @@ const SettingsScreen = () => {
 
   // Get text based on current language
   const getText = (key: TranslationKey): string => {
-    return translations[currentLanguage][key] || translations['Eng'][key];
+    return (
+      (translations[currentLanguage] as TranslationsForLanguage)[key] ||
+      translations['Eng'][key]
+    );
   };
-
 
   // Responsive values based on screen dimensions
   const isSmallScreen = dimensions.height < 400;
@@ -137,7 +135,6 @@ const SettingsScreen = () => {
 
   const handleSaveSettings = () => {
     console.log('Settings saved:', {
-      notificationsEnabled,
       soundVolume,
       musicVolume: volume,
     });
@@ -192,27 +189,6 @@ const SettingsScreen = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.centerContainer}>
             <View style={styles.formContainer}>
-              {/* Notification Settings */}
-              <View style={styles.settingItem}>
-                <View style={styles.switchContainer}>
-                  <View style={styles.iconLabelContainer}>
-                    <Image
-                      source={require('../assets/icons/notification.png')}
-                      style={styles.settingIcon}
-                    />
-                    <Text style={styles.settingLabel}>
-                      {getText('notifications')}
-                    </Text>
-                  </View>
-                  <Switch
-                    value={notificationsEnabled}
-                    onValueChange={setNotificationsEnabled}
-                    trackColor={{false: '#767577', true: '#AA75CB'}}
-                    thumbColor={notificationsEnabled ? '#f4f3f4' : '#f4f3f4'}
-                  />
-                </View>
-              </View>
-
               {/* Sound Volume */}
               <View style={styles.settingItem}>
                 <View style={styles.iconLabelContainer}>

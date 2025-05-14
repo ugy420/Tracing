@@ -8,12 +8,6 @@ type questionItem = {
 export const animalsQuizData: questionItem[] = [
   {
     question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
-    options: ['ཀ', 'ཁ', 'ག', 'ང'],
-    correctAnswer: 'ཀ',
-    image: require('../../assets/quiz_images/deer.png'),
-  },
-  {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
     options: ['པ', 'ཕ', 'བ', 'མ'],
     correctAnswer: 'ཕ',
     image: require('../../assets/quiz_images/pig.png'),
@@ -36,4 +30,10 @@ export const animalsQuizData: questionItem[] = [
     correctAnswer: 'ག',
     image: require('../../assets/quiz_images/elephant.png'),
   },
+  // {
+  //   question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+  //   options: ['ཀ', 'ཁ', 'ག', 'ང'],
+  //   correctAnswer: 'ཀ',
+  //   image: require('../../assets/quiz_images/deer.png'),
+  // },
 ];

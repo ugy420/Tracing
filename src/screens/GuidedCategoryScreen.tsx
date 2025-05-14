@@ -178,6 +178,7 @@ const GuidedCategory = () => {
                       id: item.id,
                       category,
                       fromQuiz: false,
+                      isLastQuestion: false, // Add the missing property
                     });
                     setLoading(false);
                   }, 500);
@@ -196,13 +197,20 @@ const GuidedCategory = () => {
             decelerationRate="fast"
           />
 
-          <TouchableOpacity
-            style={styles.quizButton}
-            onPress={() =>
-              navigation.navigate('QuizHomeScreen', {quizCategory: category})
-            }>
-            <Text style={dynamicStyles.quizButtonText}>{getText('quiz')}</Text>
-          </TouchableOpacity>
+          {category !== 'vowels' && (
+            <TouchableOpacity
+              style={styles.quizButton}
+              onPress={() =>
+                navigation.navigate('QuizHomeScreen', {
+                  quizCategory: category,
+                  fromCompletionScreen: false,
+                })
+              }>
+              <Text style={dynamicStyles.quizButtonText}>
+                {getText('quiz')}
+              </Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
     </ImageBackground>

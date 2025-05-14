@@ -225,94 +225,174 @@ const QuizScreen: React.FC = () => {
   };
 
   const alphabetMapping: Record<string, number> = {
-    ཀ: 2,
+    ཀ: 1,
     ཕ: 14,
     ད: 11,
     བ: 15,
     ག: 3,
     ཨ: 30,
     ང: 4,
-    ཚ: 8,
+    ཚ: 18,
     ཁ: 2,
     ཧ: 29,
   };
 
+  // const handleAnswerPress = (selectedAnswer: string): void => {
+  //   const currentQuestion = quizQuestions[currentQuestionIndex];
+  //   const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
+  //   console.log('IsLastQuestion: ', isLastQuestion);
+
+  //   if (selectedAnswer === currentQuestion.correctAnswer) {
+  //     // Correct answer
+  //     playCorrectSound();
+
+  //     // Increase score
+  //     setScore(score + 1);
+
+  //     // Move to next question or complete quiz
+  //     if (currentQuestionIndex < quizQuestions.length) {
+  //       console.log('CurrentQuestionIndex: ', currentQuestionIndex);
+  //       // For counting quiz, navigate to tracing screen for the correct answer
+  //       if (category === 'counting') {
+  //         setWaitingForTracing(true);
+  //         setReturningFromTracing(true);
+  //         const current_id = Number(currentQuestion.correctAnswer);
+  //         const next_id = (current_id + 1).toString();
+  //         // Use the correct answer as the ID
+
+  //         console.log('Category:', category);
+  //         navigation.navigate('Tracing', {
+  //           id: next_id, // Use the correct answer as the ID
+  //           category: 'numbers',
+  //           fromQuiz: true,
+  //           isLastQuestion: isLastQuestion,
+  //         });
+  //         return;
+  //       } else if (category === 'animals' || category === 'fruits') {
+  //         setWaitingForTracing(true);
+  //         setReturningFromTracing(true);
+
+  //         const current_id =
+  //           alphabetMapping[currentQuestion.correctAnswer].toString();
+  //         if (!current_id) {
+  //           console.error(
+  //             `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+  //           );
+  //           Alert.alert(
+  //             'Error',
+  //             `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
+  //           );
+  //           return;
+  //         }
+  //         navigation.navigate('Tracing', {
+  //           id: current_id, // Use the correct numeric id
+  //           category: 'alphabets',
+  //           fromQuiz: true,
+  //           isLastQuestion: isLastQuestion,
+  //         });
+  //       } else {
+  //         // Reset animations and move to next question for other categories
+  //         fadeAnim.setValue(0);
+  //         bounceAnim.setValue(0);
+  //         setCurrentQuestionIndex(currentQuestionIndex + 1);
+  //       }
+  //     } else {
+  //       // Calculate stars based on score
+  //       const stars = calculateStars(score + 1, quizQuestions.length);
+  //       setEarnedStars(stars);
+
+  //       // Save progress if not previously completed or if new score is better
+  //       if (!previouslyCompleted || stars > earnedStars) {
+  //         saveQuizCompletion(stars);
+  //       }
+
+  //       // Show celebration animation
+  //       fadeAnim.setValue(0);
+  //       setQuizCompleted(true);
+  //       setShowCelebration(true);
+  //     }
+  //   } else {
+  //     // Wrong answer
+  //     playWrongSound();
+  //     Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
+  //       {text: 'OK'},
+  //     ]);
+  //   }
+  // };
+
   const handleAnswerPress = (selectedAnswer: string): void => {
     const currentQuestion = quizQuestions[currentQuestionIndex];
+    const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
 
     if (selectedAnswer === currentQuestion.correctAnswer) {
-      // Correct answer
       playCorrectSound();
-
-      // Increase score
       setScore(score + 1);
 
-      // Move to next question or complete quiz
-      if (currentQuestionIndex < quizQuestions.length - 1) {
-        // For counting quiz, navigate to tracing screen for the correct answer
+      // For tracing categories (counting/animals/fruits)
+      if (
+        category === 'counting' ||
+        category === 'animals' ||
+        category === 'fruits'
+      ) {
+        setWaitingForTracing(true);
+        setReturningFromTracing(true);
+
+        let tracingId: string;
+        let tracingCategory: string;
+
         if (category === 'counting') {
-          setWaitingForTracing(true);
-          setReturningFromTracing(true);
           const current_id = Number(currentQuestion.correctAnswer);
-          const next_id = (current_id + 1).toString();
-          // Use the correct answer as the ID
-
-          console.log('Category:', category);
-          navigation.navigate('Tracing', {
-            id: next_id, // Use the correct answer as the ID
-            category: 'numbers',
-            fromQuiz: true,
-          });
-          return;
-        } else if (category === 'animals' || category === 'fruits') {
-          setWaitingForTracing(true);
-          setReturningFromTracing(true);
-
-          const current_id =
-            alphabetMapping[currentQuestion.correctAnswer].toString();
-          if (!current_id) {
-            console.error(
-              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-            );
-            Alert.alert(
-              'Error',
-              `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-            );
+          tracingId = (current_id + 1).toString();
+          tracingCategory = 'numbers';
+        } else {
+          // Animals/fruits
+          tracingId =
+            alphabetMapping[currentQuestion.correctAnswer]?.toString();
+          if (!tracingId) {
+            console.error(`No mapping for ${currentQuestion.correctAnswer}`);
+            Alert.alert('Error', 'Could not find tracing item');
             return;
           }
-          navigation.navigate('Tracing', {
-            id: current_id, // Use the correct numeric id
-            category: 'alphabets',
-            fromQuiz: true,
-          });
-        } else {
-          // Reset animations and move to next question for other categories
-          fadeAnim.setValue(0);
-          bounceAnim.setValue(0);
-          setCurrentQuestionIndex(currentQuestionIndex + 1);
+          tracingCategory = 'alphabets';
         }
+
+        navigation.navigate('Tracing', {
+          id: tracingId,
+          category: tracingCategory,
+          fromQuiz: true,
+          isLastQuestion,
+        });
+        return;
+      }
+
+      // For non-tracing categories OR if it's the last question
+      if (isLastQuestion) {
+        completeQuiz();
       } else {
-        // Calculate stars based on score
-        const stars = calculateStars(score + 1, quizQuestions.length);
-        setEarnedStars(stars);
-
-        // Save progress if not previously completed or if new score is better
-        if (!previouslyCompleted || stars > earnedStars) {
-          saveQuizCompletion(stars);
-        }
-
-        // Show celebration animation
         fadeAnim.setValue(0);
-        setQuizCompleted(true);
-        setShowCelebration(true);
+        bounceAnim.setValue(0);
+        setCurrentQuestionIndex(currentQuestionIndex + 1);
       }
     } else {
-      // Wrong answer
       playWrongSound();
       Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
         {text: 'OK'},
       ]);
     }
+  };
+
+  // Add this helper function
+  const completeQuiz = () => {
+    const stars = calculateStars(score + 1, quizQuestions.length);
+    setEarnedStars(stars);
+
+    if (!previouslyCompleted || stars > earnedStars) {
+      saveQuizCompletion(stars);
+    }
+
+    fadeAnim.setValue(0);
+    setQuizCompleted(true);
+    setShowCelebration(true);
   };
 
   const playCorrectSound = (): void => {

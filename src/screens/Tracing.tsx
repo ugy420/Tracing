@@ -40,6 +40,7 @@ import {alphabetSound} from '../assets/sound/alphabet';
 import {numberSound} from '../assets/sound/numbers';
 import vowelCheckPoints from '../data/checkPoints/vowelCheckPoints';
 import {yangTracing} from '../data/tracingData/yang';
+import {useLanguage} from '../context/languageContext';
 
 type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
@@ -80,6 +81,21 @@ const Tracing = () => {
     translateX: 0,
     translateY: 0,
   });
+
+  // Get language context
+  const {language} = useLanguage();
+
+  // Bilingual text
+  const bilingualText = {
+    title: {
+      Eng: 'Trace the letter',
+      Dzo: 'ཡི་གུ་འཁྱིད་ཐིག་འབད།',
+    },
+    backButton: {
+      Eng: 'Back',
+      Dzo: 'ལོག',
+    },
+  };
 
   const checkPointOrder = React.useMemo(() => {
     return category === 'alphabets'
@@ -485,7 +501,15 @@ const Tracing = () => {
       source={require('../assets/background_images/home_bg.png')}
       style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>ཡི་གུ་ {characterName}་ འཁྱིད་ཐིག་འབད།</Text>
+        <Text
+          style={[
+            styles.title,
+            language === 'Eng' ? styles.titleEnglish : styles.titleDzongkha,
+          ]}>
+          {language === 'Eng'
+            ? `${bilingualText.title.Eng} ${characterName}`
+            : `ཡི་གུ་ ${characterName}་ ${bilingualText.title.Dzo}`}
+        </Text>
       </View>
 
       <GestureHandlerRootView style={styles.canvasWrapper}>
@@ -614,7 +638,17 @@ const Tracing = () => {
               source={require('../assets/icons/back.png')}
               style={styles.buttonIcon}
             />
-            <Text style={styles.buttonText}>Back</Text>
+            <Text
+              style={[
+                styles.buttonText,
+                language === 'Eng'
+                  ? styles.buttonTextEnglish
+                  : styles.buttonTextDzongkha,
+              ]}>
+              {language === 'Eng'
+                ? bilingualText.backButton.Eng
+                : bilingualText.backButton.Dzo}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -633,6 +667,7 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     padding: 7,
+    paddingVertical: 5, // Increase vertical padding
     backgroundColor: 'rgba(255, 237, 194, 0.8)',
     borderRadius: 20,
     marginHorizontal: 20,
@@ -644,11 +679,21 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   title: {
-    fontSize: height * 0.14,
     padding: 5,
+
     color: '#5E2B97',
-    // fontFamily: 'KidsFont', // Use a kid-friendly font
+  },
+  titleEnglish: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    lineHeight: 50, // Add line height that's greater than font size
+    includeFontPadding: true, // Ensure font padding is included
+    paddingTop: 30,
+  },
+  titleDzongkha: {
+    fontSize: height * 0.14,
     fontFamily: 'joyig',
+    paddingTop: 20,
   },
   canvasWrapper: {
     flex: 1,
@@ -693,8 +738,15 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: 'white',
+  },
+  buttonTextEnglish: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  buttonTextDzongkha: {
+    fontSize: 28,
+    fontFamily: 'joyig',
+    paddingTop: 10,
   },
   animation: {
     width: 50,

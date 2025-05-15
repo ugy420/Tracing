@@ -67,7 +67,7 @@ const CompletionScreen = () => {
           <TouchableOpacity
             onPress={() => navigation.navigate('GuidedCategory', {category})}>
             <Image
-              source={require('../assets/icons/nextArrow.png')}
+              source={require('../assets/icons/nextArrow1.png')}
               style={styles.feedbackIcon}
             />
           </TouchableOpacity>

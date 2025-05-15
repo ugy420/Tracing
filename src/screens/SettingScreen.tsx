@@ -10,6 +10,7 @@ import {
   Image,
   Alert,
   ScrollView,
+  Switch,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
@@ -24,13 +25,13 @@ type LanguageType = 'Eng' | 'Dzo';
 // Define translation key type
 type TranslationKey =
   | 'title'
-  | 'notifications'
   | 'soundVolume'
   | 'musicVolume'
   | 'saveSettings'
   | 'giveFeedback'
   | 'saveSuccess'
-  | 'saveMessage';
+  | 'saveMessage'
+  | 'language';
 // Define the type for a single language's translations
 type TranslationsForLanguage = {
   [key in TranslationKey]: string;
@@ -74,7 +75,7 @@ const SettingsScreen = () => {
   }, [navigation]);
 
   // Get language context
-  const {language} = useLanguage();
+  const {language, setLanguage} = useLanguage();
 
   // Ensure language is typed correctly
   const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
@@ -82,6 +83,7 @@ const SettingsScreen = () => {
   const translations = {
     Eng: {
       title: 'App Settings',
+      language: 'Language',
       soundVolume: 'Sound Volume',
       musicVolume: 'Background Music Volume',
       saveSettings: 'SAVE SETTINGS',
@@ -91,6 +93,7 @@ const SettingsScreen = () => {
     },
     Dzo: {
       title: 'གཞི་བཙུགས་བཟོ་བཀོད།',
+      language: 'སྐད་ཡིག',
       soundVolume: 'སྒྲ་གདངས་ཚད་གཞི།',
       musicVolume: 'རྒྱབ་ལྗོངས་རོལ་དབྱངས་ཚད་གཞི།',
       saveSettings: 'གཞི་བཙུགས་ཉར་བཞག',
@@ -132,6 +135,11 @@ const SettingsScreen = () => {
   };
 
   const sectionSpacing = isSmallScreen ? 15 : 20;
+
+  // Handle language toggle switch
+  const handleLanguageToggle = (value: boolean) => {
+    setLanguage(value ? 'Dzo' : 'Eng');
+  };
 
   const handleSaveSettings = () => {
     console.log('Settings saved:', {
@@ -189,6 +197,28 @@ const SettingsScreen = () => {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.centerContainer}>
             <View style={styles.formContainer}>
+              {/* Language Toggle */}
+              <View style={styles.settingItem}>
+                <View style={styles.languageSettingContainer}>
+                  <View style={styles.iconLabelContainer}>
+                    
+                    <Text style={styles.settingLabel}>{getText('language')}</Text>
+                  </View>
+                  <View style={styles.switchContainer}>
+                    <Text style={styles.languageLabel}>Eng</Text>
+                    <Switch
+                      trackColor={{false: '#2E6283', true: '#5E2B97'}}
+                      thumbColor={language === 'Dzo' ? '#FFD700' : '#FFFFFF'}
+                      ios_backgroundColor="#2E6283"
+                      onValueChange={handleLanguageToggle}
+                      value={language === 'Dzo'}
+                      style={styles.languageSwitch}
+                    />
+                    <Text style={styles.languageLabel}>རྫོང</Text>
+                  </View>
+                </View>
+              </View>
+
               {/* Sound Volume */}
               <View style={styles.settingItem}>
                 <View style={styles.iconLabelContainer}>
@@ -394,12 +424,12 @@ const createStyles = (
     iconLabelContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: screenDimensions.height * 0.015,
     },
     switchContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-end',
+      marginRight: screenDimensions.width * 0.03,
     },
     settingIcon: {
       width: Math.min(24, screenDimensions.width * 0.03),
@@ -446,6 +476,23 @@ const createStyles = (
       color: 'white',
       fontSize: buttonTextSize, // Language-specific button text size
       fontWeight: language === 'Dzo' ? 'normal' : 'bold',
+    },
+    languageSettingContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+      paddingBottom:10,
+    },
+    languageLabel: {
+      fontSize: Math.min(16, screenDimensions.width * 0.018),
+      color: 'white',
+      fontWeight: 'bold',
+      marginHorizontal: 10,
+     
+    },
+    languageSwitch: {
+      transform: [{scaleX: 1.2}, {scaleY: 1.2}],
     },
   });
 };

@@ -9,7 +9,6 @@ import {
   Image,
   Modal,
   Dimensions,
-  Alert,
 } from 'react-native';
 import avatarImages from '../assets/avatarImages';
 import {RootStackParamList} from '../types';
@@ -47,7 +46,8 @@ const AvatarScreen = () => {
     | 'equipError'
     | 'isPurchased'
     | 'notPurchased'
-    | 'price';
+    | 'price'
+    | 'okay';
 
   // Get language context
   const {language} = useLanguage() as {language: LanguageType};
@@ -59,6 +59,11 @@ const AvatarScreen = () => {
   const [currentAvatarBorder, setCurrentAvatarBorder] = useState<any>(null);
   const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  // New notification modal state
+  const [notificationModalVisible, setNotificationModalVisible] =
+    useState(false);
+  const [notificationMessage, setNotificationMessage] = useState('');
 
   // Text translations based on selected language
   const translations: Record<LanguageType, Record<TranslationKey, string>> = {
@@ -77,13 +82,14 @@ const AvatarScreen = () => {
       isPurchased: 'This border has been purchased.',
       notPurchased: 'This border has not been purchased.',
       price: 'Price: ',
+      okay: 'Okay',
     },
     Dzo: {
       loading: 'བསྒུག...',
       buyButton: 'ཉོ་ནི།',
       equipButton: 'བཙུགས་ནི།',
       closeButton: 'ཁ་བསྡམ་ནི།',
-      notEnoughStars: 'ཁྱོད་ལུ་མཐའ་མཚམས་འདི་ ཉོ་ནི་གི་སྐར་མ་ལངམ་མེད།',
+      notEnoughStars: 'ཁྱོད་ལུ་མཐའ་མཚམས་འདི་ ཉོ་ནི་གི་སྐར་མ་ མི་ལངམ་མེད།',
       purchaseSuccess: 'མཐའ་མཚམས་ ཉོ་ནི་མཐར་འཁྱོལ་བྱུང་ཡི!',
       equipSuccess: 'མཐའ་མཚམས་ བཙུགས་ནི་མཐར་འཁྱོལ་བྱུང་ཡི!',
       purchaseError: 'མཐའ་མཚམས་ཉོ་བའི་སྐབས་ལུ་འཛོལ་བ་ཅིག་བྱུང་ཡི། ལོག་འབད་དགོ།',
@@ -91,6 +97,7 @@ const AvatarScreen = () => {
       isPurchased: 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་ཨིན།',
       notPurchased: 'ཨ་ནཱི་ས་མཚམས་འདི་ ཉོ་མི་མེན།',
       price: 'གོང་ཚད་ : ',
+      okay: 'འཐུས།',
     },
   };
 
@@ -104,6 +111,12 @@ const AvatarScreen = () => {
     return language === 'Dzo'
       ? baseSize * 1.25 // 25% larger for Dzongkha
       : baseSize;
+  };
+
+  // Show notification modal instead of Alert
+  const showNotification = (message: string) => {
+    setNotificationMessage(message);
+    setNotificationModalVisible(true);
   };
 
   useEffect(() => {
@@ -236,7 +249,7 @@ const AvatarScreen = () => {
       const guest_starCount = await AsyncStorage.getItem('guest_starCount');
       // Guest Mode: Update local data
       if (selectedBorder.cost > Number(guest_starCount)) {
-        Alert.alert(getText('notEnoughStars'));
+        showNotification(getText('notEnoughStars'));
         return;
       }
 
@@ -259,7 +272,7 @@ const AvatarScreen = () => {
       // Force navigation to refresh SharedLayout
       navigation.navigate('Guided');
 
-      Alert.alert(getText('purchaseSuccess'));
+      showNotification(getText('purchaseSuccess'));
       setModalVisible(false);
     } else {
       // Online Mode: Perform backend operations
@@ -276,7 +289,7 @@ const AvatarScreen = () => {
         const userStars = userDetails.data.starCount;
 
         if (userStars < selectedBorder.cost) {
-          Alert.alert(getText('notEnoughStars'));
+          showNotification(getText('notEnoughStars'));
         } else {
           const updatedStars = userStars - selectedBorder.cost;
 
@@ -310,12 +323,12 @@ const AvatarScreen = () => {
           );
 
           setAvatarBorders(combinedBorders);
-          Alert.alert(getText('purchaseSuccess'));
+          showNotification(getText('purchaseSuccess'));
           setModalVisible(false);
         }
       } catch (error) {
         console.error('Error purchasing border:', error);
-        Alert.alert(getText('purchaseError'));
+        showNotification(getText('purchaseError'));
       }
     }
   };
@@ -328,7 +341,7 @@ const AvatarScreen = () => {
         selectedBorder.id.toString(),
       );
       setCurrentAvatarBorder(selectedBorder.id);
-      Alert.alert(getText('equipSuccess'));
+      showNotification(getText('equipSuccess'));
       navigation.navigate('Guided');
       setModalVisible(false);
     } else {
@@ -349,11 +362,11 @@ const AvatarScreen = () => {
           selectedBorder.id.toString(),
         );
         setCurrentAvatarBorder(selectedBorder.id);
-        Alert.alert(getText('equipSuccess'));
+        showNotification(getText('equipSuccess'));
         setModalVisible(false);
       } catch (error) {
         console.error('Error equipping border:', error);
-        Alert.alert(getText('equipError'));
+        showNotification(getText('equipError'));
       }
     }
   };
@@ -390,6 +403,14 @@ const AvatarScreen = () => {
       paddingHorizontal: language === 'Dzo' ? 10 : 15,
       alignItems: 'center',
       position: 'relative',
+    },
+    notificationModalText: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(language === 'Dzo' ? 28 : 16),
+      textAlign: 'center',
+      marginBottom: 15,
+      marginTop: 10,
+      paddingHorizontal: 10,
     },
   });
 
@@ -437,6 +458,7 @@ const AvatarScreen = () => {
         </View>
       </View>
 
+      {/* Avatar Details Modal */}
       {selectedBorder && (
         <Modal
           animationType="slide"
@@ -491,6 +513,28 @@ const AvatarScreen = () => {
           </View>
         </Modal>
       )}
+
+      {/* Notification Modal (Replacement for Alert) */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={notificationModalVisible}
+        onRequestClose={() => setNotificationModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={[dynamicStyles.modalContent, styles.notificationModal]}>
+            <Text style={dynamicStyles.notificationModalText}>
+              {notificationMessage}
+            </Text>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => setNotificationModalVisible(false)}>
+              <Text style={[dynamicStyles.buttonText, {color: 'white'}]}>
+                {getText('okay')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -632,6 +676,20 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#555',
+  },
+  notificationModal: {
+    width: '80%',
+    maxWidth: 350,
+    minWidth: 250,
+    padding: 15,
+  },
+  notificationButton: {
+    backgroundColor: '#4682B4',
+    paddingVertical: 8,
+    paddingHorizontal: 25,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 5,
   },
 });
 

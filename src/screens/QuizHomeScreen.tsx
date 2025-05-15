@@ -231,6 +231,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
+    letterSpacing: 2,
   },
   titleLandscape: {
     fontSize: normalize(26),
@@ -280,6 +281,7 @@ const styles = StyleSheet.create({
   },
   cardEnglishName: {
     fontSize: normalize(10),
+    letterSpacing: 2,
   },
   cardDzongkhaName: {
     fontSize: normalize(22), // Larger font size for Dzongkha

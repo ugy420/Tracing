@@ -41,6 +41,7 @@ const QuizScreen: React.FC = () => {
   const [waitingForTracing, setWaitingForTracing] = useState<boolean>(false);
   const [returningFromTracing, setReturningFromTracing] =
     useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [screenDimensions] = useState<{
     width: number;
@@ -237,89 +238,6 @@ const QuizScreen: React.FC = () => {
     ཧ: 29,
   };
 
-  // const handleAnswerPress = (selectedAnswer: string): void => {
-  //   const currentQuestion = quizQuestions[currentQuestionIndex];
-  //   const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
-  //   console.log('IsLastQuestion: ', isLastQuestion);
-
-  //   if (selectedAnswer === currentQuestion.correctAnswer) {
-  //     // Correct answer
-  //     playCorrectSound();
-
-  //     // Increase score
-  //     setScore(score + 1);
-
-  //     // Move to next question or complete quiz
-  //     if (currentQuestionIndex < quizQuestions.length) {
-  //       console.log('CurrentQuestionIndex: ', currentQuestionIndex);
-  //       // For counting quiz, navigate to tracing screen for the correct answer
-  //       if (category === 'counting') {
-  //         setWaitingForTracing(true);
-  //         setReturningFromTracing(true);
-  //         const current_id = Number(currentQuestion.correctAnswer);
-  //         const next_id = (current_id + 1).toString();
-  //         // Use the correct answer as the ID
-
-  //         console.log('Category:', category);
-  //         navigation.navigate('Tracing', {
-  //           id: next_id, // Use the correct answer as the ID
-  //           category: 'numbers',
-  //           fromQuiz: true,
-  //           isLastQuestion: isLastQuestion,
-  //         });
-  //         return;
-  //       } else if (category === 'animals' || category === 'fruits') {
-  //         setWaitingForTracing(true);
-  //         setReturningFromTracing(true);
-
-  //         const current_id =
-  //           alphabetMapping[currentQuestion.correctAnswer].toString();
-  //         if (!current_id) {
-  //           console.error(
-  //             `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-  //           );
-  //           Alert.alert(
-  //             'Error',
-  //             `Item with id ${currentQuestion.correctAnswer} not found for category ${category}`,
-  //           );
-  //           return;
-  //         }
-  //         navigation.navigate('Tracing', {
-  //           id: current_id, // Use the correct numeric id
-  //           category: 'alphabets',
-  //           fromQuiz: true,
-  //           isLastQuestion: isLastQuestion,
-  //         });
-  //       } else {
-  //         // Reset animations and move to next question for other categories
-  //         fadeAnim.setValue(0);
-  //         bounceAnim.setValue(0);
-  //         setCurrentQuestionIndex(currentQuestionIndex + 1);
-  //       }
-  //     } else {
-  //       // Calculate stars based on score
-  //       const stars = calculateStars(score + 1, quizQuestions.length);
-  //       setEarnedStars(stars);
-
-  //       // Save progress if not previously completed or if new score is better
-  //       if (!previouslyCompleted || stars > earnedStars) {
-  //         saveQuizCompletion(stars);
-  //       }
-
-  //       // Show celebration animation
-  //       fadeAnim.setValue(0);
-  //       setQuizCompleted(true);
-  //       setShowCelebration(true);
-  //     }
-  //   } else {
-  //     // Wrong answer
-  //     playWrongSound();
-  //     Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
-  //       {text: 'OK'},
-  //     ]);
-  //   }
-  // };
-
   const handleAnswerPress = (selectedAnswer: string): void => {
     const currentQuestion = quizQuestions[currentQuestionIndex];
     const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
@@ -382,6 +300,21 @@ const QuizScreen: React.FC = () => {
   };
 
   // Add this helper function
+
+  // if (loading) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <LottieView
+  //         source={require('../assets/lottie_anime/cat_loading.json')} // Replace with your loading animation
+  //         autoPlay
+  //         loop
+  //         style={styles.loadingAnimation}
+  //       />
+  //       <Text>Loading...</Text>
+  //     </View>
+  //   );
+  // }
+
   const completeQuiz = () => {
     const stars = calculateStars(score + 1, quizQuestions.length);
     setEarnedStars(stars);
@@ -1014,6 +947,16 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     zIndex: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: Add a semi-transparent background
+  },
+  loadingAnimation: {
+    width: 150,
+    height: 150,
   },
 });
 

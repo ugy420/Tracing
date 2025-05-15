@@ -201,11 +201,12 @@ const SettingsScreen = () => {
               <View style={styles.settingItem}>
                 <View style={styles.languageSettingContainer}>
                   <View style={styles.iconLabelContainer}>
-                    
-                    <Text style={styles.settingLabel}>{getText('language')}</Text>
+                    <Text style={styles.settingLabel}>
+                      {getText('language')}
+                    </Text>
                   </View>
                   <View style={styles.switchContainer}>
-                    <Text style={styles.languageLabel}>Eng</Text>
+                    <Text style={styles.languageLabelEng}>Eng</Text>
                     <Switch
                       trackColor={{false: '#2E6283', true: '#5E2B97'}}
                       thumbColor={language === 'Dzo' ? '#FFD700' : '#FFFFFF'}
@@ -214,7 +215,7 @@ const SettingsScreen = () => {
                       value={language === 'Dzo'}
                       style={styles.languageSwitch}
                     />
-                    <Text style={styles.languageLabel}>རྫོང</Text>
+                    <Text style={styles.languageLabel}>རྫོང་ཁ།</Text>
                   </View>
                 </View>
               </View>
@@ -482,14 +483,19 @@ const createStyles = (
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
-      paddingBottom:10,
+      paddingBottom: 10,
     },
-    languageLabel: {
+    languageLabelEng: {
       fontSize: Math.min(16, screenDimensions.width * 0.018),
       color: 'white',
       fontWeight: 'bold',
       marginHorizontal: 10,
-     
+    },
+    languageLabel: {
+      fontSize: Math.min(16, screenDimensions.width * 0.018),
+      color: 'white',
+      fontFamily: 'joyig',
+      marginHorizontal: 10,
     },
     languageSwitch: {
       transform: [{scaleX: 1.2}, {scaleY: 1.2}],

@@ -8,9 +8,9 @@ import {
   SafeAreaView,
   Dimensions,
   Image,
-  Alert,
   ScrollView,
   Switch,
+  Modal,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
@@ -31,7 +31,8 @@ type TranslationKey =
   | 'giveFeedback'
   | 'saveSuccess'
   | 'saveMessage'
-  | 'language';
+  | 'language'
+  | 'ok';
 // Define the type for a single language's translations
 type TranslationsForLanguage = {
   [key in TranslationKey]: string;
@@ -46,6 +47,7 @@ const SettingsScreen = () => {
   const [soundVolume, setSoundVolume] = useState(0.7);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [isGuest, setIsGuest] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   // Use music context for global music control
   const {volume, updateVolume} = useMusic();
@@ -90,6 +92,7 @@ const SettingsScreen = () => {
       giveFeedback: 'GIVE FEEDBACK',
       saveSuccess: 'Success',
       saveMessage: 'Your settings have been saved!',
+      ok: 'OK',
     },
     Dzo: {
       title: 'གཞི་བཙུགས་བཟོ་བཀོད།',
@@ -100,6 +103,7 @@ const SettingsScreen = () => {
       giveFeedback: 'བསམ་འཆར་བཤད།',
       saveSuccess: 'ལེགས་སྒྲུབ།',
       saveMessage: 'ཁྱོད་ཀྱི་གཞི་བཙུགས་ཚུ་ཉར་ཚགས་འབད་ཡི!',
+      ok: 'འགྲིག',
     },
   };
 
@@ -146,7 +150,8 @@ const SettingsScreen = () => {
       soundVolume,
       musicVolume: volume,
     });
-    Alert.alert(getText('saveSuccess'), getText('saveMessage'));
+    // Show modal instead of Alert
+    setModalVisible(true);
   };
 
   const handleGiveFeedback = () => {
@@ -309,6 +314,25 @@ const SettingsScreen = () => {
             </View>
           </View>
         </ScrollView>
+
+        {/* Custom Modal replacing Alert */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>{getText('saveSuccess')}</Text>
+              <Text style={styles.modalMessage}>{getText('saveMessage')}</Text>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setModalVisible(false)}>
+                <Text style={styles.modalButtonText}>{getText('ok')}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </ImageBackground>
   );
@@ -482,17 +506,61 @@ const createStyles = (
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
-      paddingBottom:10,
+      paddingBottom: 10,
     },
     languageLabel: {
       fontSize: Math.min(16, screenDimensions.width * 0.018),
       color: 'white',
       fontWeight: 'bold',
       marginHorizontal: 10,
-     
     },
     languageSwitch: {
       transform: [{scaleX: 1.2}, {scaleY: 1.2}],
+    },
+    // Modal styles
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContainer: {
+      width: Math.min(screenDimensions.width * 0.4, 400),
+      backgroundColor: 'rgba(50, 50, 50, 0.95)',
+      borderRadius: 12,
+      padding: screenDimensions.width * 0.02,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: 'rgba(255, 255, 255, 0.2)',
+    },
+    modalTitle: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: responsiveTitleSize * 0.8,
+      fontWeight: language === 'Dzo' ? 'normal' : 'bold',
+      color: 'rgba(239, 141, 56, 0.95)',
+      marginBottom: screenDimensions.height * 0.02,
+      textAlign: 'center',
+    },
+    modalMessage: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      fontSize: buttonTextSize * 0.8,
+      color: 'white',
+      marginBottom: screenDimensions.height * 0.03,
+      textAlign: 'center',
+    },
+    modalButton: {
+      backgroundColor: '#AA75CB',
+      paddingVertical: screenDimensions.height * 0.015,
+      paddingHorizontal: screenDimensions.width * 0.03,
+      borderRadius: 8,
+      minWidth: screenDimensions.width * 0.15,
+      alignItems: 'center',
+    },
+    modalButtonText: {
+      fontFamily: language === 'Dzo' ? 'joyig' : undefined,
+      color: 'white',
+      fontSize: buttonTextSize * 0.8,
+      fontWeight: language === 'Dzo' ? 'normal' : 'bold',
     },
   });
 };

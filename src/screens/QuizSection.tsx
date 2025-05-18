@@ -280,16 +280,18 @@ const QuizScreen: React.FC = () => {
           fromQuiz: true,
           isLastQuestion,
         });
+        if (isLastQuestion) {
+          console.log('i am in the if function for last question');
+          setTimeout(() => {
+            completeQuiz();
+          }, 5000);
+          return;
+          // completeQuiz();
+        } else {
+          fadeAnim.setValue(0);
+          bounceAnim.setValue(0);
+        }
         return;
-      }
-
-      // For non-tracing categories OR if it's the last question
-      if (isLastQuestion) {
-        completeQuiz();
-      } else {
-        fadeAnim.setValue(0);
-        bounceAnim.setValue(0);
-        setCurrentQuestionIndex(currentQuestionIndex + 1);
       }
     } else {
       playWrongSound();
@@ -298,22 +300,6 @@ const QuizScreen: React.FC = () => {
       ]);
     }
   };
-
-  // Add this helper function
-
-  // if (loading) {
-  //   return (
-  //     <View style={styles.loadingContainer}>
-  //       <LottieView
-  //         source={require('../assets/lottie_anime/cat_loading.json')} // Replace with your loading animation
-  //         autoPlay
-  //         loop
-  //         style={styles.loadingAnimation}
-  //       />
-  //       <Text>Loading...</Text>
-  //     </View>
-  //   );
-  // }
 
   const completeQuiz = () => {
     const stars = calculateStars(score + 1, quizQuestions.length);
@@ -408,39 +394,6 @@ const QuizScreen: React.FC = () => {
   const renderQuizContent = (): JSX.Element => {
     if (quizCompleted) {
       return (
-        // <Animated.View
-        //   style={[styles.completionContainer, {opacity: fadeAnim}]}>
-        //   {showCelebration && (
-        //     <View style={styles.celebrationOverlay}>
-        //       {/* Replace with your Lottie animation or custom celebration UI */}
-        //       <LottieView
-        //         source={require('../assets/lottie_anime/celebration1.json')}
-        //         autoPlay
-        //         loop={true}
-        //         style={styles.celebrationAnimation}
-        //         onAnimationFinish={() => setShowCelebration(false)}
-        //       />
-        //     </View>
-        //   )}
-
-        //   <View style={styles.starsContainer}>{renderStars(earnedStars)}</View>
-
-        //   {previouslyCompleted && (
-        //     <Text style={styles.previousCompletionText}>
-        //       You've already completed this quiz before!
-        //     </Text>
-        //   )}
-
-        //   <View style={styles.buttonContainer}>
-        //     <TouchableOpacity style={styles.resetButton} onPress={resetQuiz}>
-        //       <Text style={styles.resetButtonText}>Play Again</Text>
-        //     </TouchableOpacity>
-        //     <TouchableOpacity
-        //       style={styles.nextButton}
-        //       onPress={() => navigation.navigate('QuizHomeScreen')}>
-        //       <Text style={styles.nextButtonText}>Back to Quiz Category</Text>
-        //     </TouchableOpacity>
-
         <ImageBackground
           source={require('../assets/background_images/guided_bg.jpeg')}
           style={styles.completionBackground}>

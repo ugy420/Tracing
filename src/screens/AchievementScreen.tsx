@@ -140,6 +140,7 @@ const AchievementScreen = () => {
       : baseSize;
   };
 
+  // Achievements
   useEffect(() => {
     setLoading(true);
     // Fetching user achievements and combine with local achievements
@@ -171,14 +172,14 @@ const AchievementScreen = () => {
               id: 2,
               name: getText('numberMaster'),
               criteria: getText('completeNumbers'),
-              image: achievement.achievement2,
+              image: achievement.achievement8,
               is_earned: !!unlockedAchievements.achievement2,
             },
             {
               id: 3,
               name: getText('vowelStar'),
               criteria: getText('completeVowels'),
-              image: achievement.achievement3,
+              image: achievement.achievement9,
               is_earned: !!unlockedAchievements.achievement3,
             },
             {
@@ -252,7 +253,7 @@ const AchievementScreen = () => {
       fontSize: getFontSize(
         currentLanguage === 'Dzo' ? height * 0.12 : height * 0.06,
       ),
-      marginBottom: 10,
+      marginBottom: 3,
     },
     modalCriteria: {
       fontSize: getFontSize(
@@ -351,6 +352,15 @@ const AchievementScreen = () => {
                 <Text style={dynamicStyles.modalTitle}>
                   {selectedAchievement.name}
                 </Text>
+
+                {/* Achievement Image */}
+                {selectedAchievement.image && (
+                  <Image
+                    source={selectedAchievement.image}
+                    style={styles.modalAchievementImage}
+                  />
+                )}
+
                 <Text style={dynamicStyles.modalCriteria}>
                   {selectedAchievement.criteria}
                 </Text>
@@ -446,7 +456,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '80%',
+    width: '70%',
+    height: '80%',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
@@ -476,6 +487,12 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 200,
     height: 200,
+  },
+  modalAchievementImage: {
+    width: 120, // Adjust the size as needed
+    height: 120,
+    resizeMode: 'contain',
+    marginVertical: 10,
   },
 });
 

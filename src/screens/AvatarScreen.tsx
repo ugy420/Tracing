@@ -133,37 +133,44 @@ const AvatarScreen = () => {
             'guest_avatar_borders',
           );
           const localBorders = storedBorders
-            ? JSON.parse(storedBorders)
+            ? JSON.parse(storedBorders).map((border: any) => ({
+                ...border,
+                image:
+                  avatarImages[
+                    `avatar${border.id}` as keyof typeof avatarImages
+                  ],
+              }))
             : [
                 {
                   id: 1,
-                  name: 'རག་གྱི་ མཐའ་མཚམས།',
+                  name: 'Bronze Border',
                   cost: 2,
                   image: avatarImages.avatar8,
                   is_purchased: false,
                 },
                 {
                   id: 2,
-                  name: 'དངུལ་གྱི་ མཐའ་མཚམས།',
+                  name: 'Silver Border',
                   cost: 3,
                   image: avatarImages.avatar2,
                   is_purchased: false,
                 },
                 {
                   id: 3,
-                  name: 'གསེར་གྱི་ མཐའ་མཚམས།',
+                  name: 'Golden Flame Border',
                   cost: 4,
-                  image: avatarImages.avatar1,
+                  image: avatarImages.avatar3,
                   is_purchased: false,
                 },
                 {
                   id: 4,
-                  name: 'རྡོ་རྗེ་ཕ་ལམ་གྱི་ མཐའ་མཚམས།',
+                  name: 'Diamond Crown Border',
                   cost: 6,
-                  image: avatarImages.avatar5,
+                  image: avatarImages.avatar4,
                   is_purchased: false,
                 },
               ];
+          console.log('Local Borders', localBorders);
           setAvatarBorders(localBorders);
 
           // Check if a border is equipped locally
@@ -650,7 +657,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#28A745',
   },
   equippedBorder: {
-    borderColor: 'green',
+    borderColor: '#80EF80',
     borderWidth: 3,
   },
   loadingContainer: {

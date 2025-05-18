@@ -7,6 +7,7 @@ const achievement = {
   achievement6: require('./a6.png'),
   achievement7: require('./a7.png'),
   achievement8: require('./a8.png'),
+  achievement9: require('./a9.png'),
 };
 
 export default achievement;

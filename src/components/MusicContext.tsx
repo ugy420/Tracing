@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from 'react';
 import Sound from 'react-native-sound';
-import {Platform} from 'react-native';
+import {AppState, Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Define the shape of our context
@@ -35,12 +35,40 @@ interface MusicProviderProps {
 
 export const MusicProvider: React.FC<MusicProviderProps> = ({
   children,
-  backgroundTrack = 'dummy_music', // Default track name
+  backgroundTrack = 'background_music', // Default track name
 }) => {
   const [backgroundMusic, setBackgroundMusic] = useState<Sound | null>(null);
   const [volume, setVolume] = useState<number>(0.7);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [appState, setAppState] = useState(AppState.currentState);
+
+  // Add app state listener
+  useEffect(() => {
+    const handleAppStateChange = (nextAppState: any) => {
+      if (appState.match(/inactive|background/) && nextAppState === 'active') {
+        // App coming to foreground
+        if (backgroundMusic) {
+          backgroundMusic.play();
+        }
+      } else if (nextAppState.match(/inactive|background/)) {
+        // App going to background
+        if (backgroundMusic) {
+          backgroundMusic.pause();
+        }
+      }
+      setAppState(nextAppState);
+    };
+
+    const subscription = AppState.addEventListener(
+      'change',
+      handleAppStateChange,
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [appState, backgroundMusic]);
 
   // Load saved volume settings
   useEffect(() => {

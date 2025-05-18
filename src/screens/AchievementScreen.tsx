@@ -9,7 +9,7 @@ import {
   Dimensions,
   Modal,
   Text,
-  Button,
+  Alert,
 } from 'react-native';
 import achievement from '../assets/achievementImages';
 import {RootStackParamList} from '../types';
@@ -18,20 +18,131 @@ import axiosInstance from '../Api/config/axiosInstance';
 import api from '../Api/endPoints';
 import Orientation from 'react-native-orientation-locker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LottieView from 'lottie-react-native';
+import {useLanguage} from '../context/languageContext'; // Import language context
 
 const {width, height} = Dimensions.get('window');
 
+// Define language string literal type
+type LanguageType = 'Eng' | 'Dzo';
+
+// Define translation key type
+type TranslationKey =
+  | 'loading'
+  | 'closeButton'
+  | 'achievementTitle'
+  | 'criteria'
+  | 'error'
+  | 'failedToLoad'
+  | 'brightStar'
+  | 'numberMaster'
+  | 'vowelStar'
+  | 'animalGenius'
+  | 'fruitGenius'
+  | 'CountingGenius'
+  | 'CountingGenius'
+  | 'completeConsonants'
+  | 'completeNumbers'
+  | 'completeVowels'
+  | 'completeAnimalQuiz'
+  | 'completeFruitQuiz'
+  | 'completeCountingQuiz';
+
+// Define the type for a single language's translations
+type TranslationsForLanguage = {
+  [key in TranslationKey]: string;
+};
+
+// Define the type for all translations
+type TranslationsType = {
+  [key in LanguageType]: TranslationsForLanguage;
+};
+
 const AchievementScreen = () => {
   const [achievements, setAchievements] = useState<
-    {id: number; is_earned: boolean}[]
+    {
+      id: number;
+      is_earned: boolean;
+      name?: string;
+      criteria?: string;
+      image?: any;
+    }[]
   >([]);
   const [selectedAchievement, setSelectedAchievement] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  // Get language context
+  const {language} = useLanguage();
+
+  // Ensure language is typed correctly
+  const currentLanguage: LanguageType = (language as LanguageType) || 'Eng';
+
+  // Text translations based on selected language
+  const translations: TranslationsType = {
+    Eng: {
+      loading: 'Loading...',
+      closeButton: 'Close',
+      achievementTitle: 'Achievement',
+      criteria: 'Criteria',
+      error: 'Error',
+      failedToLoad: 'Failed to load achievements.',
+      // Achievement names
+      brightStar: 'Bright Star Badge',
+      numberMaster: 'Number Master Badge',
+      vowelStar: 'Vowel Star Badge',
+      animalGenius: 'Animal Genius Badge',
+      fruitGenius: 'Fruit Genius Badge',
+      CountingGenius: 'Counting Genius Badge',
+      // Achievement criteria
+      completeConsonants: 'Complete all tracing of consonants!',
+      completeNumbers: 'Complete all tracing of numbers!',
+      completeVowels: 'Complete all tracing of vowels!',
+      completeAnimalQuiz: 'Complete the animal quiz!',
+      completeFruitQuiz: 'Complete the fruit quiz!',
+      completeCountingQuiz: 'Complete the counting quiz!',
+    },
+    Dzo: {
+      loading: 'བསྒུག...',
+      closeButton: 'ཁ་བསྡམ་ནི།',
+      achievementTitle: 'རྒྱལ་རྟགས།',
+      criteria: 'ཆ་རྐྱེན།',
+      error: 'ནོར་འཁྲུལ།',
+      failedToLoad: 'རྒྱལ་རྟགས་ཚུ་མཐོང་མ་ཚུགས།',
+      // Achievement names
+      brightStar: 'གསལ་བྱེད་ རྒྱལ་རྟགས།',
+      numberMaster: 'གྱངས་ཁ་མཁས་པའི་རྟགས།',
+      vowelStar: 'དབྱངས་ཡིག་སྐར་མའི་རྟགས།',
+      animalGenius: 'སེམས་ཅན་མཁས་པའི་རྟགས།',
+      fruitGenius: 'ཤིང་འབྲས་མཁས་པའི་རྟགས།',
+      CountingGenius: 'གྱངས་ཁ་མཁས་པའི་རྟགས།',
+      // Achievement criteria
+      completeConsonants: 'གསལ་བྱེད་ག་ར་ འཁྱིད་ཐིག་འབད།',
+      completeNumbers: 'གྱངས་ཁ་ཚུ་ ཆ་ཚང་རྗེས་འདེད་ འབད་ནི་ཚར་བཅུག',
+      completeVowels: 'དབྱངས་ཡིག་ཚུ་ ཆ་ཚང་རྗེས་འདེད་ འབད་ནི་ཚར་བཅུག',
+      completeAnimalQuiz: 'སེམས་ཅན་གྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
+      completeFruitQuiz: 'ཤིང་འབྲས་ཀྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
+      completeCountingQuiz: 'གྱངས་ཁ་ཀྱི་ དྲི་བ་དྲིས་ལན་ཚར་བཅུག',
+    },
+  };
+
+  // Get text based on current language
+  const getText = (key: TranslationKey): string => {
+    return translations[currentLanguage][key] || translations['Eng'][key];
+  };
+
+  // Function to get language-specific font size
+  const getFontSize = (baseSize: number): number => {
+    return currentLanguage === 'Dzo'
+      ? baseSize * 1.25 // 25% larger for Dzongkha
+      : baseSize;
+  };
+
   useEffect(() => {
-    // Fetching user achivements and combine with local achievements
+    setLoading(true);
+    // Fetching user achievements and combine with local achievements
     const fetchAchievements = async () => {
       try {
         // Guest Mode
@@ -40,42 +151,56 @@ const AchievementScreen = () => {
         setIsGuest(isGuestValue === 'true');
 
         if (isGuestValue === 'true') {
-          // Guest Mode: Use local mock data
+          // Guest Mode: Use local mock data but check which achievements are unlocked
+          const guestAchievements = await AsyncStorage.getItem(
+            'guest_achievements',
+          );
+          const unlockedAchievements = guestAchievements
+            ? JSON.parse(guestAchievements)
+            : {};
+
           const localAchievements = [
             {
               id: 1,
-              name: 'གསལ་བྱེད་ རྒྱལ་རྟགས།',
-              criteria: 'གསལ་བྱེད་ག་ར་ འཁྱིད་ཐིག་འབད།',
+              name: getText('brightStar'),
+              criteria: getText('completeConsonants'),
               image: achievement.achievement1,
-              is_earned: true,
+              is_earned: !!unlockedAchievements.achievement1,
             },
             {
               id: 2,
-              name: 'ཨང་གྲངས་ རྒྱལ་རྟགས།',
-              criteria: 'ཨང་གྲངས་ག་ར་ འཁྱིད་ཐིག་འབད།',
+              name: getText('numberMaster'),
+              criteria: getText('completeNumbers'),
               image: achievement.achievement2,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement2,
             },
             {
               id: 3,
-              name: 'དབྱངས་ རྒྱལ་རྟགས།',
-              criteria: 'དབྱངས་ག་ར་ འཁྱིད་ཐིག་འབད།',
+              name: getText('vowelStar'),
+              criteria: getText('completeVowels'),
               image: achievement.achievement3,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement3,
             },
             {
               id: 4,
-              name: 'སེམས་ཅན་མཁས་མཆོག་ རྒྱལ་རྟགས།',
-              criteria: 'སེམས་ཅན་གི་ འདྲི་རྩད་རྒྱུགས་ འདི་མཇུག་བསྡུ།',
+              name: getText('animalGenius'),
+              criteria: getText('completeAnimalQuiz'),
               image: achievement.achievement4,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement4,
             },
             {
               id: 5,
-              name: 'ཤིང་འབྲས་མཁས་མཆོག་ རྒྱལ་རྟགས།',
-              criteria: 'ཤིང་འབྲས་གི་ འདྲི་རྩད་རྒྱུགས་ འདི་མཇུག་བསྡུ།',
+              name: getText('fruitGenius'),
+              criteria: getText('completeFruitQuiz'),
               image: achievement.achievement5,
-              is_earned: false,
+              is_earned: !!unlockedAchievements.achievement5,
+            },
+            {
+              id: 6,
+              name: getText('CountingGenius'),
+              criteria: getText('completeCountingQuiz'),
+              image: achievement.achievement6,
+              is_earned: !!unlockedAchievements.achievement6,
             },
           ];
           setAchievements(localAchievements);
@@ -92,8 +217,6 @@ const AchievementScreen = () => {
 
           const userAchievements = response.data || [];
           const allAchievements = allAchievementsResponse.data;
-
-          // console.log('User achievements:', response.data);
 
           const combinedAchievements = allAchievements.map(
             (achievementItem: any, index: number) => ({
@@ -112,12 +235,39 @@ const AchievementScreen = () => {
         }
       } catch (error) {
         console.error('Error fetching achievements:', error);
+        Alert.alert(getText('error'), getText('failedToLoad'));
+      } finally {
+        setLoading(false);
       }
     };
 
     Orientation.lockToLandscape();
     fetchAchievements();
   }, []);
+
+  // Create dynamic styles based on language and screen dimensions
+  const dynamicStyles = StyleSheet.create({
+    modalTitle: {
+      fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.12 : height * 0.06,
+      ),
+      marginBottom: 10,
+    },
+    modalCriteria: {
+      fontSize: getFontSize(
+        currentLanguage === 'Dzo' ? height * 0.09 : height * 0.05,
+      ),
+      fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
+      marginBottom: 20,
+      textAlign: 'center',
+      color: 'gray',
+    },
+    loadingText: {
+      fontFamily: currentLanguage === 'Dzo' ? 'joyig' : undefined,
+      fontSize: getFontSize(16),
+    },
+  });
 
   const handleAchievementPress = (item: any) => {
     setSelectedAchievement(item);
@@ -139,6 +289,22 @@ const AchievementScreen = () => {
       />
     </TouchableOpacity>
   );
+
+  if (loading) {
+    // Show loading indicator while data is being fetched
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require('../assets/lottie_anime/cat_loading.json')}
+          autoPlay
+          loop
+          style={styles.loadingAnimation}
+        />
+        <Text style={dynamicStyles.loadingText}>{getText('loading')}</Text>
+      </View>
+    );
+  }
+
   return (
     <ImageBackground
       source={require('../assets/background_images/guided_bg.jpeg')}
@@ -169,30 +335,29 @@ const AchievementScreen = () => {
           </View>
         </View>
 
-        {selectedAchievement &&
-          (console.log('Selected Achievement:', selectedAchievement),
-          (
-            <Modal
-              animationType="slide"
-              transparent={true}
-              visible={modalVisible}
-              onRequestClose={() => setModalVisible(false)}>
-              <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                  <Text style={styles.modalTitle}>
-                    {selectedAchievement.name}
-                  </Text>
-                  <Text style={styles.modalCriteria}>
-                    {selectedAchievement.criteria}
-                  </Text>
-                  <Button
-                    title="Close"
-                    onPress={() => setModalVisible(false)}
-                  />
-                </View>
+        {selectedAchievement && (
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={styles.closeIconButton}
+                  onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeIcon}>×</Text>
+                </TouchableOpacity>
+                <Text style={dynamicStyles.modalTitle}>
+                  {selectedAchievement.name}
+                </Text>
+                <Text style={dynamicStyles.modalCriteria}>
+                  {selectedAchievement.criteria}
+                </Text>
               </View>
-            </Modal>
-          ))}
+            </View>
+          </Modal>
+        )}
       </View>
     </ImageBackground>
   );
@@ -209,7 +374,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingTop: height * 0.15, // Added padding to move content lower
+    paddingTop: height * 0.18, // Added padding to move content lower
   },
   container: {
     flex: 1,
@@ -286,17 +451,31 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
+    position: 'relative',
   },
-  modalTitle: {
-    fontSize: height * 0.15,
-    fontFamily: 'joyig',
+  closeIconButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
-  modalCriteria: {
-    fontSize: height * 0.12,
-    fontFamily: 'joyig',
-    marginBottom: 2,
-    textAlign: 'center',
-    color: 'gray',
+  closeIcon: {
+    fontSize: 30,
+    color: '#DC3545',
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingAnimation: {
+    width: 200,
+    height: 200,
   },
 });
 

@@ -14,6 +14,7 @@ import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import avatarImages from '../assets/avatarImages';
 import LottieView from 'lottie-react-native';
+import {useLanguage} from '../context/languageContext';
 
 type SharedLayoutProps = {
   children: ReactNode;
@@ -35,6 +36,7 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
   const [starAnimation] = useState(new Animated.Value(1));
   // Track last star count to animate changes
   const [lastStarCount, setLastStarCount] = useState<string | null>(null);
+  const {language} = useLanguage();
 
   const clearModeData = async (mode: 'online') => {
     if (mode === 'online') {
@@ -154,6 +156,28 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
     return unsubscribe;
   }, [navigation]);
 
+  // Bilingual greeting based on language selection
+  const renderGreeting = () => {
+    if (language === 'Dzo') {
+      return (
+        <Text style={[styles.headerTextDzo]}>
+          སྐུ་གཟུགས་བཟང་པོ། {username}!
+        </Text>
+      );
+    } else {
+      return (
+        <Text
+          style={[
+            styles.headerText,
+            isLandscape && styles.headerTextLandscape,
+            isSmallScreen && styles.headerTextSmall,
+          ]}>
+          Kuzuzangpo, {username}!
+        </Text>
+      );
+    }
+  };
+
   if (loading) {
     // Show loading indicator while data is being fetched
     return (
@@ -207,14 +231,8 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
           />
         </TouchableOpacity>
 
-        <Text
-          style={[
-            styles.headerText,
-            isLandscape && styles.headerTextLandscape,
-            isSmallScreen && styles.headerTextSmall,
-          ]}>
-          Kuzuzangpo, {username}!
-        </Text>
+        {/* Render bilingual greeting */}
+        {renderGreeting()}
 
         <View style={styles.starCounterContainer}>
           <Image
@@ -222,7 +240,14 @@ const SharedLayout = ({children}: SharedLayoutProps) => {
             style={styles.starIcon}
           />
           <View style={styles.starCountBox}>
-            <Text style={styles.starCountText}>{starCount}</Text>
+            <Text
+              style={
+                language === 'Eng'
+                  ? styles.starCountText
+                  : styles.starCountTextDzo
+              }>
+              {starCount}
+            </Text>
           </View>
         </View>
 
@@ -291,12 +316,26 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
+    letterSpacing: 2,
+  },
+  headerTextDzo: {
+    flex: 1,
+    color: 'rgba(239, 141, 56, 0.78)',
+    fontFamily: 'joyig',
+    textAlign: 'left',
+    marginLeft: 60,
+    zIndex: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
+    fontSize: 50, // Slightly larger for Dzongkha script
+    letterSpacing: 2,
   },
   headerTextLandscape: {
-    fontSize: 24,
+    fontSize: 22,
   },
   headerTextSmall: {
-    fontSize: 22,
+    fontSize: 20,
   },
   avatarContainer: {
     position: 'absolute',
@@ -357,6 +396,15 @@ const styles = StyleSheet.create({
     color: '#FF8C00',
     fontWeight: 'bold',
     fontSize: 16,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: {width: 0.5, height: 0.5},
+    textShadowRadius: 1,
+  },
+  starCountTextDzo: {
+    color: '#FF8C00',
+    // fontWeight: 'bold',
+    fontFamily: 'joyig',
+    fontSize: 26,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: {width: 0.5, height: 0.5},
     textShadowRadius: 1,

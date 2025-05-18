@@ -7,17 +7,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Switch,
 } from 'react-native';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import NetInfo from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import {useMusic} from '../components/MusicContext';
+import {useLanguage} from '../context/languageContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const {isMuted, toggleMute} = useMusic();
+  const {language, setLanguage} = useLanguage();
 
   const handleGuestMode = async () => {
     try {
@@ -64,13 +67,23 @@ const HomeScreen = () => {
     }
   };
 
+  // Handle language toggle switch
+  const handleLanguageToggle = (value: any) => {
+    setLanguage(value ? 'Dzo' : 'Eng');
+  };
+
   return (
     <ImageBackground
       source={require('../assets/background_images/home_bg.png')}
       style={styles.background}>
       <View style={styles.header}>
         <View style={styles.headerTextContainer}>
-          <Text style={styles.headerText}>SELECT MODE</Text>
+          <Text
+            style={
+              language === 'Eng' ? styles.headerText : styles.headerTextDzo
+            }>
+            {language === 'Eng' ? 'SELECT MODE' : 'རྩེད་ཀྱི་ཐབས་ལམ་གདམ་ཁ་རྐྱབ།'}
+          </Text>
         </View>
         <View style={styles.headerIcons}>
           <TouchableOpacity onPress={toggleMute}>
@@ -94,14 +107,32 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.container}>
+        <View style={styles.languageToggleContainer}>
+          <Text style={styles.languageLabel}>Eng</Text>
+          <Switch
+            trackColor={{false: '#2E6283', true: '#5E2B97'}}
+            thumbColor={language === 'Dzo' ? '#FFD700' : '#FFFFFF'}
+            ios_backgroundColor="#2E6283"
+            onValueChange={handleLanguageToggle}
+            value={language === 'Dzo'}
+            style={styles.languageSwitch}
+          />
+          <Text style={styles.languageLabel}>Dzo</Text>
+        </View>
         <View style={styles.textBg}>
           <TouchableOpacity onPress={handleOnlineMode}>
-            <Text style={styles.modeText}>Online</Text>
+            <Text
+              style={language === 'Eng' ? styles.modeText : styles.modeDzoText}>
+              {language === 'Eng' ? 'Online' : 'ཡོངས་འབྲེལ།'}
+            </Text>
           </TouchableOpacity>
         </View>
         <View style={styles.textBg}>
           <TouchableOpacity onPress={handleGuestMode}>
-            <Text style={styles.modeText}>Guest</Text>
+            <Text
+              style={language === 'Eng' ? styles.modeText : styles.modeDzoText}>
+              {language === 'Eng' ? 'Guest' : 'མགྱོནམོ་སྦེ་རྩེདམོ་རྩེ།'}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -121,7 +152,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 20,
     position: 'absolute',
     top: 0,
   },
@@ -134,6 +165,18 @@ const styles = StyleSheet.create({
     fontSize: 40,
     color: 'rgb(255, 255, 255)',
     fontWeight: 'bold',
+    // Shadow
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: {width: 5, height: 5},
+    textShadowRadius: 5,
+
+    padding: 10,
+    letterSpacing: 1.5,
+  },
+  headerTextDzo: {
+    fontFamily: 'joyig',
+    fontSize: 56,
+    color: 'rgb(255, 255, 255)',
     // Shadow
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: {width: 5, height: 5},
@@ -163,10 +206,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modeText: {
-    fontFamily: 'Unlock-Bold',
     fontSize: 40,
     color: 'rgb(200, 213, 236)',
     fontWeight: 'bold',
+  },
+  modeDzoText: {
+    fontFamily: 'joyig',
+    fontSize: 52,
+    color: 'rgb(200, 213, 236)',
   },
   textBg: {
     justifyContent: 'center',
@@ -176,6 +223,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#2E6283',
     borderRadius: 30,
     margin: 10,
+  },
+  languageToggleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    paddingTop: 15,
+  },
+  languageLabel: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  languageSwitch: {
+    transform: [{scaleX: 1.2}, {scaleY: 1.2}],
   },
 });
 

@@ -11,6 +11,7 @@ import {Dimensions} from 'react-native';
 import {RootStackParamList} from '../types';
 import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {RouteProp, useRoute} from '@react-navigation/native';
+import {useLanguage} from '../context/languageContext'; // Ensure this path matches your project structure
 
 const {height, width} = Dimensions.get('window');
 
@@ -18,6 +19,13 @@ const CompletionScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'CompletionScreen'>>();
   const {category} = route.params;
+  const {language} = useLanguage();
+
+  // Bilingual congratulatory text
+  const congratulatoryText = {
+    Eng: 'Congratulations!',
+    Dzo: 'བཀྲ་ཤིས་བདེ་ལེགས།',
+  };
 
   return (
     <ImageBackground
@@ -44,14 +52,22 @@ const CompletionScreen = () => {
         </View>
 
         <View style={styles.textContainer}>
-          <Text style={styles.text}>བཀྲ་ཤིས་བདེ་ལེགས།</Text>
+          <Text
+            style={[
+              styles.text,
+              language === 'Eng' ? styles.textEnglish : styles.textDzongkha,
+            ]}>
+            {language === 'Eng'
+              ? congratulatoryText.Eng
+              : congratulatoryText.Dzo}
+          </Text>
         </View>
 
         <View style={styles.feedbackIconContainer}>
           <TouchableOpacity
             onPress={() => navigation.navigate('GuidedCategory', {category})}>
             <Image
-              source={require('../assets/icons/nextArrow.png')}
+              source={require('../assets/icons/nextArrow1.png')}
               style={styles.feedbackIcon}
             />
           </TouchableOpacity>
@@ -116,21 +132,22 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'joyig',
-    // fontSize: height * 0.15,
-    fontSize: height * 0.2,
     color: '#3e2723',
     textAlign: 'center',
     textShadowColor: 'rgba(255, 215, 0, 0.7)',
     textShadowOffset: {width: 2, height: 2},
     textShadowRadius: 8,
     letterSpacing: 2,
-    //backgroundColor: 'rgba(255, 255, 255, 0.4)',
-    //borderRadius: 20,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    //borderColor: 'rgba(255, 215, 0, 0.4)',
-    //borderWidth: 2,
     overflow: 'hidden',
+  },
+  textEnglish: {
+    fontWeight: 'bold',
+    fontSize: height * 0.08, // Smaller font size for English
+  },
+  textDzongkha: {
+    fontSize: height * 0.2, // Larger font size for Dzongkha
   },
   feedbackIconContainer: {
     position: 'absolute',

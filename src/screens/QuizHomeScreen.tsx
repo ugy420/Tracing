@@ -18,23 +18,28 @@ import {
   useRoute,
   RouteProp,
 } from '@react-navigation/native';
+import {useLanguage} from '../context/languageContext'; // Ensure this path matches your project structure
 
 type QuizItem = {
   id: number;
-  name: string;
+  nameDzo: string;
+  nameEn: string;
   color: string;
   image: any;
   category: string;
   screen: keyof RootStackParamList;
-  englishName: string;
   icon: string;
-  relatedTo: string[]; // New property to determine which category it belongs to
+  relatedTo: string[];
 };
 
 const QuizHomeScreen = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'QuizHomeScreen'>>();
-  const {quizCategory} = route.params || {quizCategory: 'all'};
+  const {quizCategory, fromCompletionScreen} = route.params || {
+    quizCategory: 'all',
+    fromCompletionScreen: false,
+  };
+  const {language} = useLanguage();
 
   const [dimensions] = useState({
     window: Dimensions.get('window'),
@@ -43,50 +48,39 @@ const QuizHomeScreen = () => {
 
   const isLandscape = dimensions.window.width > dimensions.window.height;
 
-  // Define all available quiz categories with relatedTo property
+  // Define all available quiz categories with bilingual names
   const allCategories: QuizItem[] = [
     {
       id: 1,
-      name: 'སེམས་ཅན།',
+      nameDzo: 'སེམས་ཅན།',
+      nameEn: 'Animals',
       image: require('../assets/quiz_images/deer.png'),
       category: 'animals',
       screen: 'QuizScreen',
-      englishName: 'Animals',
-      color: 'rgb(86, 191, 236)',
       icon: '🐾',
+      color: 'rgb(86, 191, 236)',
       relatedTo: ['all', 'alphabets'],
     },
     {
       id: 2,
-      name: 'ཤིང་འབྲས།',
+      nameDzo: 'ཤིང་འབྲས།',
+      nameEn: 'Fruits',
       image: require('../assets/quiz_images/deer.png'),
       category: 'fruits',
       screen: 'QuizScreen',
-      englishName: 'Fruits',
-      color: 'rgb(153, 221, 136)',
       icon: '🍉',
+      color: 'rgb(153, 221, 136)',
       relatedTo: ['all', 'alphabets'],
     },
-    // {
-    //   id: 3,
-    //   name: 'གཟུགས་ཀྱི་ཡན་ལག།',
-    //   image: require('../assets/quiz_images/deer.png'),
-    //   category: 'body',
-    //   screen: 'QuizScreen',
-    //   englishName: 'Body Parts',
-    //   color: 'rgb(155, 217, 210)',
-    //   icon: '👤',
-    //   relatedTo: ['all', 'alphabets'],
-    // },
     {
       id: 4,
-      name: 'གྲངས་ཀ།',
+      nameDzo: 'གྲངས་ཀ།',
+      nameEn: 'Counting',
       image: require('../assets/quiz_images/deer.png'),
       category: 'counting',
       screen: 'QuizScreen',
-      englishName: 'Counting',
-      color: 'rgb(219, 114, 140)',
       icon: '🎲',
+      color: 'rgb(219, 114, 140)',
       relatedTo: ['all', 'numbers'],
     },
   ];
@@ -96,6 +90,9 @@ const QuizHomeScreen = () => {
     quizCategory === 'all'
       ? allCategories
       : allCategories.filter(item => item.relatedTo.includes(quizCategory));
+
+  console.log('Received quizCategory:', quizCategory);
+  console.log('Filtered Categories:', categories);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -108,7 +105,16 @@ const QuizHomeScreen = () => {
           <View style={styles.container}>
             <View style={styles.headerContainer}>
               <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                // onPress={() => navigation.goBack()}
+                onPress={() => {
+                  if (fromCompletionScreen) {
+                    navigation.navigate('GuidedCategory', {
+                      category: quizCategory,
+                    }); // Navigate to GuidedCategoryScreen
+                  } else {
+                    navigation.goBack(); // Default behavior
+                  }
+                }}
                 style={styles.headerButton}>
                 <Image
                   source={require('../assets/icons/back_color.png')}
@@ -118,7 +124,7 @@ const QuizHomeScreen = () => {
               <View style={styles.titleContainer}>
                 <Text
                   style={[styles.title, isLandscape && styles.titleLandscape]}>
-                  འདྲི་རྩད་དབྱེ་ཁག
+                  {language === 'Eng' ? 'Quiz Categories' : 'འདྲི་རྩད་དབྱེ་ཁག'}
                 </Text>
               </View>
             </View>
@@ -140,19 +146,20 @@ const QuizHomeScreen = () => {
                   onPress={() =>
                     navigation.navigate(item.screen as any, {
                       category: item.category,
+                      relatedTo: quizCategory,
                     })
                   }>
                   <View style={styles.cardContent}>
                     <Text style={styles.cardIcon}>{item.icon}</Text>
+
                     <Text
                       style={[
-                        styles.cardTitle,
-                        isLandscape && styles.cardTitleLandscape,
+                        styles.cardName,
+                        language === 'Eng'
+                          ? styles.cardEnglishName
+                          : styles.cardDzongkhaName,
                       ]}>
-                      {item.name}
-                    </Text>
-                    <Text style={styles.cardEnglishName}>
-                      {item.englishName}
+                      {language === 'Eng' ? item.nameEn : item.nameDzo}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -224,6 +231,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
+    letterSpacing: 2,
   },
   titleLandscape: {
     fontSize: normalize(26),
@@ -240,11 +248,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   card: {
-    height: normalize(70), // Reduced from 90
-    marginVertical: normalize(5), // Reduced from 6
-    borderRadius: normalize(16), // Reduced from 20
+    height: normalize(70),
+    marginVertical: normalize(5),
+    borderRadius: normalize(16),
     overflow: 'hidden',
-    elevation: 5, // Slightly reduced shadow
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
@@ -252,33 +260,32 @@ const styles = StyleSheet.create({
   },
   cardLandscape: {
     width: '30%',
-    height: normalize(110), // Reduced from 140
+    height: normalize(110),
   },
   cardContent: {
     flex: 1,
-    padding: normalize(12), // Reduced from 20
+    padding: normalize(12),
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   cardIcon: {
-    fontSize: normalize(24), // Reduced from 30
-    marginBottom: normalize(6), // Reduced from 10
+    fontSize: normalize(24),
+    marginBottom: normalize(6),
   },
-  cardTitle: {
-    fontSize: normalize(22), // Reduced from 28
-    fontFamily: 'joyig',
+  cardName: {
     color: '#333',
     textAlign: 'center',
-  },
-  cardTitleLandscape: {
-    fontSize: normalize(18), // Reduced from 22
+    fontWeight: '600',
+    marginTop: normalize(2),
   },
   cardEnglishName: {
-    fontSize: normalize(10), // Reduced from 12
-    color: '#333',
-    fontWeight: '600',
-    marginTop: normalize(2), // Reduced from 3
+    fontSize: normalize(10),
+    letterSpacing: 2,
+  },
+  cardDzongkhaName: {
+    fontSize: normalize(22), // Larger font size for Dzongkha
+    fontFamily: 'joyig', // Ensure correct font is used
   },
 });
 

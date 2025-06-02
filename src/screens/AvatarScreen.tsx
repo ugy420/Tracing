@@ -143,13 +143,15 @@ const AvatarScreen = () => {
             : [
                 {
                   id: 1,
+                  // name: 'རག་གྱི་ མཐའ་མཚམས།',
                   name: 'Bronze Border',
                   cost: 2,
-                  image: avatarImages.avatar8,
+                  image: avatarImages.avatar1,
                   is_purchased: false,
                 },
                 {
                   id: 2,
+                  // name: 'དངུལ་གྱི་ མཐའ་མཚམས།',
                   name: 'Silver Border',
                   cost: 3,
                   image: avatarImages.avatar2,
@@ -157,6 +159,7 @@ const AvatarScreen = () => {
                 },
                 {
                   id: 3,
+                  // name: 'གསེར་གྱི་ མཐའ་མཚམས།',
                   name: 'Golden Flame Border',
                   cost: 4,
                   image: avatarImages.avatar3,
@@ -164,6 +167,7 @@ const AvatarScreen = () => {
                 },
                 {
                   id: 4,
+                  // name: 'རྡོ་རྗེ་ཕ་ལམ་གྱི་ མཐའ་མཚམས།',
                   name: 'Diamond Crown Border',
                   cost: 6,
                   image: avatarImages.avatar4,

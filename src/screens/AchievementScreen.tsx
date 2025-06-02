@@ -172,14 +172,14 @@ const AchievementScreen = () => {
               id: 2,
               name: getText('numberMaster'),
               criteria: getText('completeNumbers'),
-              image: achievement.achievement8,
+              image: achievement.achievement2,
               is_earned: !!unlockedAchievements.achievement2,
             },
             {
               id: 3,
               name: getText('vowelStar'),
               criteria: getText('completeVowels'),
-              image: achievement.achievement9,
+              image: achievement.achievement8,
               is_earned: !!unlockedAchievements.achievement3,
             },
             {
@@ -349,6 +349,9 @@ const AchievementScreen = () => {
                   onPress={() => setModalVisible(false)}>
                   <Text style={styles.closeIcon}>×</Text>
                 </TouchableOpacity>
+
+                 {/* Add the achievement image here */}
+
                 <Text style={dynamicStyles.modalTitle}>
                   {selectedAchievement.name}
                 </Text>
@@ -489,11 +492,15 @@ const styles = StyleSheet.create({
     height: 200,
   },
   modalAchievementImage: {
-    width: 120, // Adjust the size as needed
+    width: 120,
     height: 120,
     resizeMode: 'contain',
-    marginVertical: 10,
-  },
+    marginBottom: 15,
+    // For earned achievements, you can add special styling
+    borderWidth: 2,
+    borderColor: 'gold',
+    borderRadius: 10,
+  }
 });
 
 export default AchievementScreen;

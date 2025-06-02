@@ -46,7 +46,7 @@ type TracingScreenRouteProp = RouteProp<RootStackParamList, 'Tracing'>;
 
 const Tracing = () => {
   const route = useRoute<TracingScreenRouteProp>();
-  const {id, category, fromQuiz, isLastQuestion, questionsCount} =
+  const {id, category, fromQuiz, isLastQuestion} =
     route.params || {
       fromQuiz: false,
       isLastQuestion: false,

@@ -9,6 +9,7 @@ import {
   Alert,
   Animated,
   ImageBackground,
+  Modal,
 } from 'react-native';
 import {
   useNavigation,
@@ -23,6 +24,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
 import Sound from 'react-native-sound';
+import achievement from '../assets/achievementImages';
 
 const QuizScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -42,6 +44,8 @@ const QuizScreen: React.FC = () => {
   const [returningFromTracing, setReturningFromTracing] =
     useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
+  const [errorModalVisible, setErrorModalVisible] = useState<boolean>(false);
+const [errorMessage, setErrorMessage] = useState<string>('');
 
   const [screenDimensions] = useState<{
     width: number;
@@ -54,6 +58,11 @@ const QuizScreen: React.FC = () => {
     counting: 'achievement6',
     // Add more categories and their corresponding achievements as needed
   };
+
+
+  const achievementId = QUIZ_ACHIEVEMENTS[category];
+  const achievementImage = achievementId && achievementId in achievement ? achievement[achievementId as keyof typeof achievement] : null;
+
 
   const relatedTo =
     category === 'animals' || category === 'fruits' ? 'alphabets' : 'numbers';
@@ -239,12 +248,16 @@ const QuizScreen: React.FC = () => {
   };
 
   const handleAnswerPress = (selectedAnswer: string): void => {
+    
     const currentQuestion = quizQuestions[currentQuestionIndex];
     const isLastQuestion = currentQuestionIndex === quizQuestions.length - 1;
+    
 
     if (selectedAnswer === currentQuestion.correctAnswer) {
       playCorrectSound();
       setScore(score + 1);
+
+      console.log('Is last question?', isLastQuestion);
 
       // For tracing categories (counting/animals/fruits)
       if (
@@ -295,9 +308,16 @@ const QuizScreen: React.FC = () => {
       }
     } else {
       playWrongSound();
-      Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
-        {text: 'OK'},
-      ]);
+      // Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
+      //   {text: 'OK'},
+      // ]);
+      setErrorMessage('ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།');
+setErrorModalVisible(true);
+
+// Auto-dismiss after 2 seconds
+setTimeout(() => {
+  setErrorModalVisible(false);
+}, 2500);
     }
   };
 
@@ -372,12 +392,17 @@ const QuizScreen: React.FC = () => {
         returningFromTracing &&
         !quizCompleted
       ) {
+        // Check if it was the last question
+      if (currentQuestionIndex === quizQuestions.length - 1) {
+        completeQuiz(); 
+      }else{
         fadeAnim.setValue(0);
         bounceAnim.setValue(0);
         setCurrentQuestionIndex(prev => prev + 1);
-        setWaitingForTracing(false);
-        setReturningFromTracing(false);
       }
+       setWaitingForTracing(false);
+        setReturningFromTracing(false);
+    }
     });
 
     return unsubscribe;
@@ -387,8 +412,6 @@ const QuizScreen: React.FC = () => {
     waitingForTracing,
     returningFromTracing,
     category,
-    fadeAnim,
-    bounceAnim,
   ]);
 
   const renderQuizContent = (): JSX.Element => {
@@ -598,6 +621,19 @@ const QuizScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
           </View>
+          {/* Custom error modal */}
+<Modal
+  transparent={true}
+  animationType="fade"
+  visible={errorModalVisible}
+  onRequestClose={() => setErrorModalVisible(false)}>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>དགོངསམ་མ་ཁྲེལ།</Text>
+      <Text style={styles.modalMessage}>{errorMessage}</Text>
+    </View>
+  </View>
+</Modal>
         </Animated.View>
       </ImageBackground>
     );
@@ -910,6 +946,45 @@ const styles = StyleSheet.create({
   loadingAnimation: {
     width: 150,
     height: 150,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    borderWidth: 2,
+    borderColor: '#FF8C00',
+  },
+  modalTitle: {
+    fontSize: 50,
+    fontFamily: 'joyig',
+    color: '#EF8D38',
+    marginBottom: 15,
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 2,
+  },
+  modalMessage: {
+    fontSize: 30,
+    fontFamily: 'joyig',
+    color: '#333',
+    textAlign: 'center',
   },
 });
 

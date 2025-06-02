@@ -1,5 +1,6 @@
 type questionItem = {
-  question: string;
+  questionDzo: string;
+  questionEng: string;
   options: string[];
   correctAnswer: string;
   image: any;
@@ -7,31 +8,36 @@ type questionItem = {
 
 export const fruitsQuizData: questionItem[] = [
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionDzo: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionEng: 'From the picture below, which letter does it start with?',
     options: ['ཧ', 'ཨ', 'ག', 'ང'],
     correctAnswer: 'ཨ',
     image: require('../../assets/quiz_images/apple.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionDzo: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionEng: 'From the picture below, which letter does it start with?',
     options: ['ཀ', 'ཁ', 'ག', 'ང'],
     correctAnswer: 'ང',
     image: require('../../assets/quiz_images/banana.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionDzo: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionEng: 'From the picture below, which letter does it start with?',
     options: ['ཙ', 'ཚ', 'ཛ', 'ཝ'],
     correctAnswer: 'ཚ',
     image: require('../../assets/quiz_images/orange.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionDzo: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionEng: 'From the picture below, which letter does it start with?',
     options: ['ཀ', 'ཁ', 'ག', 'ང'],
     correctAnswer: 'ཁ',
     image: require('../../assets/quiz_images/melon.png'),
   },
   {
-    question: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionDzo: 'གཤམ་གྱི་དཔེ་རིས་ལས ཡིག་འབྲུ་ག་འདི་འགོ་བཙུགསཔ་སྨོ?',
+    questionEng: 'From the picture below, which letter does it start with?',
     options: ['ཧ', 'ཨ', 'ག', 'ང'],
     correctAnswer: 'ཧ',
     image: require('../../assets/quiz_images/lemon.png'),

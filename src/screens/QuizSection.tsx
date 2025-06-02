@@ -19,14 +19,16 @@ import {
 } from '@react-navigation/native';
 import {RootStackParamList} from '../types';
 import {fruitsQuizData} from '../data/quizData/fruits';
-import {animalsQuizData} from '../data/quizData/animals';
+import { animalsQuizData, questionItem } from '../data/quizData/animals';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LottieView from 'lottie-react-native';
 import {countingQuizData} from '../data/quizData/counting';
 import Sound from 'react-native-sound';
 import achievement from '../assets/achievementImages';
+import { useLanguage } from '../context/languageContext'; // Add this import
 
 const QuizScreen: React.FC = () => {
+  const { language } = useLanguage() as { language: 'Eng' | 'Dzo' };
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
@@ -67,7 +69,7 @@ const [errorMessage, setErrorMessage] = useState<string>('');
   const relatedTo =
     category === 'animals' || category === 'fruits' ? 'alphabets' : 'numbers';
 
-  const quizQuestions =
+    const quizQuestions: questionItem[] =
     category === 'animals'
       ? animalsQuizData
       : category === 'fruits'
@@ -75,7 +77,7 @@ const [errorMessage, setErrorMessage] = useState<string>('');
       : category === 'counting'
       ? countingQuizData
       : [];
-
+      
   const isSmallScreen = screenDimensions.width < 375;
 
   useEffect(() => {
@@ -311,7 +313,12 @@ const [errorMessage, setErrorMessage] = useState<string>('');
       // Alert.alert('དགོངསམ་མ་ཁྲེལ།', 'ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།', [
       //   {text: 'OK'},
       // ]);
-      setErrorMessage('ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།');
+      if(language==='Dzo'){
+        setErrorMessage('ཁྱོད་ཀྱིས་གདམ་ཁ་འཛོལ་བ་འབད་ཡི།');
+      }
+      else if(language==='Eng'){
+        setErrorMessage('You have selected the wrong answer');
+      }
 setErrorModalVisible(true);
 
 // Auto-dismiss after 2 seconds
@@ -529,17 +536,19 @@ setTimeout(() => {
 
           {/* Question */}
           <Animated.View
-            style={[
-              styles.questionContainer,
-              {transform: [{translateY: bounceInterpolation}]},
-            ]}>
-            <Text
-              style={[
-                styles.questionText,
-                isSmallScreen && styles.questionTextSmall,
-              ]}>
-              {currentQuestion.question}
-            </Text>
+  style={[
+    styles.questionContainer,
+    {transform: [{translateY: bounceInterpolation}]},
+  ]}>
+  <Text
+    style={[
+      styles.questionText,
+      isSmallScreen && styles.questionTextSmall,
+    ]}>
+    {language === 'Eng'
+      ? currentQuestion.questionEng
+      : currentQuestion.questionDzo}
+  </Text>
 
             {/* Question Image */}
             <View style={styles.imageContainer}>
@@ -629,7 +638,7 @@ setTimeout(() => {
   onRequestClose={() => setErrorModalVisible(false)}>
   <View style={styles.modalOverlay}>
     <View style={styles.modalContent}>
-      <Text style={styles.modalTitle}>དགོངསམ་མ་ཁྲེལ།</Text>
+      <Text style={styles.modalTitle}>{language==='Dzo'?'དགོངསམ་མ་ཁྲེལ།':'Sorry :('}</Text>
       <Text style={styles.modalMessage}>{errorMessage}</Text>
     </View>
   </View>
